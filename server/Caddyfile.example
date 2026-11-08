@@ -1,0 +1,12 @@
+# Caddy mengurus sertifikat HTTPS otomatis dan meneruskan WebSocket (/bridge) tanpa pengaturan tambahan.
+# Ganti domain, arahkan DNS A record ke IP VPS, lalu: sudo caddy reload
+belajar.domainmu.com {
+	encode gzip
+	request_body {
+		max_size 60MB
+	}
+	# flush_interval -1: teruskan potongan SSE (chat, panel Tanya, game) seketika tanpa buffering
+	reverse_proxy 127.0.0.1:3000 {
+		flush_interval -1
+	}
+}

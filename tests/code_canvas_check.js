@@ -1,0 +1,174 @@
+'use strict';
+// Uji "canvas coding" (codecanvas.js) + integrasi renderer Markdown (jsdom).
+// Jalankan: NODE_PATH=/tmp/jsdomkit/node_modules node tests/code_canvas_check.js
+const fs = require('fs');
+const path = require('path');
+const { JSDOM } = require('jsdom');
+
+const PUB = path.join(__dirname, '..', 'server', 'public');
+const html = fs.readFileSync(path.join(PUB, 'index.html'), 'utf8');
+const read = (f) => fs.readFileSync(path.join(PUB, f), 'utf8');
+let passed = 0;
+function ok(cond, msg) {
+  if (!cond) { console.error('GAGAL:', msg); process.exit(1); }
+  passed++; console.log('  ok -', msg);
+}
+const count = (s, re) => (s.match(re) || []).length;
+const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
+
+const dom = new JSDOM(html, { url: 'http://localhost/', runScripts: 'outside-only', pretendToBeVisual: true });
+const { window } = dom;
+const { document } = window;
+let copied = null;
+Object.defineProperty(window.navigator, 'clipboard', { value: { writeText: async (t) => { copied = t; } }, configurable: true });
+let lastBlob = null; let lastName = null;
+window.URL.createObjectURL = (b) => { lastBlob = b; return 'blob:x'; };
+window.URL.revokeObjectURL = () => {};
+window.HTMLAnchorElement.prototype.click = function () { lastName = this.download; };
+window.fetch = async () => ({ ok: true, status: 200, json: async () => ({ authenticated: false }) });
+window.eval(read('vendor/katex/katex.min.js'));
+window.eval(read('codecanvas.js'));
+window.eval(read('app.js'));
+const md = (s) => window.Belajar.renderMarkdown(s);
+const CC = window.CodeCanvas;
+const mount = (s) => { const d = document.createElement('div'); d.className = 'sheet'; d.innerHTML = md(s); document.body.append(d); return d; };
+const has = (h, cls, text) => h.includes(`<span class="t-${cls}">${text}</span>`);
+const fence = (lang, code) => '```' + lang + '\n' + code + '\n```';
+
+console.log('== Render dasar');
+ok(!!CC && typeof CC.render === 'function', 'window.CodeCanvas tersedia');
+let o = md(fence('python', 'def luas(p, l):\n    return p * l  # kali\n\nprint("hai", 3)'));
+ok(o.includes('<figure class="code-canvas"') && o.includes('data-lang="python"'), 'fence menjadi <figure class="code-canvas"> dengan data-lang');
+ok(o.includes('class="cc-lang">Python'), 'label bahasa "Python"');
+ok(count(o, /class="cl"/g) === 4 && o.includes('data-lines="4"') && o.includes('4 baris'), '4 baris kode = 4 elemen .cl (baris kosong ikut dihitung)');
+ok(o.includes('<span class="t-k">def</span>') && o.includes('<span class="t-k">return</span>'), 'python: kata kunci diwarnai');
+ok(has(o, 'f', 'luas') && o.includes('t-b">print'), 'python: nama fungsi (luas) berkelas fungsi, builtin print berkelas builtin');
+ok(o.includes('<span class="t-c"># kali</span>') && o.includes('<span class="t-s">&quot;hai&quot;</span>') && o.includes('<span class="t-n">3</span>'), 'python: komentar, string, dan angka diwarnai');
+ok(!o.includes('<pre><code>'), 'tidak lagi memakai <pre><code> polos');
+
+console.log('== Bahasa, alias, nama berkas');
+ok(md(fence('py', 'x = 1')).includes('data-lang="python"'), 'alias py -> python');
+ok(md(fence('c++', 'int x;')).includes('data-lang="cpp"') && md(fence('c++', 'int x;')).includes('>C++<'), 'alias c++ -> cpp (label C++)');
+ok(md(fence('js', 'let a = 1;')).includes('>JavaScript<'), 'alias js -> JavaScript');
+o = md('```python luas.py\nx = 1\n```');
+ok(o.includes('class="cc-title">luas.py') && o.includes('data-name="luas.py"'), 'nama berkas pada baris pembuka tampil sebagai judul & nama unduhan');
+o = md('```js title="app.js"\nlet a;\n```');
+ok(o.includes('data-name="app.js"'), 'title="app.js" didukung');
+o = md('Kode:\n\n```\nSELECT nama FROM siswa WHERE umur > 17;\n```');
+ok(o.includes('data-lang="sql"') && o.includes('title="Bahasa ditebak otomatis"'), 'fence tanpa bahasa: SQL ditebak & ditandai "?"');
+o = md('Kode:\n\n```\nhanya teks biasa\nsaja\n```');
+ok(o.includes('>Kode<') && o.includes('data-lang="text"'), 'tidak bisa ditebak: label "Kode", tanpa pewarnaan');
+o = md('```pseudocode\nJIKA x > 1 MAKA\n```');
+ok(o.includes('>pseudocode<'), 'bahasa tak dikenal: label = nama aslinya');
+
+console.log('== Pewarnaan bahasa lain');
+o = md(fence('javascript', 'const f = (x) => `a ${x}`; // ok\nconsole.log(f(2));'));
+ok(has(o, 'k', 'const') && o.includes('t-s">`a ${x}`') && has(o, 'c', '// ok'), 'javascript: const, template string, komentar //');
+o = md(fence('sql', 'select Nama from siswa where umur > 17 -- umur'));
+ok(has(o, 'k', 'select') && has(o, 'k', 'from') && has(o, 'k', 'where') && has(o, 'c', '-- umur'), 'sql: kata kunci tidak peka huruf besar-kecil, komentar --');
+o = md(fence('json', '{"nama": "Budi", "umur": 17, "aktif": true}'));
+ok(has(o, 't', '&quot;nama&quot;') && has(o, 's', '&quot;Budi&quot;') && has(o, 'n', '17') && has(o, 'b', 'true'), 'json: kunci, string, angka, literal dibedakan');
+o = md(fence('html', '<div class="a">Halo & selamat</div>'));
+ok(has(o, 'k', 'div') && has(o, 'f', 'class') && has(o, 's', '&quot;a&quot;'), 'html: nama tag, atribut, nilai atribut');
+o = md(fence('html', "<p>don't <b>tebal</b></p>"));
+ok(has(o, 'k', 'b') && count(o, /t-k/g) >= 4, "html: tanda kutip tunggal di teks biasa tidak menelan tag sesudahnya");
+o = md(fence('css', '.kotak { color: #fff; margin: 10px; } /* c */'));
+ok(has(o, 't', '.kotak') && has(o, 'f', 'color') && has(o, 'n', '#fff') && has(o, 'c', '/* c */'), 'css: selektor, properti, warna/angka, komentar');
+o = md(fence('bash', 'echo "$HOME" # tampil\nif [ -f x ]; then ls; fi'));
+ok(has(o, 'b', 'echo') && o.includes('t-s">&quot;$HOME&quot;') && has(o, 'c', '# tampil') && has(o, 'k', 'if'), 'bash: perintah, string, komentar, kata kunci');
+o = md(fence('c', '#include <stdio.h>\nint main(void) { return 0; }'));
+ok(o.includes('t-b">#include &lt;stdio.h&gt;') && has(o, 'k', 'int') && has(o, 'f', 'main'), 'c: direktif preprosesor, tipe, fungsi');
+o = md(fence('yaml', 'nama: Budi\numur: 17\n# catatan'));
+ok(has(o, 't', 'nama') && has(o, 'n', '17') && has(o, 'c', '# catatan'), 'yaml: kunci, angka, komentar');
+o = md(fence('python', '"""dokumen\nmulti baris"""\nx = 1'));
+ok(count(o, /class="cl"/g) === 3 && count(o, /t-s/g) >= 2, 'string multi-baris: tetap 3 baris, tiap baris berwarna string');
+o = md(fence('java', '/* a\n b */\nclass A {}'));
+ok(count(o, /class="cl"/g) === 3 && count(o, /t-c/g) >= 2 && has(o, 'k', 'class'), 'komentar blok multi-baris dipecah per baris');
+
+console.log('== Isi kode dilindungi');
+o = md(fence('python', '# bukan judul\nprint("a\\nb")  # \\t tab\n\n\nx = 1'));
+ok(!o.includes('<h1') && !o.includes('<h3') && o.includes('# bukan judul') && count(o, /class="cl"/g) === 5, "'# komentar' bukan judul; baris kosong ganda utuh (5 baris)");
+ok(o.includes('a\\nb') && !o.includes('a\nb'), '\\n literal di dalam string kode tidak diubah menjadi baris baru');
+o = md(fence('python', 'harga = "$5 dan $10"\nx = "$a^2$"'));
+ok(!o.includes('katex'), 'tanda $ di dalam kode tidak dianggap rumus');
+o = md('Rumus $x^2$ lalu\n\n' + fence('python', 'y = 1') + '\n\nlagi $y$');
+ok(count(o, /class="katex"/g) === 2 && o.includes('code-canvas'), 'rumus di luar kode tetap dirender di sekitar canvas');
+const dom1 = document.createElement('div');
+dom1.innerHTML = md(fence('html', '<script>alert(1)</script><img src=x onerror=alert(2)>'));
+ok(!dom1.querySelector('script') && !dom1.querySelector('img') && dom1.querySelector('.code-canvas').textContent.includes('<script>alert(1)</script>'), 'XSS: HTML di dalam kode tidak menjadi elemen (script/img), teksnya utuh');
+const dom2 = document.createElement('div');
+dom2.innerHTML = md('```python x"><img src=x onerror=1>\nx=1\n```');
+ok(!dom2.querySelector('img') && !dom2.querySelector('[onerror]') && dom2.querySelector('.cc-title').textContent.includes('<img'), 'XSS: judul/info fence di-escape (tidak menjadi elemen atau atribut)');
+o = md('Kosong:\n\n```\n```');
+ok(o.includes('code-canvas'), 'fence kosong tidak membuat error');
+o = md('- butir\n    ```python\n    x = 1\n    y = 2\n    ```\n- lagi');
+ok(o.includes('t-n">1') && !o.includes('    x = 1') && o.includes('data-lines="2"'), 'fence menjorok di dalam daftar: indentasi dilepas');
+o = md('Mulai\n\n```python\nx = 1\ny = 2');
+ok(o.includes('code-canvas') && o.includes('data-lines="2"'), 'fence belum ditutup (streaming) tetap jadi canvas');
+o = md('Teks\n\n```python\nprint(1)\n```');
+ok(o.includes('code-canvas') && o.includes('<p>Teks</p>'), 'paragraf sebelum canvas tetap utuh');
+
+console.log('== Pembungkus jawaban (detox)');
+ok(md('```python\nprint(1)\n```').includes('code-canvas'), 'jawaban yang hanya berisi satu blok python tetap canvas (tidak dilepas)');
+o = md('```markdown\n### Judul\nteks\n```');
+ok(o.includes('<h3>Judul</h3>') && !o.includes('code-canvas'), '```markdown pembungkus seluruh jawaban tetap dibuka');
+o = md('```python\na = 1\n```\ntengah\n```js\nb = 2\n```');
+ok(count(o, /<figure/g) === 2 && o.includes('<p>tengah</p>'), 'dua blok kode terpisah: keduanya canvas, tidak dianggap pembungkus');
+o = md('Berikut:\\n```python\\nx = 1\\n```\\nselesai\\n');
+ok(o.includes('code-canvas') || o.includes('x = 1'), 'jawaban satu baris penuh "\\n" literal tetap terbaca');
+
+console.log('== Lipat otomatis & performa');
+const longCode = Array.from({ length: 40 }, (_, i) => `x${i} = ${i}`).join('\n');
+o = md(fence('python', longCode));
+ok(o.includes('cc-collapsed') && o.includes('Tampilkan semua (40 baris)'), 'kode 40 baris: terlipat + tombol "Tampilkan semua"');
+o = md(fence('python', Array.from({ length: 25 }, (_, i) => `x${i}`).join('\n')));
+ok(!o.includes('cc-collapsed'), 'kode 25 baris: tidak terlipat');
+const big = Array.from({ length: 6000 }, (_, i) => `v${i} = "s${i}"  # c${i}`).join('\n');
+const t0 = Date.now();
+o = md(fence('python', big));
+ok(Date.now() - t0 < 4000 && count(o, /class="cl"/g) === 6000, `6000 baris dirender dalam ${Date.now() - t0} ms`);
+const huge = 'a = 1\n'.repeat(15000);
+o = md(fence('python', huge));
+ok(count(o, /class="cl"/g) === 15000 && !o.includes('t-n'), 'kode sangat besar: tanpa pewarnaan (batas MAX_HL) tapi tetap lengkap');
+
+console.log('== Interaksi');
+(async () => {
+  const d = mount(fence('python luas.py', 'def f():\n    return "a"\n\nprint(f())'));
+  const fig = d.querySelector('.code-canvas');
+  const btn = (a) => fig.querySelector(`[data-cc="${a}"]`);
+  btn('copy').click();
+  await sleep(30);
+  ok(copied === 'def f():\n    return "a"\n\nprint(f())', 'Salin: teks persis (indentasi & baris kosong utuh, tanpa nomor baris)');
+  ok(btn('copy').textContent === 'Disalin ✓', 'Salin: tombol memberi umpan balik');
+  btn('wrap').click();
+  ok(fig.classList.contains('cc-wrap') && btn('wrap').getAttribute('aria-pressed') === 'true', 'Bungkus: kelas cc-wrap & aria-pressed');
+  btn('wrap').click();
+  ok(!fig.classList.contains('cc-wrap'), 'Bungkus: dimatikan lagi');
+  btn('full').click();
+  ok(fig.classList.contains('cc-full') && document.body.classList.contains('cc-lock') && fig.getAttribute('role') === 'dialog', 'Perbesar: layar penuh, scroll halaman dikunci, role=dialog');
+  ok(btn('full').textContent === 'Tutup', 'Perbesar: tombol berubah menjadi "Tutup"');
+  document.dispatchEvent(new window.KeyboardEvent('keydown', { key: 'Escape', bubbles: true }));
+  ok(!fig.classList.contains('cc-full') && !document.body.classList.contains('cc-lock') && !fig.hasAttribute('role'), 'Esc menutup layar penuh dan membuka kunci scroll');
+  btn('save').click();
+  const txt = await new Promise((res) => { const fr = new window.FileReader(); fr.onload = () => res(fr.result); fr.readAsText(lastBlob); });
+  ok(lastName === 'luas.py' && txt === 'def f():\n    return "a"\n\nprint(f())\n', 'Unduh: nama berkas dari judul, isi persis');
+  const d2 = mount(fence('python', 'x = 1'));
+  d2.querySelector('[data-cc="save"]').click();
+  ok(lastName === 'kode.py', 'Unduh tanpa nama berkas: kode.<ekstensi bahasa>');
+  const d3 = mount(fence('python', longCode));
+  const f3 = d3.querySelector('.code-canvas');
+  f3.querySelector('[data-cc="more"]').click();
+  ok(!f3.classList.contains('cc-collapsed') && f3.querySelector('[data-cc="more"]').textContent === 'Ciutkan', 'Tampilkan semua: lipatan dibuka');
+  f3.querySelector('[data-cc="more"]').click();
+  ok(f3.classList.contains('cc-collapsed'), 'Ciutkan: terlipat lagi');
+  f3.querySelector('[data-cc="copy"]').click();
+  await sleep(30);
+  ok(copied.split('\n').length === 40, 'Salin pada kode terlipat tetap menyalin SEMUA baris');
+  const f4 = mount(fence('python', 'a=1')).querySelector('.code-canvas');
+  f4.querySelector('[data-cc="full"]').click();
+  f4.querySelector('[data-cc="full"]').click();
+  ok(!f4.classList.contains('cc-full') && !document.body.classList.contains('cc-lock'), 'Perbesar lalu Tutup lewat tombol: kunci scroll dilepas');
+
+  console.log(`\nSemua ${passed} pemeriksaan lulus.`);
+  process.exit(0);
+})().catch((e) => { console.error(e); process.exit(1); });
