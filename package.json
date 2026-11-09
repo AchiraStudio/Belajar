@@ -1,0 +1,22 @@
+{
+  "name": "belajar",
+  "private": true,
+  "version": "0.1.0",
+  "description": "Belajar workspace: Rust backend (crates/), React + Tauri client (app/). Legacy Node server lives in server/ until Stage 11.",
+  "scripts": {
+    "postinstall": "npm --prefix app install",
+    "dev": "node scripts/ensure-server.cjs",
+    "dev:react": "npm --prefix app run dev",
+    "build": "npm --prefix app run build",
+    "test": "npm --prefix app test",
+    "tauri": "npm --prefix app run tauri --",
+    "tauri:dev": "npm --prefix app run tauri -- dev",
+    "tauri:build": "npm --prefix app run tauri -- build",
+    "server": "cargo run -p belajar-server",
+    "test:rust": "cargo test --workspace",
+    "lint:rust": "cargo clippy --workspace --all-targets -- -D warnings",
+    "fmt:rust": "cargo fmt --all",
+    "parity:golden": "python parity/gen_golden.py",
+    "check": "cargo fmt --all -- --check && cargo clippy --workspace --all-targets -- -D warnings && cargo test --workspace && npm --prefix app run build && npm --prefix app test"
+  }
+}

@@ -1,0 +1,18 @@
+[package]
+name = "belajar-devdb"
+description = "Local development/test PostgreSQL (embedded, no Docker). Not shipped."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+anyhow.workspace = true
+belajar-storage.workspace = true
+postgresql_embedded = { version = "0.22", default-features = false, features = ["tokio", "theseus", "tls-rustls-ring"] }
+sqlx.workspace = true
+tokio.workspace = true

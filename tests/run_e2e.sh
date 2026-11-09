@@ -2,6 +2,13 @@
 # Menjalankan seluruh tumpukan lokal: PAF tiruan + server Node + agent Python, lalu tests/e2e.js
 set -u
 ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+# Interpreter Python: PY dari environment, jika tidak python3 / python / py (python3 di Windows
+# sering hanya stub Microsoft Store, jadi setiap kandidat diuji dulu).
+if [ -z "${PY:-}" ]; then
+  for cand in "$ROOT/.venv/Scripts/python.exe" "$ROOT/.venv/bin/python" python3 python py; do
+    if command -v "$cand" >/dev/null 2>&1 && "$cand" -c "import sys" >/dev/null 2>&1; then PY="$cand"; break; fi
+  done
+fi
 PY="${PY:-python3}"
 # Layout agent: folder agent/ bila ada, jika tidak file agent.py ada di root repo
 AGENT_DIR="$ROOT/agent"; [ -d "$AGENT_DIR" ] || AGENT_DIR="$ROOT"

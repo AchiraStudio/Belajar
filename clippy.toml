@@ -1,0 +1,7 @@
+# Python's round() rounds exact halves to even; f64::round rounds them away from zero.
+# 5/8 correct is 62 % in the legacy app and would be 63 % with f64::round (TECHNICAL_RISKS R-P1).
+# Use belajar_core::numeric::{py_round, py_round_ndigits} instead.
+disallowed-methods = [
+    { path = "f64::round", reason = "differs from Python round() on exact halves; use belajar_core::numeric::py_round" },
+    { path = "f32::round", reason = "differs from Python round() on exact halves; use belajar_core::numeric::py_round" },
+]

@@ -1,0 +1,18 @@
+{
+  "generated_by": "parity/gen_golden.py",
+  "legacy_commit": "71b23cc",
+  "python": "3.14.7",
+  "cases": {
+    "py_round.jsonl": 18851,
+    "sm2.jsonl": 4508,
+    "stats.jsonl": 150,
+    "day_of.jsonl": 8100,
+    "level.jsonl": 3547,
+    "grading.jsonl": 6506,
+    "extract_json.jsonl": 900,
+    "sanitize.jsonl": 360,
+    "mastery_level.jsonl": 637,
+    "cards_export.jsonl": 4
+  },
+  "note": "Outputs of the legacy Python code. Do not edit by hand; regenerate instead."
+}

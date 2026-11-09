@@ -1,0 +1,111 @@
+# CI for the Rust + React + Tauri rewrite and the frozen legacy suites.
+#
+# STATUS: written in Stage 1 but NOT yet executed on GitHub (it was authored locally). The commands
+# in each job were run locally on Windows 11 (Rust 1.96, Node 26, Python 3.14); the CI images use
+# different versions, so expect to tune this file on its first run. Action versions are the majors
+# I know of and should be checked.
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  rust:
+    name: Rust workspace
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - name: Toolchain (from rust-toolchain.toml)
+        run: rustup show
+      - uses: Swatinem/rust-cache@v2
+      - run: cargo fmt --all -- --check
+      - run: cargo clippy --workspace --all-targets -- -D warnings
+      - run: cargo test --workspace
+      # Stage 3 adds a Postgres service container here for the storage integration tests.
+
+  app:
+    name: React app
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: app
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+      - run: npm run build
+      - run: npm test
+
+  tauri-windows:
+    name: Tauri shell (Windows)
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: app/package-lock.json
+      - run: npm ci
+        working-directory: app
+      - run: npm run build
+        working-directory: app
+      - uses: Swatinem/rust-cache@v2
+        with:
+          workspaces: app/src-tauri
+      - run: cargo check --locked
+        working-directory: app/src-tauri
+      # macOS and Android jobs are added in Stage 9; iOS needs Apple credentials (open question Q4).
+
+  legacy:
+    name: Legacy suites (frozen reference)
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+      - run: pip install -r requirements.txt
+      - name: Node test dependencies (outside the repo tree)
+        run: |
+          mkdir -p "$RUNNER_TEMP/nodedeps" && cd "$RUNNER_TEMP/nodedeps"
+          npm init -y >/dev/null
+          npm install --no-audit --no-fund express@4 multer@1 ws@8 jsdom
+          echo "NODE_PATH=$RUNNER_TEMP/nodedeps/node_modules" >> "$GITHUB_ENV"
+      - name: Python suites
+        run: |
+          set -e
+          for t in parity_actions smoke_agent smoke_cards test_play_protocol smoke_play smoke_notes \
+                   smoke_codemath test_ask_tool test_schema_notes sanitize_check; do
+            echo "=== $t"; python tests/$t.py
+          done
+      - name: jsdom UI harnesses
+        run: |
+          set -e
+          for t in markdown_math_check code_canvas_check mindmap_ui_harness play_ui_harness \
+                   chat_ui_harness notes_ask_harness; do
+            echo "=== $t"; node tests/$t.js
+          done
+      - name: End-to-end (mock gateway + Node server + agent)
+        run: bash tests/run_e2e.sh
+      - name: Golden corpora are reproducible from the legacy code
+        # META.json records the Python version, so only the corpora themselves are compared.
+        run: |
+          python parity/gen_golden.py >/dev/null
+          git diff --exit-code -- 'parity/golden/*.jsonl'

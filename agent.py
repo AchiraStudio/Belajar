@@ -125,8 +125,11 @@ async def connect_and_serve() -> None:
     while True:
         try:
             log.info("Menghubungkan ke VPS ...")
+            uri = _bridge_uri()
+            # `ssl` hanya boleh diberikan untuk wss://; untuk ws:// websockets menolaknya (ValueError).
             async with websockets.connect(
-                _bridge_uri(), ssl=SSL_CTX, ping_interval=20, ping_timeout=20, open_timeout=15,
+                uri, ssl=SSL_CTX if uri.startswith("wss://") else None,
+                ping_interval=20, ping_timeout=20, open_timeout=15,
                 max_size=None, close_timeout=5,
             ) as ws:
                 log.info("Terhubung ke VPS.")

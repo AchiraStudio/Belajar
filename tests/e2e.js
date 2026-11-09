@@ -3,7 +3,11 @@
 const fs = require('fs');
 const path = require('path');
 const { JSDOM, VirtualConsole } = require('jsdom');
-const WebSocket = require(path.join(__dirname, '..', 'server', 'node_modules', 'ws'));
+// `ws` dicari di server/node_modules dulu, lalu lewat NODE_PATH / resolusi biasa.
+const WebSocket = (() => {
+  try { return require(path.join(__dirname, '..', 'server', 'node_modules', 'ws')); }
+  catch (e) { if (e.code !== 'MODULE_NOT_FOUND') throw e; return require('ws'); }
+})();
 
 const BASE = process.env.BASE || 'http://127.0.0.1:3055';
 const PASSWORD = process.env.APP_PASSWORD;

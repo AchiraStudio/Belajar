@@ -95,14 +95,37 @@
 
   // ----- tema & ukuran huruf
   const THEMES = [['auto', 'Otomatis', 'auto'], ['light', 'Terang', 'sun'], ['dark', 'Gelap', 'moon']];
+  let themeReady = false;
+  let themeTimer = 0;
   function applyTheme(t) {
-    if (t === 'light' || t === 'dark') document.documentElement.setAttribute('data-theme', t);
-    else document.documentElement.removeAttribute('data-theme');
+    const root = document.documentElement;
+    // Peralihan warna yang halus, tetapi bukan saat memuat pertama kali dan bukan bila pengguna meminta gerak minim.
+    if (themeReady && !reduceMotion()) {
+      root.classList.add('theme-anim');
+      clearTimeout(themeTimer);
+      themeTimer = setTimeout(() => root.classList.remove('theme-anim'), 380);
+    }
+    if (t === 'light' || t === 'dark') root.setAttribute('data-theme', t);
+    else root.removeAttribute('data-theme');
     store.set('belajar-theme', t);
     const m = document.querySelector('meta[name="theme-color"]');
-    if (m) m.content = getComputedStyle(document.documentElement).getPropertyValue('--bg').trim() || '#F3F2FA';
+    if (m) m.content = getComputedStyle(root).getPropertyValue('--bg').trim() || '#F3F2FA';
+    themeReady = true;
+    document.dispatchEvent(new CustomEvent('belajar:theme', { detail: { theme: t, dark: effectiveDark() } }));
   }
   const getTheme = () => store.get('belajar-theme', 'auto');
+  /** Apakah tampilan saat ini gelap (pilihan pengguna, atau mengikuti sistem pada mode Otomatis). */
+  function effectiveDark() {
+    const t = getTheme();
+    return t === 'dark' || (t !== 'light' && !!window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches);
+  }
+  const cycleTheme = () => { const i = THEMES.findIndex((x) => x[0] === getTheme()); applyTheme(THEMES[(i + 1) % THEMES.length][0]); };
+  // Mode Otomatis harus ikut berubah saat sistem berganti terang/gelap, tanpa memuat ulang.
+  if (window.matchMedia) {
+    const mq = window.matchMedia('(prefers-color-scheme: dark)');
+    const follow = () => { if (getTheme() === 'auto') applyTheme('auto'); };
+    if (mq.addEventListener) mq.addEventListener('change', follow); else if (mq.addListener) mq.addListener(follow);
+  }
   function applyFont(px) {
     px = Math.max(15, Math.min(23, px));
     document.documentElement.style.setProperty('--fs', px + 'px');
@@ -503,6 +526,8 @@
     constructor(message, status, offline) { super(message); this.status = status; this.offline = !!offline; }
   }
   async function api(path, body, init = {}) {
+    // Setiap tulisan selain RPC baca (unggah, masuk/keluar, ...) membuat cache bacaan tidak lagi dapat dipercaya.
+    if (body !== undefined && !path.startsWith('/api/rpc/')) dropCache();
     const isForm = typeof FormData !== 'undefined' && body instanceof FormData;
     let res;
     try {
@@ -529,10 +554,54 @@
     }
     return data;
   }
-  async function rpc(action, body = {}) {
+  // ----- cache bacaan: berpindah tab tidak menunggu server lagi.
+  // Hanya aksi baca murni yang disimpan (30 dtk). Aksi lain mungkin mengubah data, jadi apa pun yang
+  // bukan bacaan membuang seluruh cache; `gen` mencegah bacaan yang sudah berangkat sebelum
+  // perubahan menulis data lama kembali ke cache. Permintaan identik yang sedang berjalan dipakai
+  // bersama (mis. sidebar dan halaman sama-sama meminta data yang sama).
+  const READ_ACTIONS = new Set(['list_subjects', 'list_documents', 'get_document', 'list_quizzes', 'dashboard', 'progress',
+    'cards_stats', 'cards_due', 'concepts_list', 'get_settings', 'play_hub']);
+  const CACHE_TTL = 30000;
+  const rpcCache = new Map();
+  const rpcFlight = new Map();
+  let rpcGen = 0;
+  const clone = (v) => (typeof structuredClone === 'function' ? structuredClone(v) : JSON.parse(JSON.stringify(v)));
+  function dropCache() { rpcGen++; rpcCache.clear(); rpcFlight.clear(); }
+  async function rpcFetch(action, body) {
     const res = await api('/api/rpc/' + action, body);
     setAgent(true);
     return res.data;
+  }
+  async function rpc(action, body = {}) {
+    if (!READ_ACTIONS.has(action)) {
+      dropCache();
+      try { return await rpcFetch(action, body); } finally { dropCache(); }
+    }
+    const key = action + '|' + JSON.stringify(body);
+    const hit = rpcCache.get(key);
+    if (hit && Date.now() - hit.t < CACHE_TTL) return clone(hit.data);
+    let flight = rpcFlight.get(key);
+    if (!flight) {
+      const gen = rpcGen;
+      flight = rpcFetch(action, body).then((data) => {
+        if (gen === rpcGen) rpcCache.set(key, { t: Date.now(), data });
+        return data;
+      }).finally(() => { if (rpcFlight.get(key) === flight) rpcFlight.delete(key); });
+      rpcFlight.set(key, flight);
+    }
+    return clone(await flight);
+  }
+  /** Panaskan cache untuk sebuah halaman sebelum dibuka (saat kursor melayang di menu). Senyap bila gagal. */
+  const PREFETCH = {
+    home: [['dashboard']],
+    materi: [['list_subjects'], ['list_documents']],
+    kuis: [['list_quizzes'], ['list_subjects'], ['progress']],
+    game: [['play_hub']],
+    progres: [['progress']],
+  };
+  function prefetch(navKey) {
+    if (!state.authed) return;
+    for (const [action, body] of PREFETCH[navKey] || []) rpc(action, body).catch(() => {});
   }
 
   /** Baca aliran SSE dari POST. Menggantikan pembaca ganda per fitur (chat/Panel Tanya tetap memakai
@@ -541,6 +610,7 @@
    *  (mis. HP tidur) sehingga pemanggil dapat mengambil hasilnya lewat RPC, `retryable` dari server. */
   async function sse(url, body, { onChunk, onStatus, signal } = {}) {
     let resp;
+    dropCache();
     try {
       resp = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(body), credentials: 'same-origin', signal });
     } catch (err) {
@@ -624,7 +694,7 @@
     if (!force && Date.now() - state.lastSide < 8000) return;
     state.lastSide = Date.now();
     try {
-      const [sj, d] = await Promise.all([rpc('list_subjects'), rpc('dashboard')]);
+      const [sj, d] = await Promise.all([rpc('list_subjects'), rpc('dashboard', { streak_only: true })]);
       state.subjects = sj.subjects;
       renderSideSubjects();
       setSideStreak(d.streak);
@@ -902,14 +972,17 @@
   }
 
   const SUBJ_COLORS = ['#4B3FE8', '#D63E6A', '#0C8F5B', '#C77700', '#0A83B0', '#A33FC7', '#C2432B', '#3F6F14'];
+  const EMPTY_ART = {
+    doc: 'M20 10h30l14 14v46a4 4 0 0 1-4 4H20a4 4 0 0 1-4-4V14a4 4 0 0 1 4-4z|M50 10v14h14|M26 40h28|M26 52h28|M26 64h18',
+    quiz: 'M42 12a30 30 0 1 0 0 60a30 30 0 1 0 0-60z|M33 34a9 9 0 1 1 13 8c-3 2-4 4-4 8|M42 62h.01',
+    chart: 'M16 70V44|M32 70V24|M48 70V36|M64 70V16|M10 74h64',
+    book: 'M18 20h48a4 4 0 0 1 4 4v46H22a4 4 0 0 1-4-4V20zm0 0a4 4 0 0 0-4 4v42a4 4 0 0 0 4 4h4|M26 34h36|M26 46h24',
+    compass: 'M42 12a30 30 0 1 0 0 60a30 30 0 1 0 0-60z|M42 22v6|M42 56v6|M22 42h6|M56 42h6|M35 49l5-19 9-5-5 19-9 5z',
+  };
   function emptyArt(kind) {
-    const p = {
-      doc: 'M20 10h30l14 14v46a4 4 0 0 1-4 4H20a4 4 0 0 1-4-4V14a4 4 0 0 1 4-4z|M50 10v14h14|M26 40h28|M26 52h28|M26 64h18',
-      quiz: 'M42 12a30 30 0 1 0 0 60a30 30 0 1 0 0-60z|M33 34a9 9 0 1 1 13 8c-3 2-4 4-4 8|M42 62h.01',
-      chart: 'M16 70V44|M32 70V24|M48 70V36|M64 70V16|M10 74h64',
-    }[kind];
+    const p = EMPTY_ART[kind] || EMPTY_ART.doc || '';
     const svg = s('svg', { class: 'art', viewBox: '0 0 84 84', fill: 'none', stroke: 'currentColor', 'stroke-width': 3, 'stroke-linecap': 'round', 'stroke-linejoin': 'round', 'aria-hidden': 'true' });
-    for (const d of p.split('|')) svg.append(s('path', { d }));
+    for (const d of p.split('|')) if (d) svg.append(s('path', { d }));
     return svg;
   }
   const emptyState = (kind, title, text, ...actions) => h('div', { class: 'empty' }, emptyArt(kind), h('h3', null, title), h('p', null, text), actions.length > 0 && h('div', { class: 'actions', style: 'justify-content:center' }, actions));
@@ -955,7 +1028,8 @@
       btn.setAttribute('aria-label', `Tema: ${label}. Klik untuk mengganti`);
       fill(btn, ico(icon, 18));
     };
-    btn.addEventListener('click', () => { const i = THEMES.findIndex((t) => t[0] === getTheme()); applyTheme(THEMES[(i + 1) % 3][0]); paint(); });
+    btn.addEventListener('click', () => { cycleTheme(); paint(); });
+    document.addEventListener('belajar:theme', paint);
     paint();
     return btn;
   }
@@ -1609,6 +1683,7 @@
       let smoother = null;
       let streamed = false;
       try {
+        dropCache();
         const resp = await fetch('/api/notes/ask', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -2438,6 +2513,7 @@
       let streamed = false;
       let smoother = null;
       try {
+        dropCache();
         const resp = await fetch('/api/chat/send', {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -2642,11 +2718,18 @@
     $, $$, h, s, fill, ico, ICONS, rpc, api, toast, ask, mount, newView, alive, onCleanup, sleep, pollJob,
     activeClock, emptyState, showError, loading, state, esc, store, reduceMotion, sheet, mmss, fmtDur, relDay,
     tone, setNav, refreshSide, route, sse, createSmoother, renderMarkdown, addRoute: (re, nav, view) => routes.push([re, nav, view]),
+    theme: { get: getTheme, set: applyTheme, cycle: cycleTheme, isDark: effectiveDark, modes: THEMES },
   };
   applyTheme(getTheme());
   if (getFont()) applyFont(getFont());
   applyReadFont(getReadFont());
   window.addEventListener('hashchange', route);
+  for (const ev of ['mouseover', 'focusin', 'touchstart']) {
+    document.addEventListener(ev, (e) => {
+      const a = e.target.closest && e.target.closest('[data-nav]');
+      if (a && a.dataset.nav !== document.body.dataset.nav) prefetch(a.dataset.nav);
+    }, { passive: true });
+  }
   setInterval(pollStatus, 15000);
   // tunggu semua <script> (termasuk games/*.js) terpasang sebelum rute pertama dijalankan
   if (document.readyState === 'loading') document.addEventListener('DOMContentLoaded', boot);

@@ -47,7 +47,7 @@ const bridge = new AgentBridge(server, { token: BRIDGE_TOKEN, path: '/bridge' })
 app.use((req, res, next) => {
   res.setHeader('Content-Security-Policy',
     "default-src 'self'; img-src 'self' data:; style-src 'self' 'unsafe-inline'; script-src 'self'; " +
-    "connect-src 'self'; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
+    "connect-src 'self' ipc: http://ipc.localhost https://ipc.localhost; frame-ancestors 'none'; base-uri 'none'; form-action 'self'");
   res.setHeader('X-Content-Type-Options', 'nosniff');
   res.setHeader('Referrer-Policy', 'no-referrer');
   res.setHeader('X-Frame-Options', 'DENY');

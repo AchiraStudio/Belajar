@@ -1,0 +1,23 @@
+[package]
+name = "belajar-app"
+description = "Belajar Tauri 2 shell: a thin native wrapper around the shared React app."
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90"
+license = "MIT"
+publish = false
+
+# Not part of the root Cargo workspace on purpose (MIGRATION_PLAN X-6): it needs a built frontend
+# and has its own lockfile. CI builds it in a dedicated job.
+
+# The library target is required for the mobile (Android/iOS) entry point.
+[lib]
+name = "belajar_app_lib"
+crate-type = ["staticlib", "cdylib", "rlib"]
+
+[build-dependencies]
+# Pinned to the stable 2.x line: crates.io's newest tauri is a 3.0 alpha (docs/TECHNICAL_RISKS R-H2).
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }

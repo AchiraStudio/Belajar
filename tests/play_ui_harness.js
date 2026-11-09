@@ -89,6 +89,7 @@ async function main() {
     if (u.startsWith('/api/rpc/')) {
       const a = u.replace('/api/rpc/', '');
       if (a === 'list_subjects') return mk({ data: { subjects: [] } });
+      if (a === 'list_documents') return mk({ data: { documents: [] } });
       if (a === 'play_hub') return mk({ data: hub });
       if (a === 'play_flag') { turnCalls.push({ rpc: 'play_flag', ...body }); return mk({ data: { ok: true } }); }
       return mk({ data: {} });
@@ -107,6 +108,21 @@ async function main() {
   ok($('.pl-lvl b').textContent === '1' && $('.pl-xp').textContent.includes('XP'), 'profil: level dan XP');
   ok($$('.pl-q').length === 1 && $('.pl-badge'), 'misi harian dan lencana tampil');
   ok($('.pl-mode').disabled === false, 'mode dapat dipilih (tanpa run aktif)');
+
+  console.log('== Hub tanpa materi (empty state book)');
+  const origDocs = hub.documents;
+  hub.documents = [];
+  window.location.hash = '#/materi';
+  await sleep(100);
+  window.location.hash = '#/game';
+  await sleep(200);
+  ok($('.empty') && $('.empty h3').textContent.includes('Belum ada materi siap'), 'empty state book tampil tanpa crash split');
+  ok($('.empty svg.art path'), 'art SVG book berhasil dibuat');
+  hub.documents = origDocs;
+  window.location.hash = '#/materi';
+  await sleep(100);
+  window.location.hash = '#/game';
+  await sleep(200);
 
   console.log('== Opsi lalu mulai');
   $('.pl-mode').click();

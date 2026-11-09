@@ -1,0 +1,58 @@
+/* Bilah judul kustom untuk jendela Tauri tanpa bingkai.
+   Semua warna berasal dari token tema aplikasi (--surface, --ink, --brand, ...), jadi bilah ini
+   otomatis ikut terang/gelap/otomatis tanpa aturan tema sendiri. Di peramban bilah ini tidak dibuat. */
+
+html.has-titlebar { --tb: 38px; scroll-padding-top: var(--tb); }
+html.has-titlebar body { padding-top: var(--tb); }
+
+.titlebar {
+  position: fixed; inset: 0 0 auto 0; z-index: 1000; height: var(--tb);
+  display: flex; align-items: stretch;
+  background: var(--surface); color: var(--ink-2);
+  border-bottom: 1px solid var(--line);
+  font: 600 12.5px/1 var(--ui);
+  -webkit-user-select: none; user-select: none; cursor: default;
+}
+.titlebar[hidden] { display: none; }
+
+.tb-brand { display: flex; align-items: center; gap: 9px; padding: 0 6px 0 14px; min-width: 0; color: var(--ink); }
+.tb-logo { width: 20px; height: 20px; border-radius: 7px; background: var(--brand); color: var(--on-brand); display: grid; place-items: center; flex: none; }
+.tb-logo svg { display: block; }
+.tb-app { font: 800 14.5px/1 var(--ui); letter-spacing: -.035em; }
+.tb-sep { width: 1px; height: 14px; background: var(--line); margin: 0 4px 0 6px; flex: none; }
+.tb-page { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 600; color: var(--ink-2); min-width: 0; }
+.tb-drag { flex: 1; min-width: 40px; }
+
+.tb-btn {
+  appearance: none; border: 0; background: transparent; color: inherit; padding: 0; margin: 0;
+  display: grid; place-items: center; cursor: default; flex: none;
+  transition: background-color .12s, color .12s;
+}
+.tb-btn:focus-visible { outline: 2px solid var(--brand); outline-offset: -3px; border-radius: 6px; }
+.tb-btn svg { display: block; pointer-events: none; }
+
+.tb-theme { width: 40px; border-radius: 0; }
+.tb-theme:hover { background: var(--surface-2); color: var(--ink); }
+
+.tb-ctrls { display: flex; align-items: stretch; flex: none; }
+.tb-ctrl { width: 46px; }
+.tb-ctrl:hover { background: var(--surface-2); color: var(--ink); }
+.tb-ctrl:active { background: var(--line); }
+.tb-ctrl.close:hover { background: #E81123; color: #fff; }
+.tb-ctrl.close:active { background: #C50F1F; color: #fff; }
+
+/* macOS: tiga titik di kiri, urutan tutup / kecilkan / perbesar. */
+.titlebar[data-platform="mac"] { flex-direction: row-reverse; }
+.titlebar[data-platform="mac"] .tb-ctrls { order: 0; gap: 8px; align-items: center; padding: 0 0 0 14px; }
+.titlebar[data-platform="mac"] .tb-ctrl { width: 12px; height: 12px; border-radius: 50%; color: transparent; }
+.titlebar[data-platform="mac"] .tb-ctrl svg { width: 8px; height: 8px; }
+.titlebar[data-platform="mac"] .tb-ctrls:hover .tb-ctrl { color: rgba(0, 0, 0, .55); }
+.titlebar[data-platform="mac"] .tb-ctrl.close { background: #FF5F57; order: 0; }
+.titlebar[data-platform="mac"] .tb-ctrl.min { background: #FEBC2E; order: 1; }
+.titlebar[data-platform="mac"] .tb-ctrl.max { background: #28C840; order: 2; }
+.titlebar[data-platform="mac"] .tb-ctrl:hover { filter: brightness(.92); }
+.titlebar[data-platform="mac"] .tb-brand { padding-left: 14px; }
+
+/* Jendela sempit: sembunyikan nama halaman, sisakan merek dan tombol. */
+@media (max-width: 520px) { .tb-sep, .tb-page { display: none; } }
+@media (prefers-reduced-motion: reduce) { .tb-btn { transition: none; } }

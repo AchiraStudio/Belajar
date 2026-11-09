@@ -1,0 +1,57 @@
+[workspace]
+resolver = "3"
+members = ["crates/*"]
+# Tauri has its own lockfile and needs a built frontend (`frontendDist`) to compile, so it is built
+# in its own CI job and kept out of `cargo test --workspace` (MIGRATION_PLAN X-6).
+exclude = ["app/src-tauri"]
+
+[workspace.package]
+version = "0.1.0"
+edition = "2024"
+rust-version = "1.90"
+license = "MIT"
+repository = "https://github.com/AchiraStudio/Belajar"
+publish = false
+
+[workspace.dependencies]
+# internal
+belajar-core = { path = "crates/belajar-core" }
+belajar-storage = { path = "crates/belajar-storage" }
+belajar-ai = { path = "crates/belajar-ai" }
+belajar-application = { path = "crates/belajar-application" }
+belajar-api = { path = "crates/belajar-api" }
+
+# external (loose major versions; Cargo.lock pins the exact ones)
+anyhow = "1"
+argon2 = "0.6"
+axum = { version = "0.8", features = ["multipart"] }
+chrono = { version = "0.4", default-features = false, features = ["std", "serde"] }
+chrono-tz = "0.10"
+futures-util = "0.3"
+http-body-util = "0.1"
+regex = "1"
+reqwest = { version = "0.13", default-features = false, features = ["rustls", "json", "stream", "http2", "charset"] }
+serde = { version = "1", features = ["derive"] }
+serde_json = { version = "1", features = ["float_roundtrip"] }
+sha2 = "0.10"
+sqlx = { version = "0.9", default-features = false, features = ["postgres", "runtime-tokio", "tls-rustls-ring", "migrate", "json", "uuid", "macros"] }
+thiserror = "2"
+tokio = { version = "1", features = ["macros", "rt-multi-thread", "signal", "net"] }
+tower = { version = "0.5", features = ["util"] }
+tower-http = { version = "0.6", features = ["trace", "timeout", "fs", "limit"] }
+tracing = "0.1"
+unicode-normalization = "0.1"
+tracing-subscriber = { version = "0.3", features = ["env-filter"] }
+uuid = { version = "1", features = ["v4"] }
+
+[workspace.lints.rust]
+unsafe_code = "forbid"
+missing_docs = "allow"
+
+[workspace.lints.clippy]
+all = { level = "warn", priority = -1 }
+
+[profile.release]
+lto = "thin"
+codegen-units = 1
+strip = true

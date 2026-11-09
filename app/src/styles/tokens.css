@@ -1,0 +1,37 @@
+/* Design tokens carried over unchanged from the legacy app (server/public/style.css :root).
+   The brief asks for a framework migration, not a redesign: same palette, same dark theme. */
+:root {
+  --bg: #f3f2fa; --surface: #ffffff; --surface-2: #eceaf8; --ink: #15133b; --ink-2: #5a5884; --line: #ddd9f0;
+  --brand: #3a2fe0; --brand-deep: #2b22b8; --brand-soft: #e4e2fd; --on-brand: #fff;
+  --flame: #ff6a2b; --flame-soft: #ffe8dc; --flame-ink: #b8400f;
+  --good: #0b8f4d; --good-soft: #dcf4e7; --bad: #d0343b; --bad-soft: #fce3e4;
+  --shadow: 0 1px 2px rgba(21, 19, 59, 0.05), 0 8px 24px -12px rgba(21, 19, 59, 0.18);
+  --ui: 'Bricolage', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  /* Legacy preferred Nunito, but its font files were never committed (audit finding D-03), so the
+     chain falls back to system fonts until they are added. */
+  --read: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
+  --serif: 'Literata', Georgia, 'Times New Roman', serif;
+  --ink-read: color-mix(in srgb, var(--ink) 86%, var(--bg));
+  --fs: 18px; --side: 262px; --mtop: 58px; --tabbar: 66px;
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --bg: #0e0d24; --surface: #17163a; --surface-2: #221f4c; --ink: #eeedff; --ink-2: #a9a7d6; --line: #2e2c60;
+  --brand: #7167ff; --brand-deep: #8b83ff; --brand-soft: #27245e; --on-brand: #fff;
+  --flame: #ff7b3f; --flame-soft: #3d2418; --flame-ink: #ffa877;
+  --good: #4fd08b; --good-soft: #14352a; --bad: #ff7c82; --bad-soft: #3b1c26;
+  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  color-scheme: dark;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --bg: #0e0d24; --surface: #17163a; --surface-2: #221f4c; --ink: #eeedff; --ink-2: #a9a7d6; --line: #2e2c60;
+    --brand: #7167ff; --brand-deep: #8b83ff; --brand-soft: #27245e; --on-brand: #fff;
+    --flame: #ff7b3f; --flame-soft: #3d2418; --flame-ink: #ffa877;
+    --good: #4fd08b; --good-soft: #14352a; --bad: #ff7c82; --bad-soft: #3b1c26;
+    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+    color-scheme: dark;
+  }
+}
