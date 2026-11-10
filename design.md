@@ -545,3 +545,560 @@ Before writing UI code, inspect the current repository and map each real feature
 When a design decision conflicts with functional correctness, accessibility, security, Tauri compatibility, or performance, functional correctness wins. Find a visually consistent alternative rather than compromising the product.
 
 The final result should feel like a carefully art-directed, premium learning application: cool, calm, tactile, luminous, and exceptionally easy to use.
+
+
+---
+
+## 17. Product expansion — Belajar as an all-in-one learning platform
+
+This section expands the product beyond a personal AI study workspace into a broader education platform. The goal is to connect **learning, discovery, opportunity, community, identity, and play** in one coherent product.
+
+These additions are product requirements and design direction, not permission to fabricate working functionality. Before implementing each feature, inspect the existing backend and integrations. If a required service or API does not exist, define and document the required contract and dependency; do not fake a production experience with hardcoded data.
+
+### Expanded product pillars
+
+1. **Learn** — personal study workspace, AI-powered materials, notes, mind maps, quizzes, flashcards, and progress.
+2. **Discover** — scholarship opportunities, education news, competitions, events, internships, and curated learning resources.
+3. **Connect** — student community, posts, short-form educational media, messaging, groups, and collaboration.
+4. **Play** — educational mini-games, challenges, tournaments, and social learning activities.
+5. **Grow** — learner profiles, portfolios, achievements, goals, and academic identity.
+6. **Belong** — age- and education-appropriate experiences for elementary, junior secondary, senior secondary, and university learners.
+
+The expanded product must remain understandable. Do not put every capability into the primary navigation at once. Use clear product pillars, contextual entry points, and role/education-aware navigation.
+
+---
+
+## 18. Expanded information architecture and navigation
+
+Add the following destinations to the product architecture. The exact Indonesian labels can be refined during implementation, but keep them short and recognizable.
+
+### Primary navigation
+
+- **Beranda** — personalized bento dashboard.
+- **Belajar** — materials, notes, mind maps, AI study tools, quizzes, flashcards, and progress.
+- **Beasiswa & Peluang** — scholarships, competitions, events, internships, and education opportunities.
+- **Komunitas** — feed, groups, discussions, creators, and messaging.
+- **Game & Tantangan** — mini-games, daily challenges, learning tournaments, and game progress.
+
+### Secondary / contextual destinations
+
+- **Profil** — public learner profile and private account settings.
+- **Pesan** — inbox and conversations, accessible from a persistent top-bar action.
+- **Notifikasi** — replies, mentions, messages, group activity, scholarship deadlines, and learning reminders.
+- **Pengaturan** — privacy, account, accessibility, appearance, notification controls, blocked users, and safety controls.
+- **Pusat bantuan & keamanan** — reporting, moderation guidance, account safety, and support.
+
+The primary navigation should adapt to the selected education environment and user role without hiding essential controls. Do not create duplicate destinations merely because a feature is reachable from multiple places.
+
+---
+
+## 19. Improved bento dashboard
+
+The dashboard becomes the learner's personalized command center. Build a flexible **bento grid** with cards of varied size and hierarchy—not a rigid grid of equal metric tiles.
+
+### Recommended dashboard composition
+
+1. **Welcome / identity tile** — greeting, profile avatar, selected education environment, school/university name if supplied, and a concise personal learning goal.
+2. **Continue learning (large feature tile)** — resume the most recent material, quiz, flashcard session, or course. Show accurate progress and one clear action.
+3. **Scholarship spotlight (prominent tile)** — one or more relevant, verified scholarship opportunities with provider, eligibility snapshot, location/coverage, deadline, and application action.
+4. **Daily learning pulse** — study time, streak, due reviews, weekly goal, or other metrics only when backed by real user data.
+5. **For you / discovery tile** — relevant education news, competitions, events, or learning resources with clear source attribution.
+6. **Community pulse** — selected posts, discussions, study groups, or questions from followed communities.
+7. **Quick actions** — import material, ask AI, create a quiz, review flashcards, write a post, or explore scholarships.
+8. **Mini-game / daily challenge tile** — a short learning activity with clear estimated duration only if known.
+9. **Upcoming deadlines** — scholarship deadlines, event registrations, assignments, or personal reminders when connected to real data.
+
+### Bento layout rules
+
+- Use a responsive 12-column desktop grid with intentional card spans; collapse to fewer columns on tablet and a single-column or carefully prioritized layout on mobile.
+- One or two featured tiles should establish hierarchy. Do not make every card equally loud.
+- Use a combination of solid readable surfaces and selective frosted panels. Scholarship artwork or editorial imagery may add visual richness, but never place dense text over low-contrast images.
+- Cards should be independently reorderable or dismissible only if the product persists those preferences.
+- Provide a sensible default layout for new accounts and an honest empty state.
+- Allow users to personalize visible modules when a real preference model exists; do not implement decorative drag handles without working reordering.
+- Do not turn the dashboard into an infinite social feed. It should remain a useful starting point for learning and opportunities.
+
+### Scholarship promotions on the dashboard
+
+Scholarships should be presented as **relevant opportunities**, not intrusive advertisements.
+
+- Prioritize eligibility and deadline relevance over paid placement.
+- Clearly distinguish official scholarship listings, editorial recommendations, and sponsored placements.
+- Sponsored content must be explicitly labeled and visually distinguishable.
+- Never imply that Belajar guarantees acceptance, funding, or eligibility.
+- Do not use manipulative countdowns or fake scarcity.
+- Explain why an opportunity is being recommended when practical (education level, location, subject, eligibility).
+- Let users dismiss a recommendation and manage scholarship interests.
+
+---
+
+## 20. Beasiswa & education news center
+
+Create a dedicated opportunity and education discovery destination, with scholarships as a first-class feature.
+
+### Scholarship discovery
+
+Support a searchable and filterable scholarship directory with filters such as:
+
+- Education level: elementary, junior secondary, senior secondary, diploma, undergraduate, postgraduate, and other levels only when the source supports them.
+- Domestic / international destination.
+- Country, region, or institution.
+- Field of study / subject.
+- Funding type: full, partial, tuition-only, stipend, exchange, or other source-defined categories.
+- Eligibility requirements and applicant category.
+- Application status: open, upcoming, closing soon, closed, or unverified.
+- Deadline range and application period.
+
+Each scholarship detail page should show:
+
+- Official scholarship name and provider.
+- Clear summary and benefits.
+- Eligibility and exclusions.
+- Supported education level and target applicant.
+- Required documents.
+- Opening and closing dates with timezone where relevant.
+- Application steps and official application link.
+- Source attribution, last-verified date, and verification status.
+- Related opportunities and save/bookmark action.
+
+### News and editorial content
+
+Create an education news feed covering scholarships, admissions, school/university updates, research, competitions, policy changes, student achievements, and relevant education technology.
+
+- Use editorial categories and search.
+- Show publication date, publisher, author where available, and original source link.
+- Distinguish original Belajar editorial content from externally sourced summaries.
+- Respect copyright: use original summaries and short excerpts, not copied full articles.
+- Clearly mark corrections, updates, and outdated information.
+- Allow saving and sharing links.
+- Provide topic and source preferences.
+
+### Trust and verification requirements
+
+Scholarship scams and outdated deadlines can harm users. Trust is a core feature, not a decorative badge.
+
+- Prefer official provider pages, government portals, university websites, and recognized institutions.
+- Store source URL, retrieval time, last verification time, and the identity/process used to verify a listing.
+- Show a visible status such as **Verified source**, **Needs re-check**, or **Expired** with explanatory text.
+- Do not call a listing verified solely because it appears on another aggregator.
+- Never invent deadlines, eligibility, award amounts, or application links.
+- Automatically flag expired listings for review and stop promoting them as open.
+- Provide a user report flow for suspicious or inaccurate opportunities.
+- Any automated summarization must retain links to the original source and must not silently change eligibility requirements.
+
+---
+
+## 21. Community — social learning platform
+
+Build a learning-first social environment inspired by the usability patterns of modern social platforms, while maintaining a distinct Belajar identity. It should combine short-form discovery, meaningful discussion, study collaboration, and direct communication.
+
+### Community feed
+
+Support a feed with clearly differentiated content types:
+
+- Text posts and questions.
+- Image posts and carousels.
+- Short-form vertical video / clips where upload and media delivery are supported.
+- Study notes, diagrams, and learning-resource shares.
+- Polls and knowledge checks.
+- Event and study-group announcements.
+- Long-form discussions and answers.
+
+Core interactions:
+
+- Like / react, comment, reply, bookmark, share, follow, mention, and report.
+- Post creation with drafts, media preview, accessible alt text, and audience selection.
+- Feed tabs such as **Untukmu**, **Mengikuti**, and **Grup** only when their ranking and data behavior are implemented.
+- Search by topic, tag, creator, group, and post.
+- Clear timestamps and edit indicators.
+- Contextual post menus for edit, delete, report, mute, and block as appropriate.
+
+### Short-form educational media
+
+A vertical, swipeable discovery experience may be offered for educational clips, but it must not dominate the entire product.
+
+- Prioritize educational context, creator identity, captions, and source links.
+- Support captions/subtitles, playback controls, mute, pause, and reduced-motion/accessibility behavior.
+- Do not autoplay audio unexpectedly.
+- Provide a clear "not interested" and content-report action.
+- Avoid manipulative infinite-scroll mechanics and engagement bait.
+- Provide a way to open the full lesson, discussion, or referenced source.
+- Apply upload size, duration, format, and moderation limits defined by the backend.
+
+### Study groups and communities
+
+- Public, private, and invite-only groups with clear visibility.
+- Group description, education level, topics, rules, moderators, and member list.
+- Discussion threads, pinned resources, shared study goals, and group events.
+- Join requests and invitations where applicable.
+- Role distinctions such as member, moderator, and owner.
+- Clear leave, mute, report, and block behavior.
+- Group discovery should prioritize relevance and safety, not raw member count.
+
+### Direct messaging
+
+Create a dedicated inbox and conversation experience.
+
+- One-to-one messages and group conversations.
+- Message requests from people the learner does not follow or know.
+- Text, supported media, and shared Belajar resources.
+- Read/delivery state only if reliably supported by the service.
+- Reply, reactions, edit/delete windows, and message search where supported.
+- Typing indicators and presence only when privacy settings and real-time infrastructure support them.
+- Conversation mute, archive, block, report, and attachment safety controls.
+- Clear loading, offline, failed-to-send, retry, and pending states.
+- Prevent duplicate sends during retry or reconnection.
+
+Do not expose a user's email, phone number, school records, private materials, or precise location through public profile or messaging defaults.
+
+---
+
+## 22. Learner profiles — academic identity and portfolio
+
+Create profile pages that borrow useful conventions from professional networking platforms such as LinkedIn, but focus on learning, student projects, and academic interests.
+
+### Public profile
+
+Potential profile sections:
+
+- Profile photo/avatar, display name, handle, and optional pronouns only if the user chooses to share them.
+- Short biography and learning interests.
+- Education environment and institution, with visibility controls.
+- Subjects, skills, languages, and interests.
+- Projects, portfolios, published notes, and shared learning resources.
+- Achievements, badges, learning milestones, and selected progress highlights.
+- Communities and study groups, subject to privacy.
+- Posts and public contributions.
+- Optional contact or external portfolio links.
+
+### Profile actions
+
+- Follow / unfollow.
+- Message, subject to message-request and privacy rules.
+- Share profile.
+- Report or block.
+- Edit profile and manage visibility.
+- Pin selected projects or achievements.
+
+### Privacy by design
+
+- Every profile field must have an explicit visibility setting where appropriate: public, followers/connections, groups, or private.
+- Do not make school, class, exact birth date, contact information, or learning history public by default.
+- Never publicly expose quiz answers, private notes, AI conversations, or personal study files.
+- Give users a preview of their profile as another person sees it.
+- Provide account export and deletion pathways consistent with the backend's actual capabilities.
+
+---
+
+## 23. Education environments and age-aware experiences
+
+Belajar should adapt its vocabulary, content presentation, discovery, safety, and learning experience to the learner's educational stage. Treat these as **education environments**, not merely theme presets.
+
+### Environment types
+
+1. **Elementary / Sekolah Dasar (SD)** — foundational learning, simple language, visual explanations, short sessions, basic subjects, and strong guardian/educator safety controls.
+2. **Junior Secondary / SMP** — guided subject learning, exploration, collaborative study, structured challenges, and growing learner independence.
+3. **Senior Secondary / SMA/SMK** — exam preparation, subject specialization, scholarship discovery, competitions, portfolios, and university/career exploration.
+4. **University / Perguruan Tinggi** — advanced study workflows, research reading, citations, projects, academic communities, internships, scholarships, and professional portfolios.
+5. **General / Lifelong Learning** — optional environment for independent learners, adult learners, and users outside the formal school structure.
+
+Use localized Indonesian labels in the interface. The English descriptions above define the product categories, not necessarily the final UI copy.
+
+### Environment behavior
+
+Each environment may configure:
+
+- Onboarding questions and suggested learning goals.
+- Dashboard modules and content density.
+- Recommended subjects, activities, games, and resources.
+- Scholarship and opportunity filters.
+- Community discovery defaults and group suggestions.
+- Profile fields and portfolio emphasis.
+- Language complexity, explanations, and learning-game difficulty.
+- Age-appropriate content and communication restrictions.
+
+Do not assume that every user in one education level has the same age, ability, needs, or curriculum. Let users select or correct their education context. Support transitions between levels without losing materials, achievements, history, or account identity.
+
+### Account roles
+
+Keep education level separate from account role. A user may be a learner, educator, parent/guardian, group moderator, or platform administrator; role permissions must be explicit.
+
+- **Learner:** personal study, profile, community participation, and opportunities appropriate to their environment.
+- **Educator:** classroom/group management and learning-resource sharing only where those capabilities are actually implemented.
+- **Parent / Guardian:** limited safety and progress views only with appropriate authorization and consent.
+- **Moderator:** scoped community moderation tools and audit trail.
+- **Administrator:** privileged platform operations, never exposed through ordinary learner UI.
+
+Do not build an educator or guardian control panel as a visual-only mockup. Role-based access must be enforced by the server, not merely hidden in React.
+
+### Child and teen safety
+
+Elementary and some junior-secondary users may be minors. Safety and privacy requirements must shape the architecture before social features launch.
+
+- Determine the applicable age-assurance, parental-consent, and child privacy requirements for each launch region with qualified legal/product review.
+- Do not collect more personal information than necessary.
+- Apply age-appropriate defaults, content filtering, and communication restrictions.
+- For child accounts, restrict unsolicited direct messages and adult-to-minor contact; define safe, reviewed communication rules before enabling messaging.
+- Provide reporting, blocking, moderation queues, escalation, and appeal workflows.
+- Do not expose precise location, school timetable, classroom, contact details, or real-time whereabouts.
+- Do not use behavioral advertising or sensitive profiling of minors.
+- Make guardian controls transparent and proportionate; do not silently expose private conversations or personal content.
+- Add age-aware content policies to posts, comments, profiles, media, groups, recommendations, and AI responses.
+- Ensure moderation is supported by operational processes, not just a report button.
+
+---
+
+## 24. AI assistant — cross-platform learning companion
+
+Add a persistent AI assistant that works across Belajar, not just inside a single material's chat tab.
+
+### Assistant capabilities
+
+Subject to real backend support, the assistant may:
+
+- Explain a concept at the learner's selected education level.
+- Answer questions grounded in the current material or selected trusted sources.
+- Summarize notes and explain difficult passages.
+- Generate practice questions, flashcards, study plans, and revision checklists.
+- Help identify weak concepts from actual learning history.
+- Recommend relevant learning resources, scholarships, and events with source links.
+- Help draft study notes, project outlines, and academic portfolios.
+- Guide learners through mini-games and interactive exercises.
+- Help users navigate Belajar features and understand how to use them.
+
+### Assistant experience
+
+- Provide a dedicated assistant destination plus contextual entry points throughout the app.
+- Support a floating assistant launcher only if it does not obscure important controls or content.
+- Clearly show the active context: current material, selected subject, profile environment, or general chat.
+- Allow users to switch context and inspect which sources were used.
+- Keep generated content editable before saving or publishing.
+- Provide copy, insert into notes, create quiz, create flashcards, and save actions only when those actions have real implementations.
+- Distinguish sourced facts, generated suggestions, and uncertain answers.
+- Link to source documents for factual claims when retrieval is used.
+- Never fabricate scholarship details, citations, exam results, or user progress.
+- Do not publish or message on the user's behalf without an explicit confirmation step.
+- Provide stop-generation, retry, and clear-conversation controls where supported.
+- Respect user privacy and do not use private messages, private notes, or profile data as context without clear product policy and user control.
+
+### Age-aware assistant behavior
+
+The assistant should adapt explanations and tone to the selected education environment while preserving accuracy. It must not simply use babyish language for younger learners. Apply appropriate safety policies, avoid collecting sensitive personal information, and provide safe escalation guidance for harmful or urgent disclosures.
+
+---
+
+## 25. Mini-games and gamified learning
+
+Expand the existing learning games into a broader mini-game library. Games must reinforce learning rather than become unrelated time sinks.
+
+### Game categories
+
+- **Quick recall:** timed recall, flashcard races, concept matching.
+- **Knowledge puzzles:** word/term puzzles, sequence ordering, diagram labeling, logic challenges.
+- **Error detective:** identify misconceptions, correct flawed explanations, and explain why.
+- **Scenario challenges:** apply a concept to a real-world situation.
+- **Competitive practice:** asynchronous challenges, friend/group leaderboards, and tournaments where safe and supported.
+- **Creative learning:** build a concept map, explain a topic, or assemble a solution from clues.
+
+### Game UX
+
+- A game library with categories, difficulty, subject, estimated session length where known, and learning objective.
+- Clear rules and controls before starting.
+- Short sessions with pause/resume where appropriate.
+- Accessible keyboard, touch, and reduced-motion behavior.
+- Clear feedback and explanations after an answer.
+- Progress and rewards that reflect actual learning, not merely time spent.
+- Daily/weekly challenges with transparent reset times and rules.
+- Optional social competition with privacy controls and age-appropriate matchmaking.
+- Avoid pay-to-win mechanics, loot-box patterns, manipulative streak pressure, or rewards that encourage compulsive use.
+
+### Learning integrity
+
+- Track learning outcomes separately from entertainment points.
+- Do not award mastery solely for opening a game or clicking through answers.
+- Use authoritative answer keys or validated evaluation logic.
+- Keep score calculations server-authoritative where competitive integrity matters.
+- Preserve accessibility and provide a non-timed alternative where timing is not pedagogically essential.
+
+---
+
+## 26. Notifications, discovery, and personalization
+
+A unified notification center should bring together:
+
+- New direct messages and message requests.
+- Replies, mentions, reactions, and follows.
+- Group invitations and study activity.
+- Scholarship deadlines and saved-opportunity updates.
+- Events and competition reminders.
+- Flashcard reviews, study goals, and learning streak reminders.
+- AI task completion or processing failures where relevant.
+
+Rules:
+
+- Let users configure notification categories and delivery channels.
+- Avoid sending repeated or low-value notifications.
+- Provide quiet hours and digest options if the delivery infrastructure supports them.
+- Never expose sensitive message content in lock-screen notifications by default.
+- Make notification actions deep-link to the correct destination.
+- Do not claim push notification support until platform permissions and delivery infrastructure are implemented.
+
+Personalization may use declared interests, selected education environment, saved topics, and explicit user preferences. Explain controls, allow reset, and avoid opaque sensitive profiling.
+
+---
+
+## 27. Backend, data, and service boundaries for the expanded platform
+
+The new social and discovery features are materially larger than the current learning frontend. Treat them as separate product domains with explicit service contracts.
+
+Potential backend domains to design and validate:
+
+- Identity, profiles, roles, education environments, and privacy preferences.
+- Scholarship and opportunity ingestion, verification, search, and saved listings.
+- News/article ingestion, editorial summaries, and source attribution.
+- Posts, comments, reactions, follows, feeds, and media metadata.
+- Direct messaging, conversations, message requests, and real-time delivery.
+- Groups, membership, invitations, and moderation.
+- Media upload, transcoding, storage, and delivery.
+- Mini-game catalog, sessions, scoring, challenges, and leaderboards.
+- AI assistant sessions, context selection, retrieval, and tool permissions.
+- Notifications, preferences, and delivery.
+- Reporting, blocking, moderation queues, and audit events.
+
+These are domain boundaries to plan—not a claim that these APIs already exist.
+
+### Engineering requirements
+
+- Define typed request/response contracts before connecting UI.
+- Use server-side authorization for every private resource and action.
+- Enforce ownership and visibility checks on profiles, posts, files, messages, and groups.
+- Validate uploads by MIME type, actual file signature, size, duration, and safe processing policy.
+- Use signed/authorized media access where appropriate; do not expose private storage paths.
+- Add rate limits, spam prevention, abuse detection, and idempotency for social actions.
+- Use pagination/cursors for feeds, messages, comments, and opportunity lists.
+- Use real-time transport only where required; provide polling or refresh fallback if appropriate.
+- Design moderation, report handling, account suspension, and appeals before opening public community access.
+- Establish data retention and deletion behavior for accounts, messages, media, and moderation records.
+- Keep secrets and privileged integrations on the server.
+- Add observability for failed ingestion, message delivery, moderation backlog, and notification delivery.
+- Avoid coupling the frontend to a single third-party feed, chat, or AI provider.
+
+Do not attempt to implement all of these services inside the Tauri Rust shell. Tauri remains the client container; the platform backend owns shared identity, social data, opportunity data, authorization, and cross-device synchronization.
+
+---
+
+## 28. Expanded implementation roadmap
+
+The new scope should be delivered in product increments. Do not attempt to ship a full social network, scholarship aggregator, and AI platform in one frontend rewrite.
+
+### Phase 7 — Product foundations and education environments
+- Define user identity, education level, role, onboarding, and privacy preferences.
+- Design the environment selector and environment-aware navigation.
+- Implement profile foundations and privacy settings.
+- Validate age-aware defaults and role authorization requirements before social launch.
+
+### Phase 8 — Scholarship and education discovery
+- Define trusted source ingestion and scholarship data contracts.
+- Build scholarship directory, detail page, filters, saved opportunities, and deadline states.
+- Build education news and editorial discovery.
+- Add source attribution, verification status, expiration handling, and report flow.
+- Integrate selected opportunity modules into the bento dashboard.
+
+### Phase 9 — AI assistant
+- Define assistant sessions, context selection, retrieval, and permitted actions.
+- Build dedicated assistant UI and contextual assistant entry points.
+- Implement grounded responses, source display, safe save/insert actions, and age-aware behavior.
+- Verify privacy boundaries and prevent accidental publication or external actions.
+
+### Phase 10 — Community foundations
+- Build public learner profiles and privacy controls.
+- Implement posts, comments, reactions, follows, bookmarks, and feed pagination.
+- Add groups and moderation workflows.
+- Launch only after server-side authorization, reporting, blocking, rate limits, and moderation operations are ready.
+
+### Phase 11 — Messaging and media
+- Implement inbox, message requests, one-to-one and group conversations.
+- Add real-time delivery and recovery behavior if supported by infrastructure.
+- Implement safe media upload and delivery, captions, and reporting.
+- Validate minor-safety restrictions and privacy defaults before enabling direct messages broadly.
+
+### Phase 12 — Mini-games and social learning
+- Expand the mini-game catalog and game session framework.
+- Add daily challenges, asynchronous friend/group challenges, and leaderboards where appropriate.
+- Validate scoring integrity and learning outcomes.
+- Add accessibility and age-aware matchmaking/safety.
+
+### Phase 13 — Notifications and personalization
+- Implement unified in-app notifications and preference controls.
+- Add relevant discovery modules and dashboard personalization.
+- Add optional push/email delivery only after infrastructure, consent, and platform support are ready.
+
+### Phase 14 — Platform quality and launch readiness
+- Security review for authentication, authorization, file/media access, messaging, and profile privacy.
+- Moderation readiness review and abuse-response procedures.
+- Privacy and child-safety review for launch markets.
+- Performance tests for feed scrolling, media, chat, and dashboard modules.
+- Full desktop, web, tablet, and mobile Tauri validation.
+- Accessibility review and localization quality pass.
+
+The original phases 0–6 remain the foundation. New platform domains must not delay stabilizing the core learning experience; work can be staged and feature-flagged.
+
+---
+
+## 29. Expanded acceptance criteria
+
+### Discovery and scholarships
+- [ ] Users can discover and filter opportunities using supported eligibility fields.
+- [ ] Every listing displays a source and a meaningful verification/expiry state.
+- [ ] Expired or suspicious listings are not presented as currently open.
+- [ ] Sponsored placements are labeled and cannot masquerade as verified editorial recommendations.
+- [ ] Dashboard scholarship modules reflect relevant, real opportunities.
+
+### Community and messaging
+- [ ] Users can create, edit, delete, report, and interact with supported post types.
+- [ ] Feed pagination and loading/error states work without duplicate content.
+- [ ] Profiles, posts, groups, and messages obey server-enforced visibility rules.
+- [ ] Users can block/report and control message requests.
+- [ ] Message delivery, retry, and offline states are honest and recoverable.
+- [ ] Media is validated, safely processed, and served according to access permissions.
+- [ ] Moderation operations and escalation workflows exist before public community launch.
+
+### Profiles and education environments
+- [ ] Learners can choose and update their education environment.
+- [ ] Switching environments does not erase learning history or identity.
+- [ ] Profile visibility is configurable and private by default for sensitive fields.
+- [ ] Role-based features are enforced by the backend.
+- [ ] Child and teen safety controls are reviewed before relevant social features are enabled.
+
+### AI assistant and mini-games
+- [ ] Assistant context and sources are visible to the learner.
+- [ ] AI-generated content is never silently published or saved as user-authored work.
+- [ ] Assistant actions require confirmation where they create external or public effects.
+- [ ] Games explain learning objectives, rules, and feedback.
+- [ ] Scoring and mastery are not conflated.
+- [ ] Social competition is optional, privacy-aware, and age-appropriate.
+
+### Platform quality
+- [ ] Dashboard modules are useful, responsive, and backed by real data.
+- [ ] Notifications respect user preferences and do not leak private content.
+- [ ] New backend domains have typed contracts, authorization, validation, and tests.
+- [ ] All new experiences work with the established Frost UI system.
+- [ ] No feature is represented as operational until its service contract and end-to-end behavior are implemented.
+
+---
+
+## 30. Competitive product direction
+
+Belajar may study the strengths and interaction patterns of products such as Pelajarin.ai, Pintarly, LinkedIn, Instagram, and TikTok, but must not copy their branding, layouts, or proprietary presentation.
+
+The product should differentiate through the **connection between learning and real student outcomes**:
+
+- A material can become notes, a mind map, quizzes, flashcards, games, and measurable mastery.
+- A learner's interests and education environment can surface relevant scholarships, competitions, and academic opportunities.
+- Community discussions can connect directly to study materials, collaborative groups, and learning challenges.
+- A profile can represent projects, skills, learning milestones, and academic contributions—not just social popularity.
+- The AI assistant can help users move between discovery, study, practice, and portfolio creation with transparent context and sources.
+
+Do not claim Belajar is better than a competitor through marketing copy alone. Build measurable advantages: reliable scholarship data, excellent learning workflows, safe and useful community tools, meaningful personalization, accessibility, and a fast, cohesive cross-platform experience.
+
+**Product north star:** help every learner discover what they can achieve, learn what they need, connect with people who help them grow, and demonstrate what they have accomplished.
