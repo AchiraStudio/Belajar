@@ -13,7 +13,11 @@
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
-    "tauri": "tauri"
+    "tauri": "tauri",
+    "android:init": "tauri android init --ci",
+    "android:build": "node scripts/build-android.cjs",
+    "android:dev": "tauri android dev",
+    "desktop:build": "node scripts/build-desktop.cjs"
   },
   "dependencies": {
     "react": "^19.3.1",

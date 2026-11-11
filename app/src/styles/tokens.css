@@ -1,37 +1,228 @@
-/* Design tokens carried over unchanged from the legacy app (server/public/style.css :root).
-   The brief asks for a framework migration, not a redesign: same palette, same dark theme. */
+/* ==========================================================================
+   Belajar Frost UI — Semantic Design Tokens
+   Section 3, 4, 5 of design.md
+   ========================================================================== */
+
 :root {
-  --bg: #f3f2fa; --surface: #ffffff; --surface-2: #eceaf8; --ink: #15133b; --ink-2: #5a5884; --line: #ddd9f0;
-  --brand: #3a2fe0; --brand-deep: #2b22b8; --brand-soft: #e4e2fd; --on-brand: #fff;
-  --flame: #ff6a2b; --flame-soft: #ffe8dc; --flame-ink: #b8400f;
-  --good: #0b8f4d; --good-soft: #dcf4e7; --bad: #d0343b; --bad-soft: #fce3e4;
-  --shadow: 0 1px 2px rgba(21, 19, 59, 0.05), 0 8px 24px -12px rgba(21, 19, 59, 0.18);
-  --ui: 'Bricolage', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  /* Legacy preferred Nunito, but its font files were never committed (audit finding D-03), so the
-     chain falls back to system fonts until they are added. */
-  --read: 'Nunito', 'Segoe UI', system-ui, -apple-system, sans-serif;
-  --serif: 'Literata', Georgia, 'Times New Roman', serif;
+  /* Surface & Canvas Hierarchy */
+  --canvas: #F3F6FC;
+  --canvas-tint: #EAF0FC;
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-solid: #FFFFFF;
+  --surface-raised: rgba(255, 255, 255, 0.92);
+  --border: rgba(108, 128, 166, 0.18);
+  --border-subtle: rgba(108, 128, 166, 0.10);
+
+  /* Typography / Text Colors */
+  --text-primary: #17213B;
+  --text-secondary: #64718C;
+  --text-muted: #8C98AE;
+
+  /* Brand, Accents & Highlights */
+  --accent: #6558E8;
+  --accent-hover: #5144D5;
+  --accent-soft: #EEECFF;
+  --ice: #78BFEF;
+  --ice-soft: #E6F4FD;
+
+  /* Status Colors */
+  --success: #218B68;
+  --success-soft: #DCF4E7;
+  --warning: #B7792E;
+  --warning-soft: #FEF3E2;
+  --danger: #C94F62;
+  --danger-soft: #FCE3E4;
+
+  /* Shadows */
+  --shadow-ambient: 0 8px 32px 0 rgba(108, 128, 166, 0.12);
+  --shadow-sm: 0 1px 3px rgba(23, 33, 59, 0.05), 0 1px 2px rgba(23, 33, 59, 0.08);
+  --shadow-md: 0 4px 12px -2px rgba(23, 33, 59, 0.08), 0 2px 6px -1px rgba(23, 33, 59, 0.05);
+  --shadow-lg: 0 12px 28px -4px rgba(23, 33, 59, 0.14), 0 4px 10px -2px rgba(23, 33, 59, 0.06);
+
+  /* Material Depth & Blur */
+  --blur-panel: blur(18px) saturate(145%);
+  --blur-overlay: blur(24px) saturate(160%);
+  --blur-subtle: blur(10px) saturate(130%);
+
+  /* Font Stacks */
+  --font-sans: 'Bricolage', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Literata', Georgia, Cambria, 'Times New Roman', serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
+
+  /* Font Scale & Line Heights */
+  --text-xs: 0.75rem;     /* 12px */
+  --text-sm: 0.8125rem;   /* 13px */
+  --text-base: 0.9375rem; /* 15px */
+  --text-md: 1rem;        /* 16px */
+  --text-lg: 1.125rem;    /* 18px */
+  --text-xl: 1.25rem;     /* 20px */
+  --text-2xl: 1.5rem;     /* 24px */
+  --text-3xl: 1.875rem;   /* 30px */
+  --text-4xl: 2.25rem;    /* 36px */
+
+  --tracking-tight: -0.03em;
+  --tracking-normal: 0;
+  --tracking-wide: 0.02em;
+
+  --leading-none: 1;
+  --leading-tight: 1.2;
+  --leading-snug: 1.35;
+  --leading-normal: 1.55;
+  --leading-relaxed: 1.7;
+
+  /* Corner Radii */
+  --radius-xs: 4px;
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+  --radius-xl: 20px;
+  --radius-full: 9999px;
+
+  /* Shell Layout Dimensions */
+  --sidebar-width: 240px;
+  --sidebar-collapsed-width: 72px;
+  --topbar-height: 56px;
+  --titlebar-height: 32px;
+  --mobilenav-height: 64px;
+
+  /* Backward Compatibility Aliases for Legacy Code */
+  --bg: var(--canvas);
+  --surface-2: var(--canvas-tint);
+  --ink: var(--text-primary);
+  --ink-2: var(--text-secondary);
+  --line: var(--border);
+  --brand: var(--accent);
+  --brand-deep: var(--accent-hover);
+  --brand-soft: var(--accent-soft);
+  --on-brand: #FFFFFF;
+  --flame: #ff6a2b;
+  --flame-soft: #ffe8dc;
+  --flame-ink: #b8400f;
+  --good: var(--success);
+  --good-soft: var(--success-soft);
+  --bad: var(--danger);
+  --bad-soft: var(--danger-soft);
+  --shadow: var(--shadow-md);
+  --ui: var(--font-sans);
+  --read: var(--font-sans);
+  --serif: var(--font-serif);
   --ink-read: color-mix(in srgb, var(--ink) 86%, var(--bg));
-  --fs: 18px; --side: 262px; --mtop: 58px; --tabbar: 66px;
+  --fs: 16px;
+  --side: var(--sidebar-width);
+  --mtop: var(--topbar-height);
+  --tabbar: var(--mobilenav-height);
+
   color-scheme: light;
 }
 
 :root[data-theme='dark'] {
-  --bg: #0e0d24; --surface: #17163a; --surface-2: #221f4c; --ink: #eeedff; --ink-2: #a9a7d6; --line: #2e2c60;
-  --brand: #7167ff; --brand-deep: #8b83ff; --brand-soft: #27245e; --on-brand: #fff;
-  --flame: #ff7b3f; --flame-soft: #3d2418; --flame-ink: #ffa877;
-  --good: #4fd08b; --good-soft: #14352a; --bad: #ff7c82; --bad-soft: #3b1c26;
-  --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+  /* Dark Theme Surfaces (Deep Blue-Slate) */
+  --canvas: #0C1222;
+  --canvas-tint: #111B31;
+  --surface: rgba(21, 31, 52, 0.75);
+  --surface-solid: #151F34;
+  --surface-raised: #1B2942;
+  --border: rgba(173, 196, 230, 0.14);
+  --border-subtle: rgba(173, 196, 230, 0.08);
+
+  /* Dark Theme Text Colors */
+  --text-primary: #EDF3FF;
+  --text-secondary: #A7B5CC;
+  --text-muted: #6D7D99;
+
+  /* Dark Theme Brand & Accents */
+  --accent: #948BFF;
+  --accent-hover: #A59DFF;
+  --accent-soft: #29284D;
+  --ice: #83C9F2;
+  --ice-soft: #182F48;
+
+  /* Dark Theme Status */
+  --success: #4FD08B;
+  --success-soft: #14352A;
+  --warning: #E5A144;
+  --warning-soft: #3D2E14;
+  --danger: #FF7C82;
+  --danger-soft: #3B1C26;
+
+  /* Dark Theme Shadows */
+  --shadow-ambient: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25);
+  --shadow-md: 0 4px 14px -2px rgba(0, 0, 0, 0.35);
+  --shadow-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.5);
+
+  /* Backward Compatibility Aliases in Dark Mode */
+  --bg: var(--canvas);
+  --surface-2: var(--canvas-tint);
+  --ink: var(--text-primary);
+  --ink-2: var(--text-secondary);
+  --line: var(--border);
+  --brand: var(--accent);
+  --brand-deep: var(--accent-hover);
+  --brand-soft: var(--accent-soft);
+  --on-brand: #FFFFFF;
+  --flame: #ff7b3f;
+  --flame-soft: #3d2418;
+  --flame-ink: #ffa877;
+  --good: var(--success);
+  --good-soft: var(--success-soft);
+  --bad: var(--danger);
+  --bad-soft: var(--danger-soft);
+  --shadow: var(--shadow-md);
+
   color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --bg: #0e0d24; --surface: #17163a; --surface-2: #221f4c; --ink: #eeedff; --ink-2: #a9a7d6; --line: #2e2c60;
-    --brand: #7167ff; --brand-deep: #8b83ff; --brand-soft: #27245e; --on-brand: #fff;
-    --flame: #ff7b3f; --flame-soft: #3d2418; --flame-ink: #ffa877;
-    --good: #4fd08b; --good-soft: #14352a; --bad: #ff7c82; --bad-soft: #3b1c26;
-    --shadow: 0 1px 2px rgba(0, 0, 0, 0.3), 0 8px 24px -12px rgba(0, 0, 0, 0.6);
+    --canvas: #0C1222;
+    --canvas-tint: #111B31;
+    --surface: rgba(21, 31, 52, 0.75);
+    --surface-solid: #151F34;
+    --surface-raised: #1B2942;
+    --border: rgba(173, 196, 230, 0.14);
+    --border-subtle: rgba(173, 196, 230, 0.08);
+
+    --text-primary: #EDF3FF;
+    --text-secondary: #A7B5CC;
+    --text-muted: #6D7D99;
+
+    --accent: #948BFF;
+    --accent-hover: #A59DFF;
+    --accent-soft: #29284D;
+    --ice: #83C9F2;
+    --ice-soft: #182F48;
+
+    --success: #4FD08B;
+    --success-soft: #14352A;
+    --warning: #E5A144;
+    --warning-soft: #3D2E14;
+    --danger: #FF7C82;
+    --danger-soft: #3B1C26;
+
+    --shadow-ambient: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
+    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25);
+    --shadow-md: 0 4px 14px -2px rgba(0, 0, 0, 0.35);
+    --shadow-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.5);
+
+    --bg: var(--canvas);
+    --surface-2: var(--canvas-tint);
+    --ink: var(--text-primary);
+    --ink-2: var(--text-secondary);
+    --line: var(--border);
+    --brand: var(--accent);
+    --brand-deep: var(--accent-hover);
+    --brand-soft: var(--accent-soft);
+    --on-brand: #FFFFFF;
+    --flame: #ff7b3f;
+    --flame-soft: #3d2418;
+    --flame-ink: #ffa877;
+    --good: var(--success);
+    --good-soft: var(--success-soft);
+    --bad: var(--danger);
+    --bad-soft: var(--danger-soft);
+    --shadow: var(--shadow-md);
+
     color-scheme: dark;
   }
 }

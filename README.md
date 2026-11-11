@@ -100,6 +100,20 @@ NODE_PATH=/path/ke/node_modules bash tests/run_e2e.sh   # server + bridge + agen
 
 `tests/mock_paf.py` meniru gateway sehingga uji tidak memakai token atau kuota asli.
 
+## Klien React (`app/`) dan Android
+
+Klien baru (React 19 + Vite + Tauri 2, desain Frost UI) ada di `app/`. Status layar dan kontrak yang dipakai: `docs/FRONTEND_REDESIGN_STATUS.md`.
+
+```bash
+cd app && npm install
+npm run dev            # Vite di :5173, proxy /api ke server :8080
+npm run typecheck && npm test && npm run build
+# Sajikan klien baru lewat server Rust (default-nya masih server/public):
+STATIC_DIR=app/dist cargo run -p belajar-server
+```
+
+Aplikasi Android (APK debug, memuat UI dari alamat server agar cookie sesi tetap satu origin): `npm run android:build`, lihat `docs/ANDROID.md`.
+
 ## Batasan saat ini
 
 - Format `.doc` dan `.ppt` lama belum didukung (simpan ulang sebagai `.docx`/`.pptx`).

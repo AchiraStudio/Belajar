@@ -1,0 +1,117 @@
+.topBar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: var(--topbar-height);
+  min-height: var(--topbar-height);
+  padding: 0 24px;
+  background: var(--surface);
+  backdrop-filter: var(--blur-panel);
+  -webkit-backdrop-filter: var(--blur-panel);
+  border-bottom: 1px solid var(--border);
+  z-index: 50;
+  width: 100%;
+}
+
+.leftSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.pageTitle {
+  font-family: var(--font-sans);
+  font-size: var(--text-md);
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+  letter-spacing: -0.02em;
+}
+
+.rightSection {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.searchTrigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  height: 36px;
+  padding: 0 12px;
+  border-radius: var(--radius-md);
+  background: var(--surface-solid);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+  font-family: var(--font-sans);
+  font-size: var(--text-sm);
+  cursor: pointer;
+  outline: none;
+  transition: border-color 150ms ease, box-shadow 150ms ease, color 150ms ease;
+}
+
+.searchTrigger:hover {
+  border-color: var(--text-muted);
+  color: var(--text-secondary);
+}
+
+.kbd {
+  font-family: var(--font-mono);
+  font-size: var(--text-xs);
+  padding: 2px 6px;
+  border-radius: var(--radius-xs);
+  background: var(--canvas-tint);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.themeBtn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  border: 1px solid var(--border);
+  background: var(--surface-solid);
+  color: var(--text-secondary);
+  cursor: pointer;
+  transition: background-color 150ms ease, color 150ms ease;
+  outline: none;
+}
+
+.themeBtn:hover {
+  background: var(--surface-raised);
+  color: var(--text-primary);
+}
+
+@media (max-width: 640px) {
+  .topBar {
+    padding: 0 16px;
+  }
+  .searchTrigger span,
+  .searchTrigger .kbd {
+    display: none;
+  }
+}
+
+.actions {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+.actions a { text-decoration: none; }
+@media (max-width: 768px) {
+  .actions { display: none; }
+}
+
+/* Mobile / Android WebView: keep the bar below the status bar / display cutout. */
+@media (max-width: 768px) {
+  .topBar {
+    padding-top: env(safe-area-inset-top, 0);
+    height: calc(var(--topbar-height) + env(safe-area-inset-top, 0));
+    min-height: calc(var(--topbar-height) + env(safe-area-inset-top, 0));
+  }
+}

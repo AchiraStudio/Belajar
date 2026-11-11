@@ -1,0 +1,62 @@
+.screen {
+  min-height: 100dvh;
+  display: grid;
+  place-items: center;
+  padding: max(24px, env(safe-area-inset-top)) 20px max(24px, env(safe-area-inset-bottom));
+  background:
+    radial-gradient(900px 500px at 15% -10%, color-mix(in srgb, var(--accent) 14%, transparent), transparent 60%),
+    radial-gradient(700px 480px at 100% 110%, color-mix(in srgb, var(--ice) 18%, transparent), transparent 60%),
+    var(--canvas);
+}
+
+.card,
+.skeletonCard {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  width: min(100%, 400px);
+  padding: 32px 28px 24px;
+  border-radius: var(--radius-xl);
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  box-shadow: var(--shadow-lg);
+}
+
+@supports (backdrop-filter: blur(1px)) {
+  .card {
+    backdrop-filter: var(--blur-overlay);
+  }
+}
+
+.mark {
+  display: grid;
+  place-items: center;
+  width: 52px;
+  height: 52px;
+  border-radius: var(--radius-lg);
+  background: var(--accent-soft);
+  color: var(--accent);
+}
+
+.title {
+  margin: 0;
+  font-size: var(--text-2xl);
+  font-weight: 650;
+  letter-spacing: var(--tracking-tight);
+  color: var(--text-primary);
+}
+
+.lead {
+  margin: -8px 0 4px;
+  font-size: var(--text-base);
+  line-height: var(--leading-normal);
+  color: var(--text-secondary);
+}
+
+.fine {
+  margin: 0;
+  font-size: var(--text-xs);
+  line-height: var(--leading-normal);
+  color: var(--text-muted);
+  text-align: center;
+}

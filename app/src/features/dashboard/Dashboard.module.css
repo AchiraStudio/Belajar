@@ -1,0 +1,558 @@
+.dashboard {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 8px 0 32px;
+}
+
+.header {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.title {
+  font-family: var(--font-sans);
+  font-size: 1.85rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.subtitle {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* Bento Hero Section */
+.heroGrid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.4fr) minmax(0, 1fr);
+  gap: 20px;
+}
+.heroGrid > * { min-width: 0; }
+
+@media (max-width: 900px) {
+  .heroGrid {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.streakHero {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px;
+  min-height: 220px;
+  gap: 18px;
+}
+
+.streakTop {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+}
+
+.flameBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  background: var(--accent-soft);
+  color: var(--accent);
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.freezesBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 10px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  border-radius: 999px;
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+.streakMain {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.streakCount {
+  font-size: 2.8rem;
+  font-weight: 800;
+  letter-spacing: -0.03em;
+  color: var(--text-primary);
+  line-height: 1;
+}
+
+.streakMessage {
+  font-size: 0.95rem;
+  color: var(--text-secondary);
+}
+
+.streakRow {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.dayDot {
+  flex: 1;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--border);
+  transition: background 0.2s ease;
+}
+
+.dayDotDone {
+  background: var(--accent);
+}
+
+.dayDotToday {
+  outline: 2px solid var(--accent);
+  outline-offset: 1px;
+}
+
+/* Today Goal Card */
+.goalCard {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 24px;
+  gap: 16px;
+}
+
+.goalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.goalTitle {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.goalRingWrapper {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.ringSvg {
+  width: 72px;
+  height: 72px;
+  transform: rotate(-90deg);
+}
+
+.ringBg {
+  stroke: var(--border);
+  stroke-width: 8;
+  fill: none;
+}
+
+.ringProgress {
+  stroke: var(--accent);
+  stroke-width: 8;
+  stroke-linecap: round;
+  fill: none;
+  transition: stroke-dashoffset 0.4s ease;
+}
+
+.goalStats {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.goalTime {
+  font-size: 1.25rem;
+  font-weight: 700;
+  color: var(--text-primary);
+}
+
+.goalTarget {
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.weeklyProgress {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.weeklyBarTrack {
+  width: 100%;
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.weeklyBarFill {
+  height: 100%;
+  background: var(--accent);
+  border-radius: 999px;
+  transition: width 0.3s ease;
+}
+
+.goalActions {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+/* 4 Metric Tiles */
+.metricsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+@media (max-width: 900px) {
+  .metricsGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 500px) {
+  .metricsGrid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.metricCard {
+  padding: 18px 20px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.metricTop {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  color: var(--text-secondary);
+}
+
+.metricLabel {
+  font-size: 0.85rem;
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+
+.metricValue {
+  font-size: 1.65rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  line-height: 1.1;
+}
+
+/* Activity Split (Recent Materials vs Weak Topics) */
+.activitySplit {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+  gap: 20px;
+}
+.activitySplit > * { min-width: 0; }
+
+@media (max-width: 850px) {
+  .activitySplit {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.sectionHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+}
+
+.sectionTitle {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  margin: 0;
+}
+
+.recentList {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.docItem {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 12px 16px;
+  border-radius: 8px;
+  text-decoration: none;
+  color: inherit;
+  transition: background 0.15s ease, transform 0.15s ease;
+}
+
+.docItem:hover {
+  transform: translateY(-1px);
+}
+
+.docInfo {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-width: 0;
+}
+
+.kindBadge {
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 4px 6px;
+  border-radius: 4px;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text-secondary);
+}
+
+.docMeta {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+
+.docTitle {
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--text-primary);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.docDetails {
+  font-size: 0.8rem;
+  color: var(--text-muted);
+  display: flex;
+  gap: 8px;
+}
+
+.subjectBadge {
+  color: var(--accent);
+  font-weight: 500;
+}
+
+.sideList {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.weakList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.weakItem {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  padding: 10px 14px;
+}
+
+.weakTop {
+  display: flex;
+  justify-content: space-between;
+  font-size: 0.88rem;
+  font-weight: 500;
+}
+
+.weakBar {
+  height: 6px;
+  background: var(--border);
+  border-radius: 999px;
+  overflow: hidden;
+}
+
+.weakBarFill {
+  height: 100%;
+  border-radius: 999px;
+}
+
+.attemptList {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.attemptItem {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 10px 14px;
+}
+
+.attemptTitle {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: var(--text-primary);
+}
+
+.attemptScorePill {
+  font-size: 0.8rem;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 999px;
+}
+
+.scoreGood {
+  background: rgba(12, 143, 91, 0.15);
+  color: var(--success);
+}
+
+.scoreMid {
+  background: rgba(199, 119, 0, 0.15);
+  color: var(--warning);
+}
+
+.scoreBad {
+  background: rgba(194, 67, 43, 0.15);
+  color: var(--danger);
+}
+
+/* Consistency Section (Heatmap + Milestones) */
+.consistencySplit {
+  display: grid;
+  grid-template-columns: minmax(0, 2fr) minmax(0, 1fr);
+  gap: 20px;
+}
+.consistencySplit > * { min-width: 0; }
+
+@media (max-width: 900px) {
+  .consistencySplit {
+    grid-template-columns: minmax(0, 1fr);
+  }
+}
+
+.heatmapPanel {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+}
+
+.heatmapGrid {
+  display: grid;
+  grid-template-rows: repeat(7, 12px);
+  grid-auto-flow: column;
+  grid-auto-columns: 12px;
+  gap: 4px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+}
+
+.heatTile {
+  width: 12px;
+  height: 12px;
+  border-radius: 2px;
+  background: var(--border);
+  transition: opacity 0.15s ease;
+}
+
+.heatTile:hover {
+  opacity: 0.8;
+}
+
+.heat0 {
+  background: var(--border);
+}
+
+.heat1 {
+  background: rgba(101, 88, 232, 0.3);
+}
+
+.heat2 {
+  background: rgba(101, 88, 232, 0.55);
+}
+
+.heat3 {
+  background: rgba(101, 88, 232, 0.8);
+}
+
+.heat4 {
+  background: var(--accent);
+}
+
+.heatLegend {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.75rem;
+  color: var(--text-muted);
+  justify-content: flex-end;
+}
+
+.milestonesCard {
+  padding: 20px 24px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+.milestonesList {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.milestonePill {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  font-size: 0.85rem;
+  font-weight: 600;
+  background: var(--surface-raised);
+  border: 1px solid var(--border);
+  color: var(--text-muted);
+}
+
+.milestoneAchieved {
+  background: var(--accent-soft);
+  border-color: var(--accent);
+  color: var(--accent);
+}
+
+/* Skeleton Container */
+.skeletonContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+
+.envLine { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; margin: 6px 0 0; font-size: var(--text-sm); color: var(--text-secondary); }
+.envLine a { color: var(--accent); font-weight: 550; text-decoration: none; }
+.envLine a:hover { text-decoration: underline; }
+.envLine strong { color: var(--text-primary); font-weight: 600; }
+
+/* A long material title must not push the goal card past the screen edge. */
+.goalActions > * { max-width: 100%; }
+.goalActions button { white-space: normal; text-align: left; height: auto; min-height: 36px; }

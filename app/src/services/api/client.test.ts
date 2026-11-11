@@ -74,4 +74,15 @@ describe('apiFetch', () => {
       message: 'Tidak dapat terhubung ke server. Periksa koneksi internet.',
     });
   });
+
+  it('supports FormData bodies without setting application/json header', async () => {
+    const fetchMock = mockFetch(() => Response.json({ ok: true }));
+    const formData = new FormData();
+    formData.append('title', 'Test Document');
+
+    await apiFetch('/api/upload', { method: 'POST', body: formData });
+    const init = fetchMock.mock.calls[0]?.[1] as RequestInit;
+    expect((init.headers as Record<string, string>)['Content-Type']).toBeUndefined();
+    expect(init.body).toBe(formData);
+  });
 });

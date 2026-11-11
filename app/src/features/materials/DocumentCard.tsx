@@ -1,0 +1,90 @@
+import React from 'react';
+import { SurfaceCard, StatusBadge, Icon } from '../../components/ui';
+import { fileKind, relDay } from '../dashboard/utils';
+import type { MaterialDoc } from './types';
+import styles from './Materials.module.css';
+
+interface DocumentCardProps {
+  document: MaterialDoc;
+  onClick: () => void;
+}
+
+export function DocumentCard({ document: doc, onClick }: DocumentCardProps) {
+  const isProcessing = doc.status === 'processing' || doc.status === 'queued';
+  const progressPct = Math.round(doc.job_progress ?? 15);
+
+  return (
+    <SurfaceCard
+      interactive
+      padded
+      className={styles.docCard}
+      onClick={onClick}
+      role="listitem"
+      tabIndex={0}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          onClick();
+        }
+      }}
+    >
+      <div className={styles.cardTop}>
+        <span className={styles.kindBadge}>{fileKind(doc.filename)}</span>
+        <StatusBadge status={doc.status} />
+      </div>
+
+      <div className={styles.cardMain}>
+        <div className={styles.cardTitle}>{doc.title}</div>
+        <div className={styles.cardMeta}>
+          {doc.subject_name && (
+            <span className={styles.cardSubject}>
+              <span
+                style={{
+                  width: '8px',
+                  height: '8px',
+                  borderRadius: '50%',
+                  backgroundColor: doc.subject_color || 'var(--accent)',
+                  display: 'inline-block',
+                }}
+              />
+              {doc.subject_name}
+            </span>
+          )}
+          {doc.page_count ? <span>{doc.page_count} hal</span> : null}
+        </div>
+
+        {/* Active Job Progress */}
+        {isProcessing && (
+          <div className={styles.jobProgressBox}>
+            <div className={styles.jobMessage}>
+              <Icon name="refresh" size={12} className="spin" />
+              <span>{doc.job_message || 'Sedang menganalisis…'}</span>
+            </div>
+            <div
+              className={styles.jobProgressBar}
+              role="progressbar"
+              aria-valuenow={progressPct}
+              aria-valuemin={0}
+              aria-valuemax={100}
+            >
+              <div
+                className={styles.jobProgressFill}
+                style={{ width: `${Math.max(5, progressPct)}%` }}
+              />
+            </div>
+          </div>
+        )}
+      </div>
+
+      <div className={styles.cardBottom}>
+        <span>{relDay(doc.updated_at || doc.created_at)}</span>
+        {doc.quiz_count ? (
+          <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
+            <Icon name="quiz" size={14} />
+            <span>{doc.quiz_count} kuis</span>
+          </span>
+        ) : null}
+      </div>
+    </SurfaceCard>
+  );
+}

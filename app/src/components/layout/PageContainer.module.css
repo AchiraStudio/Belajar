@@ -1,0 +1,28 @@
+.container {
+  width: 100%;
+  margin: 0 auto;
+  padding: 24px max(24px, env(safe-area-inset-right, 0)) 48px max(24px, env(safe-area-inset-left, 0));
+  outline: none;
+}
+
+.narrow {
+  max-width: 720px;
+}
+
+.standard {
+  max-width: 960px;
+}
+
+.wide {
+  max-width: 1200px;
+}
+
+.full {
+  max-width: 100%;
+}
+
+@media (max-width: 768px) {
+  .container {
+    padding: 16px 16px calc(var(--mobilenav-height) + 24px) 16px;
+  }
+}

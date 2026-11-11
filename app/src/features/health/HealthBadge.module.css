@@ -19,3 +19,11 @@
 .ok .dot { background: var(--good); }
 .down { color: var(--bad); background: var(--bad-soft); }
 .down .dot { background: var(--bad); }
+
+/* Phones: the coloured dot carries the state; the text stays available to screen readers. */
+@media (max-width: 640px) {
+  .badge { padding: 0; width: 36px; height: 36px; justify-content: center; }
+  .badge > span:not(.dot) {
+    position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap;
+  }
+}
