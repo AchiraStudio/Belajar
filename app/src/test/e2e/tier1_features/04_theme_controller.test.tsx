@@ -99,17 +99,17 @@ describe('Feature 4: Theme Mode Controller', () => {
 
   it('04.5 - LocalStorage Persistence & Restoration', () => {
     // First mount with light theme
-    const { unmount } = renderWithProviders(<ThemeConsumer />, { theme: 'light', themeStorageKey: 'belajar-theme' });
+    const { unmount } = renderWithProviders(<ThemeConsumer />, { theme: 'light', themeStorageKey: 'stuby-theme' });
 
     // Switch to dark updates storage
     fireEvent.click(screen.getByRole('button', { name: 'Pilih Gelap' }));
-    expect(window.localStorage.getItem('belajar-theme')).toBe('dark');
+    expect(window.localStorage.getItem('stuby-theme')).toBe('dark');
     unmount();
 
     // Second mount with persisted storage restores dark preference
     renderWithProviders(<ThemeConsumer />, {
-      initialStorage: { 'belajar-theme': 'dark' },
-      themeStorageKey: 'belajar-theme',
+      initialStorage: { 'stuby-theme': 'dark' },
+      themeStorageKey: 'stuby-theme',
     });
     expect(screen.getByLabelText('Tema Terdefinisi').textContent).toBe('dark');
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');

@@ -1,0 +1,15 @@
+.closing { margin-top: 90px; background: var(--bamboo); color: #141816; border-block: 2px solid #141816; }
+.in { display: grid; grid-template-columns: auto 1fr; gap: 48px; align-items: center; padding-block: 72px; }
+.mark { width: clamp(96px, 12vw, 150px); height: auto; }
+.closing h2 { color: #141816; }
+.closing p { margin-top: 14px; font-size: 1.125rem; max-width: 52ch; }
+.cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 26px; }
+.closing :focus-visible { outline-color: #141816; }
+
+@media (max-width: 760px) {
+  .closing { margin-top: 64px; }
+  .in { grid-template-columns: 1fr; gap: 20px; padding-block: 56px; }
+}
+@media (max-width: 560px) {
+  .cta > * { width: 100%; }
+}

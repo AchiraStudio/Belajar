@@ -4,6 +4,7 @@ import { Icon } from '../../components/ui';
 import { relDay } from '../dashboard/utils';
 import type { WorkspaceDocument, DocumentSubject, DocumentNote, DocumentQuizSummary } from './types';
 import styles from './Workspace.module.css';
+import { tr } from '../../services/i18n';
 
 interface WorkspaceHeaderProps {
   document: WorkspaceDocument;
@@ -33,9 +34,9 @@ export function WorkspaceHeader({
   return (
     <header className={styles.header}>
       <div className={styles.headerTop}>
-        <Link to="/materi" className={styles.backLink} aria-label="Kembali ke semua materi">
+        <Link to="/materi" className={styles.backLink} aria-label={tr('Kembali ke semua materi')}>
           <Icon name="chevron-left" size={16} />
-          <span>Semua materi</span>
+          <span>{tr('Semua materi')}</span>
         </Link>
 
         <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
@@ -56,7 +57,7 @@ export function WorkspaceHeader({
           {note?.edited === 1 && (
             <span className={styles.editedBadge}>
               <Icon name="edit" size={12} />
-              <span>Sudah kamu edit</span>
+              <span>{tr('Sudah kamu edit')}</span>
             </span>
           )}
         </div>
@@ -66,32 +67,32 @@ export function WorkspaceHeader({
 
       <div className={styles.headerMeta}>
         {doc.filename && <span>{doc.filename}</span>}
-        {doc.page_count ? <span>{doc.page_count} halaman/slide</span> : null}
-        <span>Diperbarui {relDay(doc.updated_at || doc.created_at)}</span>
+        {doc.page_count ? <span>{doc.page_count}{' '}{tr('halaman/slide')}</span> : null}
+        <span>{tr('Diperbarui')}{' '}{relDay(doc.updated_at || doc.created_at)}</span>
       </div>
 
       {/* Stats Bar */}
       <div className={styles.statsBar}>
         <div className={styles.statPill}>
           <Icon name="quiz" size={14} />
-          <span><b>{quizzes.length}</b> kuis</span>
+          <span><b>{quizzes.length}</b>{' '}{tr('kuis')}</span>
         </div>
 
         {bestScore != null && (
           <div className={styles.statPill}>
             <Icon name="trophy" size={14} />
-            <span>Skor terbaik <b>{Math.round(bestScore)}%</b></span>
+            <span>{tr('Skor terbaik')}{' '}<b>{Math.round(bestScore)}%</b></span>
           </div>
         )}
 
         <div className={styles.statPill}>
           <Icon name="book" size={14} />
-          <span><b>{readingTimeMin}</b> mnt baca</span>
+          <span><b>{readingTimeMin}</b>{' '}{tr('mnt baca')}</span>
         </div>
 
-        <Link to={`/chat/${doc.id}`} className={styles.chatLink} aria-label="Buka Chat AI untuk materi ini">
+        <Link to={`/chat/${doc.id}`} className={styles.chatLink} aria-label={tr('Buka Chat AI untuk materi ini')}>
           <Icon name="sparkles" size={14} />
-          <span>Chat AI</span>
+          <span>{tr('Chat AI')}</span>
         </Link>
       </div>
     </header>

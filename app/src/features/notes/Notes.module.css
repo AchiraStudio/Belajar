@@ -218,7 +218,7 @@
 .floatingPill:hover {
   transform: scale(1.05);
   background: var(--accent);
-  color: #ffffff;
+  color: var(--on-accent);
 }
 
 /* Tanya Panel Aside (Desktop) & Bottom Sheet (Mobile) */
@@ -294,7 +294,7 @@
 .quoteLabel {
   font-size: 0.72rem;
   font-weight: 700;
-  text-transform: uppercase;
+  
   color: var(--accent);
   letter-spacing: 0.04em;
 }
@@ -320,7 +320,7 @@
 .userBubble {
   align-self: flex-end;
   background: var(--accent);
-  color: #ffffff;
+  color: var(--on-accent);
   padding: 10px 14px;
   border-radius: 16px 16px 4px 16px;
   font-size: 0.9rem;

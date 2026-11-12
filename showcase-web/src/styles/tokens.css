@@ -1,0 +1,102 @@
+/* Stuby showcase tokens. Same identity as the app (app/src/styles/tokens.css):
+   INK outline, BAMBOO green, CREAM face, one SUN accent. The theme is always resolved to
+   light or dark and written to <html data-theme>, so every dark value lives in exactly one block. */
+
+@font-face {
+  font-family: 'Bricolage';
+  src: url('../assets/fonts/bricolage.woff2') format('woff2');
+  font-weight: 200 800;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Literata';
+  src: url('../assets/fonts/literata.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: normal;
+  font-display: swap;
+}
+@font-face {
+  font-family: 'Literata';
+  src: url('../assets/fonts/literata-italic.woff2') format('woff2');
+  font-weight: 200 900;
+  font-style: italic;
+  font-display: swap;
+}
+
+:root {
+  --ink: #141816;
+  --bamboo: #8dc63f;
+  --sun: #f2b705;
+  --canvas: #f6f4ec;
+  --card: #ffffff;
+  --tint-leaf: #e4f2cc;
+  --tint-sun: #fcefc0;
+  --tint-cream: #edeadd;
+  --text: #141816;
+  --text-2: #3a443d;
+  --text-3: #55605a;
+  --accent: #2f7a1f;
+  --accent-soft: rgba(141, 198, 63, 0.28);
+  --line: rgba(20, 24, 22, 0.14);
+  --line-strong: rgba(20, 24, 22, 0.24);
+  --frame: #141816;
+  --hard: #141816;
+  --good: #1f6b2a;
+  --good-soft: rgba(47, 122, 31, 0.16);
+  --bad: #b0281f;
+  --bad-soft: rgba(176, 40, 31, 0.12);
+  --dock-fill: rgba(20, 24, 22, 0.88);
+  --dock-edge: rgba(255, 255, 255, 0.14);
+  --dock-ink: #f4f6ee;
+  --dock-muted: #b9c2b3;
+  --band: #141816;
+  --band-text: #f1f4ec;
+  --band-text-2: #c6cfc1;
+  --on-bamboo: #141816;
+  --btn-hard: #141816;
+  --heat-2: #bfe17f;
+  --heat-4: #2f7a1f;
+
+  --font-sans: 'Bricolage', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  --font-serif: 'Literata', Georgia, Cambria, serif;
+  --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Consolas, monospace;
+
+  --r-sm: 10px;
+  --r-md: 14px;
+  --r-lg: 16px;
+  --r-xl: 24px;
+
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  --ink: #f1f4ec;
+  --bamboo: #9ad44b;
+  --sun: #f5c73a;
+  --canvas: #0e1210;
+  --card: #171c19;
+  --tint-leaf: #22301a;
+  --tint-sun: #3a3014;
+  --tint-cream: #1f2520;
+  --text: #f1f4ec;
+  --text-2: #bfc8ba;
+  --text-3: #98a494;
+  --accent: #9ad44b;
+  --accent-soft: rgba(154, 212, 75, 0.2);
+  --line: rgba(255, 255, 255, 0.12);
+  --line-strong: rgba(255, 255, 255, 0.22);
+  --frame: #3b463f;
+  --hard: #9ad44b;
+  --good: #7fd08a;
+  --good-soft: rgba(127, 208, 138, 0.18);
+  --bad: #ff8f85;
+  --bad-soft: rgba(255, 143, 133, 0.18);
+  --dock-fill: rgba(32, 39, 35, 0.9);
+  --dock-edge: rgba(255, 255, 255, 0.16);
+  --band: #171c19;
+  --btn-hard: #f1f4ec;
+  --heat-2: #4c7a22;
+  --heat-4: #c7f08a;
+  color-scheme: dark;
+}

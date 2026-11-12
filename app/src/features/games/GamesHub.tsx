@@ -21,6 +21,7 @@ import { errorMessage, isUnavailableMessage, useRpcQuery } from '../../hooks/use
 import { dropCache, rpcCall } from '../../services/api/rpc';
 import { parseScope, type GameHub, type GameMode } from './types';
 import styles from './Games.module.css';
+import { tr } from '../../services/i18n';
 
 const MODE_ICON: Record<string, IconName> = {
   ajari: 'message',
@@ -41,7 +42,7 @@ const MODE_TIPS: Record<string, string> = {
 };
 
 const LEVEL_LABEL = { baru: 'Baru', dikenal: 'Dikenal', paham: 'Paham', kuasai: 'Kuasai' } as const;
-const SCOPE_KEY = 'belajar-play-scope';
+const SCOPE_KEY = 'stuby-play-scope';
 
 function newClientKey(): string {
   return typeof crypto !== 'undefined' && 'randomUUID' in crypto
@@ -63,8 +64,8 @@ export function GamesHub() {
   const [picked, setPicked] = useState<GameMode | null>(null);
 
   const scopeOptions = useMemo(() => {
-    const opts = [{ value: 'all', label: 'Semua materi' }];
-    for (const s of data?.subjects ?? []) opts.push({ value: `s:${s.id}`, label: `Mata pelajaran: ${s.name}` });
+    const opts = [{ value: 'all', label: tr('Semua materi') }];
+    for (const s of data?.subjects ?? []) opts.push({ value: `s:${s.id}`, label: tr('Mata pelajaran: {a}', { a: s.name }) });
     for (const d of data?.documents ?? []) opts.push({ value: `d:${d.id}`, label: d.title });
     return opts;
   }, [data]);
@@ -83,7 +84,7 @@ export function GamesHub() {
 
   if (loading && !data) {
     return (
-      <div className={styles.page} aria-busy="true" aria-label="Memuat game">
+      <div className={styles.page} aria-busy="true" aria-label={tr('Memuat game')}>
         <Skeleton height="140px" borderRadius="20px" />
         <div className={styles.modes}>
           {[0, 1, 2, 3, 4, 5].map((i) => (
@@ -93,7 +94,7 @@ export function GamesHub() {
       </div>
     );
   }
-  if (error || !data) return <ErrorState message={error ?? 'Game tidak tersedia.'} onRetry={reload} />;
+  if (error || !data) return <ErrorState message={error ?? tr('Game tidak tersedia.')} onRetry={reload} />;
 
   const noDocs = data.documents.length === 0;
   const { profile } = data;
@@ -102,16 +103,16 @@ export function GamesHub() {
   return (
     <div className={styles.page}>
       <PageHeader
-        eyebrow="Game & Tantangan"
-        title="Game Belajar"
-        description="Latihan interaktif dari materimu sendiri. AI menulis tantangan; server bertindak sebagai wasit, jadi kunci jawaban dan skor tidak bisa diintip."
+        eyebrow={tr('Game & Tantangan')}
+        title={tr('Game Belajar')}
+        description={tr('Latihan interaktif dari materimu sendiri. AI menulis tantangan; server bertindak sebagai wasit, jadi kunci jawaban dan skor tidak bisa diintip.')}
         actions={
           <>
             <Link to="/kartu" className={styles.chipLink}>
-              <Icon name="cards" size={15} /> {data.cards.due} kartu
+              <Icon name="cards" size={15} /> {data.cards.due}{' '}{tr('kartu')}
             </Link>
             <Link to="/game/peta" className={styles.chipLink}>
-              <Icon name="compass" size={15} /> Peta konsep
+              <Icon name="compass" size={15} />{' '}{tr('Peta konsep')}
             </Link>
           </>
         }
@@ -128,12 +129,12 @@ export function GamesHub() {
           </div>
         </div>
         <div className={styles.heroBar}>
-          <ProgressBar value={xpPct} label="Kemajuan menuju level berikutnya" />
-          <span className={styles.heroNext}>{Math.max(0, profile.next - profile.xp)} XP lagi ke level {profile.level + 1}</span>
+          <ProgressBar value={xpPct} label={tr('Kemajuan menuju level berikutnya')} />
+          <span className={styles.heroNext}>{Math.max(0, profile.next - profile.xp)}{' '}{tr('XP lagi ke level')}{' '}{profile.level + 1}</span>
         </div>
         <div className={styles.heroStats}>
-          <MetricTile label="Streak" icon="flame" value={data.streak.current} unit="hari" />
-          <MetricTile label="Kartu jatuh tempo" icon="cards" value={data.cards.due} />
+          <MetricTile label={tr('Streak')} icon="flame" value={data.streak.current} unit={tr('hari')} />
+          <MetricTile label={tr('Kartu jatuh tempo')} icon="cards" value={data.cards.due} />
         </div>
       </SurfaceCard>
 
@@ -142,19 +143,19 @@ export function GamesHub() {
       {noDocs ? (
         <EmptyState
           icon="game"
-          title="Belum ada materi siap"
-          description="Game dibuat dari materimu. Unggah materi dan tunggu catatannya selesai diproses."
-          actionLabel="Unggah materi"
+          title={tr('Belum ada materi siap')}
+          description={tr('Game dibuat dari materimu. Unggah materi dan tunggu catatannya selesai diproses.')}
+          actionLabel={tr('Unggah materi')}
           onAction={() => (window.location.hash = '#/materi')}
         />
       ) : (
         <>
           <section aria-labelledby="scope-h" className={styles.scopeRow}>
             <h2 id="scope-h" className={styles.sectionTitle}>
-              Pilih mode
+              {tr('Pilih mode')}
             </h2>
             <div className={styles.scopeSelect}>
-              <Select label="Cakupan materi" value={effectiveScope} onChange={(e) => onScope(e.target.value)} options={scopeOptions} />
+              <Select label={tr('Cakupan materi')} value={effectiveScope} onChange={(e) => onScope(e.target.value)} options={scopeOptions} />
             </div>
           </section>
 
@@ -168,10 +169,10 @@ export function GamesHub() {
                 <span className={styles.modeDesc}>{m.desc}</span>
                 <span className={styles.modeFoot}>
                   <span className={styles.modeMeta}>
-                    {m.turns.default} giliran{m.hints ? ' · ada petunjuk' : ' · tanpa petunjuk'}
+                    {m.hints ? tr('{n} giliran · ada petunjuk', { n: m.turns.default }) : tr('{n} giliran · tanpa petunjuk', { n: m.turns.default })}
                   </span>
                   <span className={styles.modeGo}>
-                    Mulai <Icon name="arrow-right" size={14} />
+                    {tr('Mulai')}{' '}<Icon name="arrow-right" size={14} />
                   </span>
                 </span>
               </button>
@@ -182,16 +183,16 @@ export function GamesHub() {
 
       <div className={styles.twoCol}>
         <SurfaceCard className={styles.panel}>
-          <h2 className={styles.panelTitle}>Misi harian</h2>
+          <h2 className={styles.panelTitle}>{tr('Misi harian')}</h2>
           {data.quests.length === 0 ? (
-            <p className={styles.muted}>Belum ada misi hari ini.</p>
+            <p className={styles.muted}>{tr('Belum ada misi hari ini.')}</p>
           ) : (
             <ul className={styles.quests}>
               {data.quests.map((q) => (
                 <li key={q.key} className={q.done ? styles.questDone : ''}>
                   <Icon name={q.done ? 'check-circle' : 'target'} size={18} />
                   <span>{q.title}</span>
-                  <span className={styles.xpTag}>{q.done ? 'Selesai' : `+${q.xp} XP`}</span>
+                  <span className={styles.xpTag}>{q.done ? tr('Selesai') : `+${q.xp} XP`}</span>
                 </li>
               ))}
             </ul>
@@ -199,18 +200,18 @@ export function GamesHub() {
         </SurfaceCard>
 
         <SurfaceCard className={styles.panel}>
-          <h2 className={styles.panelTitle}>Penguasaan konsep</h2>
+          <h2 className={styles.panelTitle}>{tr('Penguasaan konsep')}</h2>
           <dl className={styles.levelRow}>
             {(Object.keys(LEVEL_LABEL) as (keyof typeof LEVEL_LABEL)[]).map((k) => (
               <div key={k}>
-                <dt>{LEVEL_LABEL[k]}</dt>
+                <dt>{tr(LEVEL_LABEL[k])}</dt>
                 <dd>{data.levels[k]}</dd>
               </div>
             ))}
           </dl>
           {data.weak.length > 0 ? (
             <>
-              <h3 className={styles.subTitle}>Perlu diulang</h3>
+              <h3 className={styles.subTitle}>{tr('Perlu diulang')}</h3>
               <ul className={styles.weakList}>
                 {data.weak.map((w) => (
                   <li key={w.id}>
@@ -221,7 +222,7 @@ export function GamesHub() {
               </ul>
             </>
           ) : (
-            <p className={styles.muted}>Belum ada konsep yang lemah. Mainkan game untuk mengisi penguasaan.</p>
+            <p className={styles.muted}>{tr('Belum ada konsep yang lemah. Mainkan game untuk mengisi penguasaan.')}</p>
           )}
         </SurfaceCard>
       </div>
@@ -229,12 +230,11 @@ export function GamesHub() {
       <SurfaceCard className={styles.soon}>
         <div className={styles.soonHead}>
           <Icon name="trophy" size={20} />
-          <h2 className={styles.panelTitle}>Tantangan harian, turnamen, dan papan peringkat</h2>
-          <StatusBadge status="neutral" label="Belum tersedia" />
+          <h2 className={styles.panelTitle}>{tr('Tantangan harian, turnamen, dan papan peringkat')}</h2>
+          <StatusBadge status="neutral" label={tr('Belum tersedia')} />
         </div>
         <p className={styles.muted}>
-          Tantangan harian, kompetisi asinkron antarteman, dan papan peringkat membutuhkan layanan sosial serta penilaian yang dijalankan
-          server. Fitur ini belum ada di server saat ini, jadi tidak ditampilkan sebagai fitur aktif.
+          {tr('Tantangan harian, kompetisi asinkron antarteman, dan papan peringkat membutuhkan layanan sosial serta penilaian yang dijalankan server. Fitur ini belum ada di server saat ini, jadi tidak ditampilkan sebagai fitur aktif.')}
         </p>
       </SurfaceCard>
 
@@ -256,7 +256,7 @@ function ActiveRunCard({ run, onChanged }: { run: NonNullable<GameHub['active']>
       toast.success('Sesi ditinggalkan');
       onChanged();
     } catch (err) {
-      toast.error(errorMessage(err, 'Gagal meninggalkan sesi.'));
+      toast.error(errorMessage(err, tr('Gagal meninggalkan sesi.')));
     } finally {
       setBusy(false);
     }
@@ -265,18 +265,18 @@ function ActiveRunCard({ run, onChanged }: { run: NonNullable<GameHub['active']>
   return (
     <SurfaceCard className={styles.activeRun}>
       <div className={styles.activeText}>
-        <StatusBadge status="processing" label="Sesi berjalan" />
+        <StatusBadge status="processing" label={tr('Sesi berjalan')} />
         <h2 className={styles.panelTitle}>{run.title}</h2>
         <p className={styles.muted}>
-          {run.scope_title ? `${run.scope_title} · ` : ''}giliran {run.turn_count} dari {run.max_turns} · {run.correct}/{run.total} benar · {run.xp} XP
+          {run.scope_title ? `${run.scope_title} · ` : ''}{tr('giliran {a} dari {b} · {c}/{d} benar · {xp} XP', { a: run.turn_count, b: run.max_turns, c: run.correct, d: run.total, xp: run.xp })}
         </p>
       </div>
       <div className={styles.activeActions}>
         <Button icon="play" onClick={() => navigate(`/game/main/${run.id}`)}>
-          Lanjutkan
+          {tr('Lanjutkan')}
         </Button>
         <Button variant="ghost" loading={busy} onClick={abandon}>
-          Tinggalkan
+          {tr('Tinggalkan')}
         </Button>
       </div>
     </SurfaceCard>
@@ -324,7 +324,7 @@ function StartDialog({ mode, scope, onClose }: { mode: GameMode | null; scope: s
       onClose();
       navigate(`/game/main/${res.run.id}`);
     } catch (err) {
-      const text = errorMessage(err, 'Gagal memulai game.');
+      const text = errorMessage(err, tr('Gagal memulai game.'));
       setFailure({ text, unavailable: isUnavailableMessage(text) });
     } finally {
       setBusy(false);
@@ -336,16 +336,16 @@ function StartDialog({ mode, scope, onClose }: { mode: GameMode | null; scope: s
       open={mode !== null}
       onClose={onClose}
       title={mode?.title ?? ''}
-      description={mode ? MODE_TIPS[mode.key] ?? mode.desc : undefined}
+      description={mode ? tr(MODE_TIPS[mode.key] ?? mode.desc) : undefined}
       size="sm"
       dismissible={!busy}
       footer={
         <>
           <Button variant="ghost" onClick={onClose} disabled={busy}>
-            Batal
+            {tr('Batal')}
           </Button>
           <Button icon="play" loading={busy} onClick={start}>
-            Mulai
+            {tr('Mulai')}
           </Button>
         </>
       }
@@ -363,7 +363,7 @@ function StartDialog({ mode, scope, onClose }: { mode: GameMode | null; scope: s
             data-autofocus
           />
           <Select
-            label="Tingkat"
+            label={tr('Tingkat')}
             value={level}
             onChange={(e) => setLevel(e.target.value)}
             options={[
@@ -374,7 +374,7 @@ function StartDialog({ mode, scope, onClose }: { mode: GameMode | null; scope: s
           />
           {mode.key === 'petualangan' && (
             <Select
-              label="Tema cerita"
+              label={tr('Tema cerita')}
               value={theme}
               onChange={(e) => setTheme(e.target.value)}
               options={[
@@ -385,12 +385,12 @@ function StartDialog({ mode, scope, onClose }: { mode: GameMode | null; scope: s
               ]}
             />
           )}
-          {!mode.hints && <p className={styles.muted}>Mode ini tanpa petunjuk dan tanpa umpan balik sampai selesai.</p>}
+          {!mode.hints && <p className={styles.muted}>{tr('Mode ini tanpa petunjuk dan tanpa umpan balik sampai selesai.')}</p>}
           {failure && (
             <div className={failure.unavailable ? styles.alertInfo : styles.alertError} role="alert">
               <Icon name={failure.unavailable ? 'info' : 'alert-circle'} size={18} />
               <div>
-                <strong>{failure.unavailable ? 'Game belum bisa dimulai' : 'Gagal memulai game'}</strong>
+                <strong>{failure.unavailable ? tr('Game belum bisa dimulai') : tr('Gagal memulai game')}</strong>
                 <p>{failure.text}</p>
               </div>
             </div>

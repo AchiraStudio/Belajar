@@ -1,6 +1,6 @@
 export type OpportunityCategory = 'scholarship' | 'competition';
 
-/** Mirrors `belajar_storage::Opportunity` (GET /api/v1/opportunities). Dates are Unix seconds. */
+/** Mirrors `stuby_storage::Opportunity` (GET /api/v1/opportunities). Dates are Unix seconds. */
 export interface Opportunity {
   id: number;
   title: string;

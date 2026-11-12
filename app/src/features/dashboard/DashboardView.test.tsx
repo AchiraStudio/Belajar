@@ -10,6 +10,9 @@ import {
   emptyDashboardFixture,
 } from '../../test/e2e/harness';
 
+/** The h1 is the time-of-day greeting ("Selamat sore."), so tests match the pattern, not a fixed word. */
+const GREETING = /^Selamat (pagi|siang|sore|malam)\.$/;
+
 describe('DashboardView Component', () => {
   beforeEach(() => {
     cleanup();
@@ -55,7 +58,7 @@ describe('DashboardView Component', () => {
     fireEvent.click(retryBtn);
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 1, name: 'Beranda Belajar' })).toBeTruthy();
+      expect(screen.getByRole('heading', { level: 1, name: GREETING })).toBeTruthy();
     });
   });
 
@@ -65,7 +68,7 @@ describe('DashboardView Component', () => {
     renderWithProviders(<DashboardView />);
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 1, name: 'Beranda Belajar' })).toBeTruthy();
+      expect(screen.getByRole('heading', { level: 1, name: GREETING })).toBeTruthy();
       expect(screen.getByText('Belum ada materi belajar')).toBeTruthy();
     });
 
@@ -79,7 +82,7 @@ describe('DashboardView Component', () => {
     renderWithProviders(<DashboardView />);
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 1, name: 'Beranda Belajar' })).toBeTruthy();
+      expect(screen.getByRole('heading', { level: 1, name: GREETING })).toBeTruthy();
       // Streak count
       expect(screen.getByText('7 hari')).toBeTruthy();
       // Metric tiles
@@ -94,6 +97,44 @@ describe('DashboardView Component', () => {
       expect(screen.getByText('7 Hari')).toBeTruthy();
       expect(screen.getByText('14 Hari')).toBeTruthy();
     });
+  });
+
+  it('never shows lifetime study time as "today" when the server sent no today block', async () => {
+    // The fixture has 290 minutes of lifetime study and no streak.today. The old view showed that
+    // as today's progress; the honest answer is a dash.
+    mockRpc.setResponse('dashboard', defaultDashboardFixture);
+    renderWithProviders(<DashboardView />);
+
+    const tile = await screen.findByRole('group', { name: 'Belajar hari ini' });
+    expect(tile.textContent).toContain('–');
+    expect(tile.textContent).not.toMatch(/jam/);
+    expect(tile.textContent).toContain('Target harian belum tersedia');
+  });
+
+  it('shows real today progress and the goal from streak.today', async () => {
+    mockRpc.setResponse('dashboard', {
+      ...defaultDashboardFixture,
+      streak: {
+        current: 7,
+        today: { day: '2026-11-10', seconds: 1500, goal_seconds: 1800, quizzes: 1, done: false },
+      },
+    });
+    renderWithProviders(<DashboardView />);
+
+    const tile = await screen.findByRole('group', { name: 'Belajar hari ini' });
+    expect(tile.textContent).toContain('25 mnt');
+    expect(tile.textContent).toContain('Target harian 30 mnt');
+    // The donut states the same fact in words, not just as an arc.
+    expect(screen.getByRole('img', { name: 'Belajar 25 mnt dari target 30 mnt hari ini' })).toBeTruthy();
+  });
+
+  it('renders the quiz table with links to the result page', async () => {
+    mockRpc.setResponse('dashboard', defaultDashboardFixture);
+    renderWithProviders(<DashboardView />);
+
+    const link = await screen.findByRole('link', { name: 'Kuis Diagnostik Jaringan' });
+    expect(link.getAttribute('href')).toMatch(/\/hasil\/501$/);
+    expect(screen.getByRole('columnheader', { name: 'Persen' })).toBeTruthy();
   });
 
   it('renders continue button for last recent document', async () => {

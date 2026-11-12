@@ -5,6 +5,7 @@ import { apiUrl } from '../../services/api/client';
 import { renderMarkdown } from './markdown/parser';
 import type { TanyaMessage } from './types';
 import styles from './Notes.module.css';
+import { tr } from '../../services/i18n';
 
 interface TanyaPanelProps {
   isOpen: boolean;
@@ -140,7 +141,7 @@ export function TanyaPanel({
                 );
                 streamed = true;
               } else if (ev.type === 'error') {
-                throw new Error(ev.error || 'Kesalahan pada respon AI');
+                throw new Error(ev.error || tr('Kesalahan pada respon AI'));
               }
             } catch {
               /* ignore parse errors on malformed event */
@@ -174,7 +175,7 @@ export function TanyaPanel({
         setMessages((prev) =>
           prev.map((m) =>
             m.id === botMsgId
-              ? { ...m, content: err?.message || 'Gagal memuat jawaban.', isStreaming: false }
+              ? { ...m, content: err?.message || tr('Gagal memuat jawaban.'), isStreaming: false }
               : m
           )
         );
@@ -204,21 +205,21 @@ export function TanyaPanel({
   };
 
   return (
-    <aside className={styles.askPanel} role="dialog" aria-label="Panel tanya AI">
+    <aside className={styles.askPanel} role="dialog" aria-label={tr('Panel tanya AI')}>
       <header className={styles.askHead}>
         <div className={styles.askTitleGroup}>
           <Icon name="sparkles" size={18} />
           <div>
-            <div className={styles.askTitle}>Tanya AI</div>
-            <div className={styles.askSubtitle}>Penjelasan teks pilihan</div>
+            <div className={styles.askTitle}>{tr('Tanya AI')}</div>
+            <div className={styles.askSubtitle}>{tr('Penjelasan teks pilihan')}</div>
           </div>
         </div>
-        <IconButton label="Tutup panel tanya AI" icon="x" size="sm" variant="ghost" onClick={handleClose} />
+        <IconButton label={tr('Tutup panel tanya AI')} icon="x" size="sm" variant="ghost" onClick={handleClose} />
       </header>
 
       {initialQuote && (
         <div className={styles.quoteCard}>
-          <div className={styles.quoteLabel}>Teks yang ditanyakan:</div>
+          <div className={styles.quoteLabel}>{tr('Teks yang ditanyakan:')}</div>
           <div className={styles.quoteText}>
             {initialQuote.length > 200 ? `${initialQuote.slice(0, 200)}…` : initialQuote}
           </div>
@@ -245,15 +246,15 @@ export function TanyaPanel({
           <input
             type="text"
             className={styles.askInput}
-            placeholder="Lanjut tanya…"
+            placeholder={tr('Lanjut tanya…')}
             value={inputVal}
             onChange={(e) => setInputVal(e.target.value)}
             disabled={isAsking}
             maxLength={500}
-            aria-label="Pertanyaan lanjutan"
+            aria-label={tr('Pertanyaan lanjutan')}
           />
           <IconButton
-            label="Kirim pertanyaan"
+            label={tr('Kirim pertanyaan')}
             icon="sparkles"
             type="submit"
             size="sm"
@@ -261,7 +262,7 @@ export function TanyaPanel({
             disabled={isAsking || !inputVal.trim()}
           />
         </form>
-        <div className={styles.hintText}>Tekan Enter untuk mengirim · Dijawab oleh DeepSeek</div>
+        <div className={styles.hintText}>{tr('Tekan Enter untuk mengirim · Dijawab oleh DeepSeek')}</div>
       </footer>
     </aside>
   );

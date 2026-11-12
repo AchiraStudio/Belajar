@@ -1,6 +1,6 @@
 [package]
-name = "belajar-app"
-description = "Belajar Tauri 2 shell: a thin native wrapper around the shared React app."
+name = "stuby-app"
+description = "Stuby Tauri 2 shell. On desktop it embeds the Stuby server, so the app is standalone."
 version = "0.1.0"
 edition = "2024"
 rust-version = "1.90"
@@ -12,7 +12,7 @@ publish = false
 
 # The library target is required for the mobile (Android/iOS) entry point.
 [lib]
-name = "belajar_app_lib"
+name = "stuby_app_lib"
 crate-type = ["staticlib", "cdylib", "rlib"]
 
 [build-dependencies]
@@ -21,3 +21,17 @@ tauri-build = { version = "2", features = [] }
 
 [dependencies]
 tauri = { version = "2", features = [] }
+
+# The server runs inside the app on every platform (desktop and Android): see src/embedded.rs.
+stuby-server = { path = "../../crates/stuby-server" }
+tokio = { version = "1", features = ["sync", "time"] }
+serde_json = "1"
+uuid = { version = "1", features = ["v4"] }
+
+# Shipping builds (desktop installer and Android APK): small and fast. Panics stay unwinding on
+# purpose so a bug in one request cannot take the whole app down.
+[profile.release]
+opt-level = "s"
+lto = "thin"
+codegen-units = 4
+strip = true

@@ -1,0 +1,90 @@
+/* The panda's motion. All of it is transform / opacity / stroke-dashoffset. Colours are the logo's
+   (ink, bamboo, white) and are fixed on purpose: the panda looks the same in both themes. */
+.art {
+  display: block;
+  overflow: visible;
+  --ink: #151515;
+  --green: #8DC63F;
+}
+
+/* Only the animated groups use their own box as the origin; the rotated eye ellipses keep the
+   view-box origin so their rotate(a cx cy) means what it says. */
+.shadow ellipse, .ear, .eyeL, .eyeR, .mouth, .leaf, .body, .head, .bamboo { transform-box: fill-box; }
+
+.shadow ellipse { fill: rgba(20, 24, 22, 0.14); transform-origin: center; }
+
+.ear { fill: var(--ink); stroke: var(--logo-rim, transparent); stroke-width: 4; transform-origin: center; }
+.face { fill: #FFFFFF; stroke: var(--ink); stroke-width: 14; }
+.eyeL, .eyeR { transform-origin: center; }
+.eyeL ellipse, .eyeR ellipse { fill: var(--ink); }
+.nose { fill: var(--ink); stroke: var(--ink); stroke-width: 6; stroke-linejoin: round; }
+.mouth path { fill: none; stroke: var(--ink); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+.mouth { transform-origin: 50% 20%; }
+
+.tubeOutline { fill: none; stroke: var(--ink); stroke-width: 36; stroke-linecap: round; stroke-linejoin: round; }
+.tube { fill: none; stroke: var(--green); stroke-width: 25; stroke-linecap: round; stroke-linejoin: round; }
+.joints { fill: none; stroke: var(--ink); stroke-width: 25; stroke-dasharray: 0.5 6.4; stroke-linecap: butt; opacity: 0.85; }
+.leaf { fill: var(--green); stroke: var(--ink); stroke-width: 7; stroke-linejoin: round; transform-origin: 90% 80%; }
+.leafB { transform-origin: 100% 40%; }
+
+.body, .head { transform-origin: 50% 100%; }
+.head { transform-origin: 50% 80%; }
+.bamboo { transform-origin: 78% 40%; }
+
+/* ---- INTRO (about 2.4s): drop in, eyes open, ears pop, bamboo grows out of the mouth ------------- */
+.intro .body { animation: drop 620ms cubic-bezier(0.3, 1.5, 0.5, 1) both; }
+.intro .shadow ellipse { animation: shadowIn 620ms ease-out both; }
+.intro .earL { animation: pop 420ms cubic-bezier(0.3, 1.8, 0.5, 1) 380ms both; }
+.intro .earR { animation: pop 420ms cubic-bezier(0.3, 1.8, 0.5, 1) 470ms both; }
+.intro .eyeL, .intro .eyeR { animation: eyesOpen 380ms cubic-bezier(0.3, 1.6, 0.5, 1) 760ms both; }
+.intro .nose, .intro .mouth { animation: fadeIn 240ms ease-out 700ms both; }
+.intro .tubeOutline, .intro .tube { stroke-dasharray: 100; animation: grow 1100ms cubic-bezier(0.45, 0, 0.2, 1) 1000ms both; }
+.intro .joints { animation: fadeIn 300ms ease-out 1900ms both; }
+.intro .leafA { animation: leafPop 380ms cubic-bezier(0.3, 1.8, 0.5, 1) 1150ms both; }
+.intro .leafB { animation: leafPop 380ms cubic-bezier(0.3, 1.8, 0.5, 1) 2000ms both; }
+.intro .head { animation: chew 900ms ease-in-out 2300ms infinite; }
+.intro .mouth { animation: fadeIn 240ms ease-out 700ms both, munch 900ms ease-in-out 2300ms infinite; }
+.intro .eyeL, .intro .eyeR { animation: eyesOpen 380ms cubic-bezier(0.3, 1.6, 0.5, 1) 760ms both, blink 4.6s ease-in-out 3s infinite; }
+
+/* ---- LOOP: the idle while things load ----------------------------------------------------------- */
+.loop .head { animation: chew 900ms ease-in-out infinite; }
+.loop .mouth { animation: munch 900ms ease-in-out infinite; }
+.loop .eyeL, .loop .eyeR { animation: blink 4.2s ease-in-out infinite; }
+.loop .leafA { animation: leafWiggle 1800ms ease-in-out infinite; }
+
+/* ---- HAPPY: a hop when everything is ready ------------------------------------------------------- */
+.happy .body { animation: hop 620ms cubic-bezier(0.3, 1.4, 0.5, 1) both; }
+.happy .shadow ellipse { animation: shadowHop 620ms ease-in-out both; }
+.happy .eyeL, .happy .eyeR { animation: happyEyes 620ms ease-out both; }
+
+@keyframes drop {
+  0% { opacity: 0; transform: translateY(-70px) scale(0.86, 1.12); }
+  55% { opacity: 1; transform: translateY(6px) scale(1.06, 0.92); }
+  80% { transform: translateY(-3px) scale(0.99, 1.02); }
+  100% { opacity: 1; transform: none; }
+}
+@keyframes shadowIn { 0% { opacity: 0; transform: scale(0.3); } 60% { opacity: 1; transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
+@keyframes pop { 0% { transform: scale(0); } 100% { transform: scale(1); } }
+@keyframes eyesOpen { 0% { transform: scaleY(0.05); } 100% { transform: scaleY(1); } }
+@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes grow { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+@keyframes leafPop { 0% { transform: scale(0) rotate(-20deg); } 100% { transform: scale(1) rotate(0); } }
+@keyframes chew { 0%, 100% { transform: translateY(0) rotate(0); } 30% { transform: translateY(3px) rotate(-1.4deg); } 65% { transform: translateY(-1px) rotate(1.2deg); } }
+@keyframes munch { 0%, 100% { transform: scaleY(1); } 35% { transform: scaleY(1.35); } 65% { transform: scaleY(0.8); } }
+@keyframes blink { 0%, 93%, 100% { transform: scaleY(1); } 96% { transform: scaleY(0.08); } }
+@keyframes leafWiggle { 0%, 100% { transform: rotate(0); } 50% { transform: rotate(7deg); } }
+@keyframes hop { 0% { transform: none; } 35% { transform: translateY(-26px) scale(0.97, 1.05); } 70% { transform: translateY(2px) scale(1.05, 0.94); } 100% { transform: none; } }
+@keyframes shadowHop { 0%, 100% { transform: scale(1); opacity: 1; } 35% { transform: scale(0.7); opacity: 0.6; } }
+@keyframes happyEyes { 0%, 100% { transform: scaleY(1); } 30% { transform: scaleY(0.3); } 60% { transform: scaleY(1.1); } }
+
+/* Reduced motion: the finished picture, plus a very gentle bob and blink so it still feels alive. */
+@media (prefers-reduced-motion: reduce) {
+  .intro .body, .intro .shadow ellipse, .intro .earL, .intro .earR, .intro .nose, .intro .joints,
+  .intro .leafA, .intro .leafB, .intro .tubeOutline, .intro .tube { animation: none; }
+  .intro .tubeOutline, .intro .tube { stroke-dasharray: none; }
+  .intro .eyeL, .intro .eyeR { animation: blink 5s ease-in-out infinite; }
+  .intro .mouth { animation: none; }
+  .intro .head, .loop .head { animation: chew 2400ms ease-in-out infinite; }
+  .loop .mouth, .loop .leafA { animation: none; }
+  .happy .body, .happy .shadow ellipse, .happy .eyeL, .happy .eyeR { animation: none; }
+}

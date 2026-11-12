@@ -5,6 +5,7 @@ import { apiFetch } from '../../services/api/client';
 import { dropCache } from '../../services/api/rpc';
 import { NOTE_STYLES, type SubjectItem, type UploadResponse } from './types';
 import styles from './Materials.module.css';
+import { tr } from '../../services/i18n';
 
 interface UploadDialogProps {
   isOpen: boolean;
@@ -35,11 +36,11 @@ export function UploadDialog({ isOpen, onClose, subjects, onSuccess }: UploadDia
   const handleFileSelection = (f: File) => {
     const ext = '.' + (f.name.split('.').pop()?.toLowerCase() || '');
     if (!ALLOWED_EXTS.includes(ext)) {
-      toast.error(`Format ${ext} tidak didukung. Pilih PDF, Office, Gambar, atau Teks.`);
+      toast.error(tr('Format {a} tidak didukung. Pilih PDF, Office, Gambar, atau Teks.', { a: ext }));
       return;
     }
     if (f.size > MAX_UPLOAD_BYTES) {
-      toast.error('Ukuran file melebihi batas maksimum 40 MB.');
+      toast.error(tr('Ukuran file melebihi batas maksimum 40 MB.'));
       return;
     }
     setFile(f);
@@ -72,7 +73,7 @@ export function UploadDialog({ isOpen, onClose, subjects, onSuccess }: UploadDia
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!file) {
-      toast.error('Silakan pilih berkas materi terlebih dahulu.');
+      toast.error(tr('Silakan pilih berkas materi terlebih dahulu.'));
       return;
     }
 
@@ -95,26 +96,26 @@ export function UploadDialog({ isOpen, onClose, subjects, onSuccess }: UploadDia
 
       const docId = res?.data?.doc_id ?? res?.data?.id ?? res?.doc_id ?? res?.id;
       dropCache();
-      toast.success('Materi berhasil diunggah! Sedang memproses...');
+      toast.success(tr('Materi berhasil diunggah! Sedang memproses...'));
       onClose();
       if (docId) {
         onSuccess(docId);
       }
     } catch (err: any) {
-      toast.error(err?.message || 'Gagal mengunggah materi. Periksa server.');
+      toast.error(err?.message || tr('Gagal mengunggah materi. Periksa server.'));
     } finally {
       setIsUploading(false);
     }
   };
 
-  const currentStyleDesc = NOTE_STYLES.find((s) => s.id === style)?.desc || '';
+  const currentStyleDesc = tr(NOTE_STYLES.find((s) => s.id === style)?.desc || '');
 
   return (
-    <div ref={dialogRef} className={styles.modalBackdrop} onClick={onClose} role="dialog" aria-modal="true" aria-label="Unggah Materi">
+    <div ref={dialogRef} className={styles.modalBackdrop} onClick={onClose} role="dialog" aria-modal="true" aria-label={tr('Unggah Materi')}>
       <div className={styles.modalDialog} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>Unggah Materi Baru</h2>
-          <IconButton label="Tutup dialog" onClick={onClose} icon="x" size="sm" variant="ghost" />
+          <h2 className={styles.modalTitle}>{tr('Unggah Materi Baru')}</h2>
+          <IconButton label={tr('Tutup dialog')} onClick={onClose} icon="x" size="sm" variant="ghost" />
         </div>
 
         <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
@@ -139,12 +140,12 @@ export function UploadDialog({ isOpen, onClose, subjects, onSuccess }: UploadDia
               onClick={() => fileInputRef.current?.click()}
               role="button"
               tabIndex={0}
-              aria-label="Area seret atau pilih berkas materi"
+              aria-label={tr('Area seret atau pilih berkas materi')}
             >
               <Icon name="upload" size={32} />
-              <div className={styles.dropzoneText}>Seret file ke sini atau klik untuk memilih</div>
+              <div className={styles.dropzoneText}>{tr('Seret file ke sini atau klik untuk memilih')}</div>
               <div className={styles.dropzoneSubtext}>
-                Mendukung PDF, DOCX, PPTX, Gambar, TXT, MD (Maks 40 MB)
+                {tr('Mendukung PDF, DOCX, PPTX, Gambar, TXT, MD (Maks 40 MB)')}
               </div>
             </div>
           ) : (
@@ -164,15 +165,15 @@ export function UploadDialog({ isOpen, onClose, subjects, onSuccess }: UploadDia
                 onClick={() => setFile(null)}
                 type="button"
               >
-                Ganti
+                {tr('Ganti')}
               </Button>
             </div>
           )}
 
           {/* Title Override */}
           <Input
-            label="Judul Materi (opsional)"
-            placeholder="Contoh: Pengantar Jaringan Komputer"
+            label={tr('Judul Materi (opsional)')}
+            placeholder={tr('Contoh: Pengantar Jaringan Komputer')}
             value={title}
             onChange={(e) => setTitle(e.target.value)}
             maxLength={120}
@@ -181,26 +182,26 @@ export function UploadDialog({ isOpen, onClose, subjects, onSuccess }: UploadDia
           {/* Subject Picker */}
           <div>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px' }}>
-              Mata Pelajaran
+              {tr('Mata Pelajaran')}
             </label>
             <Select
               value={subjectId}
               onChange={(e) => setSubjectId(e.target.value)}
-              aria-label="Pilih mata pelajaran"
+              aria-label={tr('Pilih mata pelajaran')}
             >
-              <option value="">-- Tanpa Mata Pelajaran --</option>
+              <option value="">{tr('-- Tanpa Mata Pelajaran --')}</option>
               {subjects.map((s) => (
                 <option key={s.id} value={String(s.id)}>
                   {s.name}
                 </option>
               ))}
-              <option value="__new">+ Buat mata pelajaran baru…</option>
+              <option value="__new">{tr('+ Buat mata pelajaran baru…')}</option>
             </Select>
 
             {subjectId === '__new' && (
               <div style={{ marginTop: '8px' }}>
                 <Input
-                  placeholder="Nama mata pelajaran baru"
+                  placeholder={tr('Nama mata pelajaran baru')}
                   value={newSubject}
                   onChange={(e) => setNewSubject(e.target.value)}
                   maxLength={60}
@@ -213,24 +214,24 @@ export function UploadDialog({ isOpen, onClose, subjects, onSuccess }: UploadDia
           {/* Note Style Selector */}
           <div>
             <label style={{ display: 'block', fontSize: '0.85rem', fontWeight: 600, marginBottom: '6px' }}>
-              Gaya Catatan AI
+              {tr('Gaya Catatan AI')}
             </label>
             <Select
               value={style}
               onChange={(e) => setStyle(e.target.value)}
-              aria-label="Pilih gaya catatan AI"
+              aria-label={tr('Pilih gaya catatan AI')}
             >
-              <optgroup label="Umum">
+              <optgroup label={tr('Umum')}>
                 {NOTE_STYLES.filter((s) => s.group === 'Umum').map((s) => (
                   <option key={s.id} value={s.id}>
-                    {s.label}
+                    {tr(s.label)}
                   </option>
                 ))}
               </optgroup>
-              <optgroup label="Detail">
+              <optgroup label={tr('Detail')}>
                 {NOTE_STYLES.filter((s) => s.group === 'Detail').map((s) => (
                   <option key={s.id} value={s.id}>
-                    {s.label}
+                    {tr(s.label)}
                   </option>
                 ))}
               </optgroup>
@@ -241,7 +242,7 @@ export function UploadDialog({ isOpen, onClose, subjects, onSuccess }: UploadDia
           {/* Submit Actions */}
           <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '10px', marginTop: '8px' }}>
             <Button variant="ghost" onClick={onClose} disabled={isUploading} type="button">
-              Batal
+              {tr('Batal')}
             </Button>
             <Button
               variant="primary"
@@ -250,7 +251,7 @@ export function UploadDialog({ isOpen, onClose, subjects, onSuccess }: UploadDia
               disabled={!file || isUploading}
               icon="upload"
             >
-              {isUploading ? 'Mengunggah…' : 'Mulai Proses AI'}
+              {isUploading ? tr('Mengunggah…') : tr('Mulai Proses AI')}
             </Button>
           </div>
         </form>

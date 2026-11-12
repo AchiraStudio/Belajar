@@ -1,0 +1,22 @@
+.win svg { width: 100%; height: auto; background: var(--card); }
+.edges path, .edge { fill: none; stroke: var(--text-3); stroke-width: 2; }
+.leaf rect { fill: var(--card); stroke: var(--line-strong); stroke-width: 1.5; }
+.leaf text, .branch text, .root text { font-family: var(--font-sans); font-size: 14px; font-weight: 650; fill: var(--text); }
+.root rect { fill: var(--bamboo); stroke: #141816; stroke-width: 2.5; }
+.root .rootShadow { fill: var(--hard); stroke: none; }
+.root text { font-size: 16px; font-weight: 800; fill: #141816; }
+
+.branch { cursor: pointer; outline: none; }
+.branch rect { stroke: #141816; stroke-width: 2; transition: stroke-width 160ms ease; }
+.branch.tone-leaf rect { fill: var(--tint-leaf); }
+.branch.tone-sun rect { fill: var(--tint-sun); }
+.branch.tone-cream rect { fill: var(--tint-cream); }
+.branch text { fill: var(--text); }
+.branch:hover rect { stroke-width: 3; }
+.branch:focus-visible rect { stroke: var(--accent); stroke-width: 4; }
+
+.knob circle { fill: var(--card); stroke: #141816; stroke-width: 1.8; }
+.knob text { font-size: 11px; font-weight: 800; fill: #141816; }
+:global(:root[data-theme='dark']) .knob circle { fill: #f1f4ec; }
+
+.cross { fill: none; stroke: var(--accent); stroke-width: 2.2; stroke-dasharray: 6 5; }

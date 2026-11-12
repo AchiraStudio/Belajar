@@ -5,6 +5,7 @@ export * from './FrostPanel';
 export * from './SurfaceCard';
 export * from './Input';
 export * from './Select';
+export * from './Dropdown';
 export * from './Tabs';
 export * from './StatusBadge';
 export * from './Skeleton';

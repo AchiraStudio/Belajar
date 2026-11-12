@@ -20,7 +20,9 @@ describe('AuthGate', () => {
       'fetch',
       vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
         const url = String(input);
+        if (url.endsWith('/api/v1/health')) return json({ status: 'ok', service: 'stuby', version: '0.1.0' });
         if (url.endsWith('/api/session')) return json({ authenticated: authed });
+        if (url.includes('/api/rpc/')) return json({ ok: true, data: {} });
         if (url.endsWith('/api/login')) {
           loginBody = JSON.parse(String(init?.body ?? '{}'));
           if ((loginBody as { password: string }).password === 'benar') {
@@ -83,5 +85,78 @@ describe('AuthGate', () => {
     );
     expect(await screen.findByText('Server tidak terjangkau')).toBeTruthy();
     expect(screen.getByRole('button', { name: /Coba Lagi/i })).toBeTruthy();
+  });
+
+  it('runs the startup sequence for real: health, session, then the first screens data', async () => {
+    authed = true;
+    const calls: string[] = [];
+    const base = globalThis.fetch as unknown as (i: RequestInfo | URL, init?: RequestInit) => Promise<Response>;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL, init?: RequestInit) => {
+        calls.push(String(input).replace(/^.*\/api/, '/api'));
+        return base(input, init);
+      }),
+    );
+    render(
+      <AuthGate>
+        <div>Isi aplikasi</div>
+      </AuthGate>,
+    );
+    expect(await screen.findByText('Isi aplikasi')).toBeTruthy();
+    expect(calls[0]).toBe('/api/v1/health');
+    expect(calls[1]).toBe('/api/session');
+    expect(calls.filter((c) => c.startsWith('/api/rpc/')).map((c) => c.replace('/api/rpc/', '')).sort()).toEqual(
+      ['dashboard', 'get_settings', 'list_documents', 'list_subjects'],
+    );
+  });
+
+  it('does not claim to have loaded data it did not load when nobody is signed in', async () => {
+    render(
+      <AuthGate>
+        <div>Isi aplikasi</div>
+      </AuthGate>,
+    );
+    await screen.findByLabelText('Kata sandi');
+    expect(screen.queryByText('Data belajarmu siap')).toBeNull();
+  });
+
+  it('retries a flaky server before giving up, and Coba Lagi starts the sequence again', async () => {
+    let failures = 2;
+    vi.stubGlobal(
+      'fetch',
+      vi.fn(async (input: RequestInfo | URL) => {
+        const url = String(input);
+        if (url.endsWith('/api/v1/health')) {
+          if (failures > 0) {
+            failures -= 1;
+            throw new TypeError('Failed to fetch');
+          }
+          return json({ status: 'ok' });
+        }
+        if (url.endsWith('/api/session')) return json({ authenticated: true });
+        return json({ ok: true, data: {} });
+      }),
+    );
+    render(
+      <AuthGate>
+        <div>Isi aplikasi</div>
+      </AuthGate>,
+    );
+    // two failures, third attempt succeeds: no error screen
+    expect(await screen.findByText('Isi aplikasi')).toBeTruthy();
+    expect(screen.queryByText('Server tidak terjangkau')).toBeNull();
+
+    cleanup();
+    failures = 99;
+    render(
+      <AuthGate>
+        <div>Isi aplikasi</div>
+      </AuthGate>,
+    );
+    expect(await screen.findByText('Server tidak terjangkau')).toBeTruthy();
+    failures = 0;
+    fireEvent.click(screen.getByRole('button', { name: /Coba Lagi/i }));
+    expect(await screen.findByText('Isi aplikasi')).toBeTruthy();
   });
 });

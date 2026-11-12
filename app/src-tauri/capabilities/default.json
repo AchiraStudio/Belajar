@@ -1,14 +1,14 @@
 {
   "$schema": "../gen/schemas/desktop-schema.json",
   "identifier": "default",
-  "description": "Core defaults, plus exactly what the custom title bar needs on the main window: minimize, maximize/restore, close, drag and window theme. No filesystem, shell, dialog or opener access (docs/MIGRATION_PLAN.md section 8). `remote.urls` lets the page served by the local Belajar server (the dev UI at 127.0.0.1:8080) call these window commands; any other origin gets nothing.",
+  "description": "Core defaults, plus exactly what the custom title bar needs on the main window: minimize, maximize/restore, close, drag and window theme. No filesystem, shell, dialog or opener access (docs/MIGRATION_PLAN.md section 8). `remote.urls` lets the page served by the Stuby server (the one embedded in the desktop app on a loopback port, or the dev server at :8080) call these window commands; any other origin gets nothing.",
   "windows": [
     "main"
   ],
   "remote": {
     "urls": [
-      "http://127.0.0.1:8080/*",
-      "http://localhost:8080/*"
+      "http://127.0.0.1:*/*",
+      "http://localhost:*/*"
     ]
   },
   "permissions": [

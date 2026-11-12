@@ -16,6 +16,7 @@ import { errorMessage, useRpcQuery } from '../../hooks/useRpcQuery';
 import { dropCache, rpcCall } from '../../services/api/rpc';
 import type { AttemptResponse, QuizSummary } from './types';
 import styles from './Quizzes.module.css';
+import { tr, currentLocale } from '../../services/i18n';
 
 export function scoreTone(pct: number): 'good' | 'mid' | 'bad' {
   return pct >= 80 ? 'good' : pct >= 60 ? 'mid' : 'bad';
@@ -24,10 +25,10 @@ export function scoreTone(pct: number): 'good' | 'mid' | 'bad' {
 function relativeDay(ts?: number | null): string {
   if (!ts) return '';
   const days = Math.floor((Date.now() / 1000 - ts) / 86400);
-  if (days <= 0) return 'hari ini';
+  if (days <= 0) return tr('hari ini');
   if (days === 1) return 'kemarin';
-  if (days < 30) return `${days} hari lalu`;
-  return new Date(ts * 1000).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' });
+  if (days < 30) return tr('{a} hari lalu', { a: days });
+  return new Date(ts * 1000).toLocaleDateString(currentLocale(), { day: 'numeric', month: 'short', year: 'numeric' });
 }
 
 export function QuizzesView() {
@@ -51,7 +52,7 @@ export function QuizzesView() {
       });
       navigate(`/latihan/${res.attempt.id}`);
     } catch (err) {
-      toast.error(errorMessage(err, 'Gagal memulai kuis.'));
+      toast.error(errorMessage(err, tr('Gagal memulai kuis.')));
     } finally {
       setBusy(null);
     }
@@ -62,11 +63,11 @@ export function QuizzesView() {
     try {
       await rpcCall('delete_quiz', { id: deleteFor.id });
       dropCache();
-      toast.success('Kuis dihapus');
+      toast.success(tr('Kuis dihapus'));
       setDeleteFor(null);
       reload();
     } catch (err) {
-      toast.error(errorMessage(err, 'Gagal menghapus kuis.'));
+      toast.error(errorMessage(err, tr('Gagal menghapus kuis.')));
     }
   };
 
@@ -75,19 +76,19 @@ export function QuizzesView() {
   return (
     <div className={styles.page}>
       <PageHeader
-        eyebrow="Belajar"
-        title="Kuis"
-        description="Uji pemahamanmu. Mode latihan memberi umpan balik langsung; mode ujian memakai timer dan baru menilai setelah dikumpulkan."
+        eyebrow={tr('Belajar')}
+        title={tr('Kuis')}
+        description={tr('Uji pemahamanmu. Mode latihan memberi umpan balik langsung; mode ujian memakai timer dan baru menilai setelah dikumpulkan.')}
         actions={
           <Link to="/soal-lemah" className={styles.linkButton}>
             <Icon name="target" size={16} />
-            Soal lemah
+            {tr('Soal lemah')}
           </Link>
         }
       />
 
       {loading && !data && (
-        <div className={styles.list} aria-busy="true" aria-label="Memuat daftar kuis">
+        <div className={styles.list} aria-busy="true" aria-label={tr('Memuat daftar kuis')}>
           {[0, 1, 2].map((i) => (
             <Skeleton key={i} height="76px" borderRadius="16px" />
           ))}
@@ -99,9 +100,9 @@ export function QuizzesView() {
       {data && quizzes.length === 0 && (
         <EmptyState
           icon="quiz"
-          title="Belum ada kuis"
-          description="Buka salah satu materi lalu buat kuis dari tab Kuis. Kuis gabungan per mata pelajaran juga akan muncul di sini."
-          actionLabel="Pilih materi"
+          title={tr('Belum ada kuis')}
+          description={tr('Buka salah satu materi lalu buat kuis dari tab Kuis. Kuis gabungan per mata pelajaran juga akan muncul di sini.')}
+          actionLabel={tr('Pilih materi')}
           onAction={() => navigate('/materi')}
         />
       )}
@@ -111,8 +112,8 @@ export function QuizzesView() {
           {quizzes.map((quiz) => {
             const showSource = quiz.source_title && !quiz.title.includes(quiz.source_title);
             const meta = [
-              `${quiz.question_count} soal`,
-              quiz.attempt_count ? `${quiz.attempt_count}× dikerjakan` : 'belum dikerjakan',
+              tr('{a} soal', { a: quiz.question_count }),
+              quiz.attempt_count ? `${quiz.attempt_count}× dikerjakan` : tr('belum dikerjakan'),
               showSource ? quiz.source_title : null,
               relativeDay(quiz.created_at),
             ].filter(Boolean);
@@ -126,14 +127,14 @@ export function QuizzesView() {
                   {quiz.last_pct != null && (
                     <span
                       className={`${styles.pill} ${styles[`pill_${scoreTone(quiz.last_pct)}`]}`}
-                      title="Skor terakhir"
+                      title={tr('Skor terakhir')}
                     >
-                      Skor {Math.round(quiz.last_pct)}%
+                      {tr('Skor')}{' '}{Math.round(quiz.last_pct)}%
                     </span>
                   )}
                   <div className={styles.rowActions}>
                     <Button size="sm" loading={busy === quiz.id} onClick={() => start(quiz, 'practice')}>
-                      Latihan
+                      {tr('Latihan')}
                     </Button>
                     <Button
                       size="sm"
@@ -144,14 +145,14 @@ export function QuizzesView() {
                         setExamFor(quiz);
                       }}
                     >
-                      Ujian
+                      {tr('Ujian')}
                     </Button>
                     <Button
                       size="sm"
                       variant="ghost"
                       icon="trash"
-                      aria-label={`Hapus ${quiz.title}`}
-                      title="Hapus kuis"
+                      aria-label={tr('Hapus {a}', { a: quiz.title })}
+                      title={tr('Hapus kuis')}
                       onClick={() => setDeleteFor(quiz)}
                     />
                   </div>
@@ -165,13 +166,13 @@ export function QuizzesView() {
       <Dialog
         open={examFor !== null}
         onClose={() => setExamFor(null)}
-        title="Mulai ujian"
-        description="Jawaban tidak diperiksa sampai dikumpulkan. Kuis otomatis dikumpulkan saat waktu habis."
+        title={tr('Mulai ujian')}
+        description={tr('Jawaban tidak diperiksa sampai dikumpulkan. Kuis otomatis dikumpulkan saat waktu habis.')}
         size="sm"
         footer={
           <>
             <Button variant="ghost" onClick={() => setExamFor(null)}>
-              Batal
+              {tr('Batal')}
             </Button>
             <Button
               onClick={() => {
@@ -182,20 +183,20 @@ export function QuizzesView() {
                 void start(quiz, 'exam', limit);
               }}
             >
-              Mulai
+              {tr('Mulai')}
             </Button>
           </>
         }
       >
         <Input
-          label="Batas waktu (menit)"
+          label={tr('Batas waktu (menit)')}
           type="number"
           min={1}
           max={240}
           inputMode="numeric"
           value={minutes}
           onChange={(e) => setMinutes(e.target.value)}
-          hint="Antara 1 dan 240 menit."
+          hint={tr('Antara 1 dan 240 menit.')}
           data-autofocus
         />
       </Dialog>
@@ -203,16 +204,16 @@ export function QuizzesView() {
       <Dialog
         open={deleteFor !== null}
         onClose={() => setDeleteFor(null)}
-        title="Hapus kuis ini?"
-        description="Soal dan riwayat pengerjaannya ikut terhapus. Tindakan ini tidak bisa dibatalkan."
+        title={tr('Hapus kuis ini?')}
+        description={tr('Soal dan riwayat pengerjaannya ikut terhapus. Tindakan ini tidak bisa dibatalkan.')}
         size="sm"
         footer={
           <>
             <Button variant="ghost" onClick={() => setDeleteFor(null)}>
-              Batal
+              {tr('Batal')}
             </Button>
             <Button variant="danger" onClick={confirmDelete}>
-              Hapus
+              {tr('Hapus')}
             </Button>
           </>
         }

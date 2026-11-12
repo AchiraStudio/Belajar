@@ -136,7 +136,7 @@
 .chipActive {
   background: var(--accent);
   border-color: var(--accent);
-  color: #ffffff;
+  color: var(--on-accent);
 }
 
 .chipDot {
@@ -325,7 +325,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(4px);
+  backdrop-filter: none;
   z-index: 1000;
   display: flex;
   align-items: center;

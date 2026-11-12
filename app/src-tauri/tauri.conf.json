@@ -1,19 +1,20 @@
 {
   "$schema": "https://schema.tauri.app/config/2",
-  "productName": "Belajar",
+  "productName": "Stuby",
   "version": "0.1.0",
-  "identifier": "app.belajar.client",
+  "identifier": "app.stuby.client",
   "build": {
     "frontendDist": "../dist",
     "devUrl": "http://127.0.0.1:8080",
     "beforeDevCommand": "node ../scripts/ensure-server.cjs",
-    "beforeBuildCommand": "npm run build"
+    "beforeBuildCommand": "npm run build:standalone"
   },
   "app": {
     "windows": [
       {
         "label": "main",
-        "title": "Belajar",
+        "title": "Stuby",
+        "create": false,
         "width": 1100,
         "height": 760,
         "minWidth": 360,

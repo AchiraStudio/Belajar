@@ -1,0 +1,33 @@
+.btn {
+  display: inline-flex; align-items: center; justify-content: center;
+  min-height: 48px; padding: 0 22px;
+  border: 1px solid var(--line-strong); border-radius: var(--r-md);
+  background: var(--card); color: var(--text);
+  font-weight: 700; font-size: 1rem; line-height: 1.2; text-decoration: none;
+  transition: transform 220ms var(--ease-out), box-shadow 220ms var(--ease-out), background-color 160ms ease;
+  will-change: transform;
+}
+.btn:hover { background: var(--accent-soft); }
+.btn:active { transform: translate(1px, 1px) scale(0.985); }
+.sm { min-height: 44px; padding: 0 16px; font-size: 0.9375rem; }
+.btn[disabled] { opacity: 0.45; cursor: default; }
+.btn[disabled]:hover { background: var(--card); }
+
+.ghost { background: transparent; }
+
+/* The one primary action per view carries the logo's outline and a hard shadow. */
+.primary { background: var(--bamboo); color: var(--on-bamboo); border: 2px solid var(--btn-hard); box-shadow: 3px 3px 0 var(--btn-hard); }
+.primary:hover { background: var(--bamboo); box-shadow: 5px 6px 0 var(--btn-hard); transform: translate(-2px, -2px); }
+.primary:active { box-shadow: 1px 1px 0 var(--btn-hard); transform: translate(2px, 2px); }
+.primary[disabled]:hover { background: var(--bamboo); box-shadow: 3px 3px 0 var(--btn-hard); transform: none; }
+
+.ink { background: #141816; color: #f1f4ec; border: 2px solid #141816; box-shadow: 3px 3px 0 rgba(20, 24, 22, 0.55); }
+.ink:hover { background: #232a26; box-shadow: 5px 6px 0 rgba(20, 24, 22, 0.55); transform: translate(-2px, -2px); }
+.ink:active { box-shadow: 1px 1px 0 rgba(20, 24, 22, 0.55); transform: translate(2px, 2px); }
+
+.light { background: transparent; color: #141816; border: 2px solid #141816; }
+.light:hover { background: rgba(20, 24, 22, 0.1); }
+
+@media (max-width: 560px) {
+  .btn { width: auto; }
+}

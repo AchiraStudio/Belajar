@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, Icon, useToast } from '../../components/ui';
 import { rpcCall, dropCache } from '../../services/api/rpc';
 import styles from './Notes.module.css';
+import { tr } from '../../services/i18n';
 
 interface NotesEditorProps {
   documentId: number;
@@ -25,10 +26,10 @@ export function NotesEditor({
     try {
       await rpcCall('save_note', { document_id: documentId, content_md: draft });
       dropCache();
-      toast.success('Catatan berhasil disimpan');
+      toast.success(tr('Catatan berhasil disimpan'));
       onSaveSuccess(draft);
     } catch (err: any) {
-      toast.error(err?.message || 'Gagal menyimpan catatan');
+      toast.error(err?.message || tr('Gagal menyimpan catatan'));
     } finally {
       setIsSaving(false);
     }
@@ -38,20 +39,20 @@ export function NotesEditor({
     <div className={styles.editorContainer}>
       <div className={styles.editorToolbar}>
         <p className={styles.editorHint}>
-          Format Markdown didukung: <code># Judul</code>, <code>**tebal**</code>, <code>- daftar</code>, <code>$$ rumus $$</code>, <code>| tabel |</code>.
+          {tr('Format Markdown didukung:')}{' '}<code># Judul</code>, <code>**tebal**</code>, <code>- daftar</code>, <code>$$ rumus $$</code>, <code>| tabel |</code>.
         </p>
         <div className={styles.editorActions}>
           <Button variant="ghost" size="sm" onClick={onCancel} disabled={isSaving}>
-            Batal
+            {tr('Batal')}
           </Button>
           <Button variant="primary" size="sm" onClick={handleSave} disabled={isSaving} icon="check">
-            {isSaving ? 'Menyimpan…' : 'Simpan catatan'}
+            {isSaving ? tr('Menyimpan…') : tr('Simpan catatan')}
           </Button>
         </div>
       </div>
       <textarea
         className={styles.textarea}
-        aria-label="Isi catatan (Markdown)"
+        aria-label={tr('Isi catatan (Markdown)')}
         spellCheck={false}
         value={draft}
         onChange={(e) => setDraft(e.target.value)}

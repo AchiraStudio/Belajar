@@ -1,0 +1,32 @@
+[Unit]
+Description=Stuby (API dan web)
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=simple
+User=stuby
+Group=stuby
+WorkingDirectory=/var/lib/stuby
+EnvironmentFile=/etc/stuby/stuby.env
+ExecStart=/opt/stuby/bin/stuby-server
+Restart=on-failure
+RestartSec=5s
+
+# Pengerasan: server hanya perlu jaringan dan satu folder data yang boleh ditulis.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+ReadWritePaths=/var/lib/stuby
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictAddressFamilies=AF_INET AF_INET6 AF_UNIX
+RestrictNamespaces=true
+LockPersonality=true
+SystemCallArchitectures=native
+
+[Install]
+WantedBy=multi-user.target

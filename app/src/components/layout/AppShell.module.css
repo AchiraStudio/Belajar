@@ -11,38 +11,17 @@
   overflow: hidden;
 }
 
-.bodyContainer {
-  display: flex;
-  flex: 1;
-  min-height: 0;
-  width: 100%;
-  overflow: hidden;
-}
-
-.sidebarArea {
-  display: flex;
-  flex-shrink: 0;
-  height: 100%;
-}
-
-.contentWrapper {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  min-width: 0;
-  height: 100%;
-  overflow: hidden;
-}
-
+/* The page scrolls here. The dock floats over it and auto-hides, so the bottom padding in
+   PageContainer keeps the last content clear of it. */
 .mainContent {
   flex: 1;
+  min-height: 0;
   overflow-y: auto;
   overflow-x: hidden;
   outline: none;
 }
 
 @media (max-width: 768px) {
-  .sidebarArea {
-    display: none;
-  }
+  /* No top bar on a phone: the page starts under the status bar. */
+  .mainContent { padding-top: env(safe-area-inset-top, 0px); }
 }

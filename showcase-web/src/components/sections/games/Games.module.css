@@ -1,0 +1,48 @@
+.play { position: relative; margin-top: 90px; padding-block: 96px 80px; background: var(--band); color: var(--band-text); }
+.play :focus-visible { outline-color: #9ad44b; }
+
+.deck { display: flex; align-items: flex-start; gap: 18px; overflow-x: auto; scroll-snap-type: x mandatory; padding: 12px max(24px, calc((100vw - 1240px) / 2)) 26px; scrollbar-width: thin; scrollbar-color: #5a665e transparent; scroll-padding-inline: max(24px, calc((100vw - 1240px) / 2)); overscroll-behavior-x: contain; cursor: grab; }
+.deck[data-drag='true'] { scroll-snap-type: none; cursor: grabbing; user-select: none; }
+.deck[data-drag='true'] * { pointer-events: none; }
+
+.g { position: relative; flex: 0 0 min(320px, 82vw); scroll-snap-align: start; display: grid; gap: 12px; align-content: start; padding: 24px; border-radius: var(--r-xl); border: 1px solid var(--line); min-height: 300px; color: #141816; transition: translate 360ms var(--ease-out), box-shadow 360ms var(--ease-out); }
+.g:hover { translate: 0 -6px; }
+.g h3 { font-size: 1.6rem; font-weight: 800; letter-spacing: -0.04em; }
+.g p { font-size: 0.97rem; line-height: 1.5; }
+.gn { font-weight: 800; font-size: 0.9rem; font-variant-numeric: tabular-nums; width: 32px; height: 32px; display: grid; place-items: center; border-radius: 9px; background: #141816; color: #f1f4ec; }
+.g-leaf { background: #e4f2cc; }
+.g-spot { flex-basis: min(430px, 86vw); background: #fff; border: 2px solid #141816; box-shadow: 6px 6px 0 #9ad44b; }
+.g-sun { background: #fcefc0; }
+.g-cream { background: #edeadd; }
+.g-ink { background: #232b26; color: #f1f4ec; border-color: rgba(255, 255, 255, 0.16); }
+.g-ink .gn { background: #9ad44b; color: #141816; }
+.g-boss { background: #8dc63f; border: 2px solid #141816; box-shadow: 6px 6px 0 #f1f4ec; flex-basis: min(360px, 86vw); }
+.g-boss h3 { font-size: 2rem; }
+
+.bubble { margin-top: 6px; padding: 12px 14px; background: #fff; border: 1.5px solid #141816; border-radius: 16px 16px 16px 4px; font-weight: 600; font-size: 0.97rem; }
+.bubble b { display: block; font-size: 0.75rem; color: #3a443d; margin-bottom: 2px; }
+.lives { display: flex; gap: 8px; margin-top: 6px; }
+.lives i { width: 30px; height: 30px; border-radius: 50%; background: #f2b705; border: 2px solid #141816; }
+
+.sentences { display: grid; gap: 8px; }
+.sentence { width: 100%; text-align: left; padding: 11px 14px; min-height: 48px; border: 1.5px solid rgba(20, 24, 22, 0.3); border-radius: var(--r-md); background: #fff; font-weight: 550; font-size: 0.95rem; line-height: 1.35; color: #141816; transition: background-color 160ms ease, translate 200ms var(--ease-out); }
+.sentence:hover:not([disabled]) { background: #e4f2cc; translate: 3px 0; }
+.sentence[disabled] { cursor: default; }
+.found { background: #e4f2cc; border: 2px solid #1f6b2a; }
+.miss { background: #fbe0dc; border: 2px solid #b0281f; }
+.tag { display: block; overflow: hidden; margin-top: 4px; font-size: 0.8125rem; font-weight: 750; }
+.spotOut { font-size: 0.9rem; font-weight: 600; color: #3a443d; min-height: 2.8em; display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; }
+.again { color: #141816; }
+
+.ctl { display: flex; align-items: center; justify-content: center; gap: 14px; margin-top: 4px; padding-inline: 24px; }
+.arrow { display: inline-grid; place-items: center; width: 44px; height: 44px; border: 1px solid rgba(255, 255, 255, 0.3); border-radius: var(--r-md); background: transparent; color: #f1f4ec; padding: 0; transition: background-color 160ms ease, transform 200ms var(--ease-out), opacity 160ms ease; }
+.arrow:hover:not([disabled]) { background: rgba(255, 255, 255, 0.12); }
+.arrow:active:not([disabled]) { transform: scale(0.92); }
+.arrow[disabled] { opacity: 0.38; cursor: default; }
+.track { width: min(220px, 34vw); height: 4px; border-radius: 4px; background: rgba(255, 255, 255, 0.18); overflow: hidden; }
+.thumb { display: block; height: 100%; width: 100%; background: #9ad44b; transform-origin: 0 50%; }
+.pos { font-weight: 700; font-variant-numeric: tabular-nums; min-width: 5ch; text-align: center; color: var(--band-text-2); }
+
+@media (max-width: 760px) {
+  .play { margin-top: 64px; padding-block: 72px 60px; }
+}

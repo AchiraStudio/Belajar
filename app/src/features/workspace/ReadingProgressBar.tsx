@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import styles from './Workspace.module.css';
+import { tr } from '../../services/i18n';
 
 export function ReadingProgressBar() {
   const [progress, setProgress] = useState(0);
@@ -25,7 +26,7 @@ export function ReadingProgressBar() {
     <div
       className={styles.readBarTrack}
       role="progressbar"
-      aria-label="Progres membaca catatan"
+      aria-label={tr('Progres membaca catatan')}
       aria-valuenow={Math.round(progress)}
       aria-valuemin={0}
       aria-valuemax={100}

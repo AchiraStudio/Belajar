@@ -1,0 +1,26 @@
+.bar { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 10px; }
+.body { padding: 22px clamp(16px, 3vw, 30px) 18px; display: grid; gap: 16px; min-height: 340px; align-content: start; }
+.meta { display: flex; flex-wrap: wrap; gap: 8px 14px; font-size: 0.875rem; color: var(--text-3); font-weight: 600; }
+.timer { color: var(--text); }
+.qwrap { display: grid; gap: 16px; }
+.text { font-size: 1.25rem; line-height: 1.3; font-weight: 700; letter-spacing: -0.02em; }
+
+.opts { display: grid; gap: 10px; }
+.opt { display: grid; grid-template-columns: 2rem 1fr auto; align-items: center; gap: 10px; min-height: 52px; padding: 10px 14px; text-align: left; border: 1.5px solid var(--line-strong); border-radius: var(--r-md); background: var(--card); font-weight: 600; transition: background-color 160ms ease, border-color 160ms ease, translate 200ms var(--ease-out); }
+.opt:hover:not([disabled]) { background: var(--accent-soft); translate: 3px 0; }
+.k { display: grid; place-items: center; width: 30px; height: 30px; border-radius: 8px; background: var(--tint-cream); font-weight: 800; font-size: 0.875rem; }
+.mark { font-size: 0.8125rem; font-weight: 750; }
+.picked { border-color: var(--frame); border-width: 2px; background: var(--tint-leaf); }
+.right { border-color: var(--good); border-width: 2px; background: var(--good-soft); }
+.wrong { border-color: var(--bad); border-width: 2px; background: var(--bad-soft); }
+.opt[disabled] { cursor: default; color: var(--text); }
+
+.explain { border: 1px solid var(--line-strong); border-radius: var(--r-md); padding: 12px 14px; background: var(--tint-sun); font-size: 0.97rem; }
+.explain b { display: block; margin-bottom: 2px; }
+.isBad, .is-bad { background: var(--bad-soft); }
+.isGood, .is-good { background: var(--good-soft); }
+
+.sa { display: flex; flex-wrap: wrap; gap: 10px; }
+.sa label { flex-basis: 100%; font-weight: 650; font-size: 0.9375rem; }
+.sa input { flex: 1 1 200px; min-height: 48px; padding: 0 14px; border: 1.5px solid var(--line-strong); border-radius: var(--r-md); background: var(--card); color: var(--text); font: inherit; transition: border-color 160ms ease; }
+.sa input:focus-visible { outline-offset: 1px; border-color: var(--accent); }

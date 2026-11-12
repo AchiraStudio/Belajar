@@ -3,6 +3,7 @@ import { Link, Navigate, Route, Routes, useParams } from 'react-router';
 import { AppShell } from '../components/layout/AppShell';
 import { DashboardView } from '../features/dashboard';
 import { MaterialsView } from '../features/materials';
+import { tr } from '../services/i18n';
 
 // Dashboard and the library are in the main bundle (first screens). Everything else is split into
 // its own chunk and loaded on first visit; AppShell keeps the navigation mounted while it loads.
@@ -31,10 +32,10 @@ const HelpView = lazy(() => import('../features/platform').then((m) => ({ defaul
 function NotFoundPage() {
   return (
     <section role="alert" style={{ padding: '32px' }}>
-      <h1>Halaman tidak ditemukan</h1>
-      <p>Alamat yang kamu buka tidak ada atau sudah dipindahkan.</p>
+      <h1>{tr('Halaman tidak ditemukan')}</h1>
+      <p>{tr('Alamat yang kamu buka tidak ada atau sudah dipindahkan.')}</p>
       <p>
-        <Link to="/">Kembali ke beranda</Link>
+        <Link to="/">{tr('Kembali ke beranda')}</Link>
       </p>
     </section>
   );

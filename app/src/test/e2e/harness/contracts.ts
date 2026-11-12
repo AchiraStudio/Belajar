@@ -110,7 +110,7 @@ export function shouldShowReminder(status: TrackingStatus, deadlineState: Deadli
 }
 
 // ============================================================================
-// Belajar Frost UI RPC & API Contracts
+// Stuby Frost UI RPC & API Contracts
 // ============================================================================
 
 /** ADR-7 Standard Error Envelope */
@@ -782,9 +782,9 @@ export interface PingResponse {
 }
 
 // ----------------------------------------------------------------------------
-// RPC Action Map (All 38 Belajar Actions)
+// RPC Action Map (All 38 Stuby Actions)
 // ----------------------------------------------------------------------------
-export interface BelajarRpcActionMap {
+export interface StubyRpcActionMap {
   dashboard: { request: DashboardRequest; response: DashboardResponse };
   list_subjects: { request: Record<string, never>; response: ListSubjectsResponse };
   create_subject: { request: CreateSubjectRequest; response: CreateSubjectResponse };
@@ -825,4 +825,4 @@ export interface BelajarRpcActionMap {
   ping: { request: Record<string, never>; response: PingResponse };
 }
 
-export type BelajarRpcActionName = keyof BelajarRpcActionMap;
+export type StubyRpcActionName = keyof StubyRpcActionMap;

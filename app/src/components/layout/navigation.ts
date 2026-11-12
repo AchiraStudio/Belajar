@@ -1,3 +1,4 @@
+import { tr } from '../../services/i18n';
 import type { IconName } from '../ui/Icon';
 
 export interface NavEntry {
@@ -61,6 +62,42 @@ export const ALL_ENTRIES: NavEntry[] = [
   ...SECONDARY_ENTRIES,
 ];
 
+/**
+ * What holding a bottom-bar tab on a phone offers: that tab's neighbours from the desktop sidebar.
+ * Keys are the tab's path (`more` is the "Lainnya" button); values are routes from `ALL_ENTRIES`.
+ * Every route is reachable from exactly one menu. When desktop grows more tabs, add them here.
+ */
+export const MOBILE_TAB_MENUS: Record<string, string[]> = {
+  '/': ['/', '/notifikasi', '/pesan'],
+  '/materi': ['/materi', '/kartu', '/asisten'],
+  '/kuis': ['/kuis', '/soal-lemah', '/progres'],
+  '/game': ['/game', '/peluang', '/komunitas'],
+  more: ['/profil', '/pengaturan', '/bantuan'],
+};
+
+/**
+ * The desktop dock shows every destination at once, in these groups (a thin divider between groups).
+ * The first two groups carry text labels; the rest are icon-only with tooltips. The search button is
+ * placed at the start of the last group by the dock itself.
+ */
+/** Shorter words for the dock's visible labels (the full name stays as the tooltip and accessible name). */
+export const DOCK_LABELS: Record<string, string> = {
+  '/soal-lemah': 'Lemah',
+  '/kartu': 'Kartu',
+  '/peluang': 'Peluang',
+};
+
+export const DOCK_SECTIONS: string[][] = [
+  ['/', '/materi', '/kuis', '/soal-lemah', '/kartu', '/progres'],
+  ['/peluang', '/komunitas', '/game'],
+  ['/asisten', '/pesan', '/notifikasi'],
+  ['/bantuan', '/profil', '/pengaturan'],
+];
+
+export function entryForPath(path: string): NavEntry | undefined {
+  return ALL_ENTRIES.find((e) => e.path === path);
+}
+
 export function isRouteActive(current: string, path: string): boolean {
   if (path === '/') return current === '/';
   return current === path || current.startsWith(`${path}/`);
@@ -79,5 +116,5 @@ export function titleForPath(pathname: string): string {
     ...Object.entries(EXTRA_TITLES),
   ].filter(([p]) => p === '/' ? pathname === '/' : pathname === p || pathname.startsWith(`${p}/`));
   candidates.sort((a, b) => b[0].length - a[0].length);
-  return candidates[0]?.[1] ?? 'Belajar';
+  return tr(candidates[0]?.[1] ?? 'Stuby');
 }

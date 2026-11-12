@@ -1,0 +1,310 @@
+/*
+ * The floating dock. It is the one glass surface in the app (dark ink, light blur, thin edge) so it
+ * reads as a layer above the page; everything else is flat. Active = a bamboo-green pill with ink text,
+ * the logo's two colours. It hides when idle and returns on scroll/touch/bottom edge/keyboard.
+ */
+.wrap {
+  position: fixed;
+  z-index: 900;
+  left: 50%;
+  bottom: calc(var(--dock-gap) + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  max-width: calc(100vw - 24px);
+  transition: transform 360ms var(--ease-out), opacity 260ms ease;
+  will-change: transform;
+}
+
+/* Hidden is only visual: the dock stays in the tab order, and focusing it brings it back. */
+.hidden {
+  transform: translate(-50%, calc(100% + 28px));
+  opacity: 0;
+}
+
+.dock {
+  display: flex;
+  align-items: stretch;
+  gap: 2px;
+  height: var(--dock-height);
+  padding: 6px;
+  border-radius: 22px;
+  background: var(--dock-fill);
+  backdrop-filter: var(--dock-blur);
+  border: 1px solid var(--dock-edge);
+  box-shadow: 0 18px 36px -16px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.18);
+  color: var(--dock-ink);
+}
+
+@supports not (backdrop-filter: blur(1px)) {
+  .dock { background: #1b201d; }
+}
+
+.item {
+  position: relative;
+  flex: 0 0 auto;
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  min-width: 44px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 16px;
+  background: transparent;
+  color: var(--dock-muted);
+  font: inherit;
+  font-size: var(--text-xs);
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  text-decoration: none;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color var(--dur-fast) ease, color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out);
+}
+
+.item svg { transition: transform var(--dur-med) var(--ease-spring); }
+
+@media (hover: hover) {
+  .item:not(.active):hover { background: rgba(255, 255, 255, 0.1); color: var(--dock-ink); }
+}
+
+.item:active { transform: scale(0.94); }
+.item:focus-visible { outline: 2px solid var(--bamboo); outline-offset: 1px; box-shadow: none; }
+
+.item.active {
+  background: var(--fill);
+  color: #141816;
+}
+.item.active svg { transform: translateY(-1px) scale(1.08); }
+
+.label {
+  max-width: 100%;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  line-height: 1.1;
+}
+
+/* "Soon" destinations carry a small sun-coloured dot, so the state is shape + position, not only colour. */
+.soonDot {
+  position: absolute;
+  top: 8px;
+  right: 9px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--sun);
+}
+
+.sep {
+  align-self: center;
+  width: 1px;
+  height: 28px;
+  margin: 0 5px;
+  background: var(--dock-edge);
+}
+
+/* Narrower desktops: drop the labels before the dock outgrows the window. */
+@media (max-width: 1240px) and (min-width: 769px) {
+  .labelled .label { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+  .item { padding: 0 9px; }
+}
+
+/* ---- Phone: five equal tabs --------------------------------------------------------------- */
+.compact { width: min(calc(100vw - 24px), 440px); }
+.compact .tab { flex: 1 1 0; min-width: 0; padding: 0 4px; }
+
+/* ---- Peek handle: the cue (and the tap target) for bringing a hidden dock back ------------ */
+.peek {
+  position: fixed;
+  z-index: 899;
+  left: 50%;
+  bottom: env(safe-area-inset-bottom, 0px);
+  transform: translateX(-50%);
+  width: 96px;
+  height: 28px;
+  display: grid;
+  place-items: end center;
+  padding: 0 0 7px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 260ms ease 120ms;
+  -webkit-tap-highlight-color: transparent;
+}
+.peek span {
+  display: block;
+  width: 44px;
+  height: 5px;
+  border-radius: 3px;
+  background: var(--text-primary);
+  opacity: 0.55;
+}
+.peekOn { opacity: 1; pointer-events: auto; }
+.peek:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; }
+
+/* ---- Hold menu (phones) -------------------------------------------------------------------- */
+/* Sits under the dock (z 900) and over the page, so a finger still on its tab can slide up into it. */
+.scrim {
+  position: fixed;
+  inset: 0;
+  z-index: 880;
+  background: rgba(20, 24, 22, 0.32);
+  animation: scrimIn 200ms ease-out both;
+  -webkit-tap-highlight-color: transparent;
+}
+.scrimOut { animation: scrimOut 170ms ease-in both; }
+
+.holdMenu {
+  position: fixed;
+  z-index: 890;
+  bottom: calc(var(--dock-gap) + var(--dock-height) + 14px + env(safe-area-inset-bottom, 0px));
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  padding: 8px;
+  border-radius: var(--radius-xl);
+  background: var(--card);
+  color: var(--text-primary);
+  border: 2px solid #141816;
+  box-shadow: 4px 4px 0 #141816;
+  transform-origin: var(--caret, 50%) 100%;
+  animation: holdRise 340ms var(--ease-spring) both;
+  touch-action: none;
+}
+.holdMenuOut { animation: holdSink 170ms cubic-bezier(0.4, 0, 1, 1) both; pointer-events: none; }
+
+.holdHead {
+  padding: 6px 12px 4px;
+  font-size: var(--text-xs);
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.holdItem {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  min-height: 52px;
+  padding: 0 12px;
+  border-radius: var(--radius-lg);
+  color: var(--text-primary);
+  text-decoration: none;
+  font-size: var(--text-md);
+  font-weight: 600;
+  -webkit-tap-highlight-color: transparent;
+  animation: holdItemRise 300ms var(--ease-out) var(--d, 0ms) both;
+  transition: background-color var(--dur-fast) ease, transform var(--dur-fast) var(--ease-out);
+}
+.holdItem:active { transform: scale(0.98); }
+.holdItem:focus-visible { outline: 2px solid var(--accent); outline-offset: -2px; box-shadow: none; }
+@media (hover: hover) { .holdItem:hover { background: var(--canvas-tint); } }
+.holdItemHot { background: var(--accent-soft); transform: scale(1.02); }
+.holdItemCurrent { color: var(--accent); }
+
+.holdIcon {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 36px;
+  height: 36px;
+  border-radius: var(--radius-md);
+  background: var(--canvas-tint);
+  color: var(--accent);
+}
+.holdItemCurrent .holdIcon { background: var(--fill); color: #141816; }
+
+.holdLabel { flex: 1; min-width: 0; line-height: 1.25; overflow-wrap: anywhere; }
+
+.holdCaret {
+  position: absolute;
+  left: var(--caret, 50%);
+  bottom: -8px;
+  width: 12px;
+  height: 12px;
+  margin-left: -6px;
+  transform: rotate(45deg);
+  background: var(--card);
+  border-right: 2px solid #141816;
+  border-bottom: 2px solid #141816;
+}
+
+@keyframes holdRise { 0% { opacity: 0; transform: translateY(34px) scale(0.9); } 100% { opacity: 1; transform: translateY(0) scale(1); } }
+@keyframes holdSink { 0% { opacity: 1; transform: translateY(0) scale(1); } 100% { opacity: 0; transform: translateY(18px) scale(0.94); } }
+@keyframes holdItemRise { 0% { opacity: 0; transform: translateY(14px); } 100% { opacity: 1; transform: translateY(0); } }
+@keyframes scrimIn { from { opacity: 0; } to { opacity: 1; } }
+@keyframes scrimOut { from { opacity: 1; } to { opacity: 0; } }
+
+/* One-time "you can hold a tab" hint. */
+.hint {
+  position: fixed;
+  z-index: 880;
+  left: 50%;
+  bottom: calc(var(--dock-gap) + var(--dock-height) + 14px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  max-width: calc(100% - 32px);
+  padding: 10px 14px;
+  border-radius: var(--radius-full);
+  background: var(--card);
+  border: 2px solid #141816;
+  color: var(--text-primary);
+  font-size: var(--text-sm);
+  font-weight: 600;
+  animation: hintIn 360ms var(--ease-out) both;
+  pointer-events: none;
+}
+@keyframes hintIn { from { opacity: 0; transform: translateX(-50%) translateY(10px); } to { opacity: 1; transform: translateX(-50%) translateY(0); } }
+
+.soonTag {
+  margin-left: auto;
+  padding: 2px 8px;
+  border-radius: var(--radius-full);
+  background: var(--tint-sun);
+  color: #5A4000;
+  font-size: 0.6875rem;
+  font-weight: 700;
+}
+
+/* ---- "Lainnya" sheet ------------------------------------------------------------------------ */
+.moreList { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 8px; }
+/* minmax(0, 1fr): a plain 1fr cannot shrink below its content, so a long label ("Weak Questions",
+   "Help & Security") pushed the whole sheet wider than the phone. Labels wrap instead. */
+.moreList > li { min-width: 0; }
+@media (max-width: 340px) { .moreList { grid-template-columns: minmax(0, 1fr); } }
+.moreLink {
+  display: flex; align-items: center; gap: 10px; width: 100%; min-height: 52px; padding: 6px 12px; box-sizing: border-box;
+  border-radius: var(--radius-lg); color: var(--text-primary); text-decoration: none; text-align: left;
+  background: var(--canvas-tint); border: 1px solid var(--border-subtle);
+  font: inherit; font-size: var(--text-sm); font-weight: 600; cursor: pointer;
+  transition: background-color var(--dur-fast) ease, border-color var(--dur-fast) ease;
+}
+.moreLink svg { flex: none; }
+.moreText { min-width: 0; flex: 1; line-height: 1.25; overflow-wrap: anywhere; }
+.moreText .soonTag { display: inline-block; margin-left: 6px; white-space: nowrap; vertical-align: middle; }
+.moreLink:hover { background: var(--surface-solid); border-color: var(--border); }
+.moreLink[aria-current='page'] { background: var(--accent-soft); color: var(--accent); border-color: color-mix(in srgb, var(--accent) 40%, transparent); }
+.moreLink:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+/* Reduced motion keeps the direction (up from the dock) but drops overshoot, scale and stagger:
+   a short plain slide, so it still reads as coming from the dock. (Windows with "Show animations"
+   off reports this setting too.) */
+@media (prefers-reduced-motion: reduce) {
+  .wrap { transition: transform 200ms ease, opacity 160ms ease; }
+  .item svg, .item.active svg { transition: none; transform: none; }
+  .item:active { transform: none; }
+  .holdMenu { animation: holdRiseCalm 200ms ease-out both; }
+  .holdMenuOut { animation: holdSinkCalm 140ms ease-in both; }
+  .holdItem { animation: none; transition: background-color var(--dur-fast) ease; }
+  .holdItemHot { transform: none; }
+  .hint { animation: none; }
+}
+@keyframes holdRiseCalm { from { opacity: 0; transform: translateY(16px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes holdSinkCalm { from { opacity: 1; transform: translateY(0); } to { opacity: 0; transform: translateY(10px); } }

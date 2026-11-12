@@ -1,0 +1,20 @@
+.private { margin-top: 90px; padding-block: 96px; background: var(--band); color: var(--band-text); }
+.grid { display: grid; grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr); gap: 72px; align-items: start; }
+.head { display: grid; gap: 16px; position: sticky; top: 100px; }
+.head h2 { color: var(--band-text); font-size: clamp(1.9rem, 1.2rem + 2.6vw, 3rem); }
+.head p { color: var(--band-text-2); }
+.head > p:first-child { color: #9ad44b; }
+.rows { position: relative; }
+.rule { display: block; height: 2px; background: #9ad44b; transform-origin: 0 50%; }
+.row { position: relative; padding: 22px 0 22px 60px; border-bottom: 1px solid rgba(255, 255, 255, 0.18); color: var(--band-text-2); }
+.row b { color: var(--band-text); }
+.row code { background: rgba(255, 255, 255, 0.1); color: #e6ebdf; }
+.num { position: absolute; left: 0; top: 22px; font-weight: 800; color: #9ad44b; font-variant-numeric: tabular-nums; }
+
+@media (max-width: 1080px) {
+  .grid { grid-template-columns: 1fr; gap: 36px; }
+  .head { position: static; }
+}
+@media (max-width: 760px) {
+  .private { margin-top: 64px; padding-block: 72px; }
+}

@@ -1,4 +1,5 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
+import { tr } from '../services/i18n';
 import { ApiError } from '../services/api/client';
 import { rpcCall } from '../services/api/rpc';
 
@@ -20,7 +21,7 @@ export function isUnavailableMessage(message: string | null | undefined): boolea
   return /layanan ai|ai (belum|tidak)|belum dikonfigurasi|belum tersedia/i.test(message);
 }
 
-export function errorMessage(err: unknown, fallback = 'Terjadi kesalahan.'): string {
+export function errorMessage(err: unknown, fallback = tr('Terjadi kesalahan.')): string {
   if (err instanceof ApiError || err instanceof Error) return err.message || fallback;
   return fallback;
 }

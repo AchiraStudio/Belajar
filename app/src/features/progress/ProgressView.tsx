@@ -15,16 +15,17 @@ import { useRpcQuery } from '../../hooks/useRpcQuery';
 import { MinutesChart, TrendChart } from './charts';
 import type { HubSummary, ProgressResponse } from './types';
 import styles from './Progress.module.css';
+import { tr, currentLocale } from '../../services/i18n';
 
 const dayLabel = (iso: string) => {
   const d = new Date(`${iso}T00:00:00`);
-  return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+  return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString(currentLocale(), { day: 'numeric', month: 'short' });
 };
-const tsLabel = (ts: number) => new Date(ts * 1000).toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+const tsLabel = (ts: number) => new Date(ts * 1000).toLocaleDateString(currentLocale(), { day: 'numeric', month: 'short' });
 
 export function formatStudy(seconds: number): { value: string; unit: string } {
-  if (seconds < 3600) return { value: String(Math.round(seconds / 60)), unit: 'menit' };
-  return { value: (seconds / 3600).toFixed(1).replace('.', ','), unit: 'jam' };
+  if (seconds < 3600) return { value: String(Math.round(seconds / 60)), unit: tr('menit') };
+  return { value: (seconds / 3600).toLocaleString(currentLocale(), { maximumFractionDigits: 1, minimumFractionDigits: 1 }), unit: tr('jam') };
 }
 
 export function ProgressView() {
@@ -35,7 +36,7 @@ export function ProgressView() {
 
   if (loading && !data) {
     return (
-      <div className={styles.page} aria-busy="true" aria-label="Memuat progres">
+      <div className={styles.page} aria-busy="true" aria-label={tr('Memuat progres')}>
         <Skeleton height="40px" width="240px" />
         <div className={styles.metrics}>
           {[0, 1, 2, 3].map((i) => (
@@ -46,7 +47,7 @@ export function ProgressView() {
       </div>
     );
   }
-  if (error || !data) return <ErrorState message={error ?? 'Data progres tidak tersedia.'} onRetry={reload} />;
+  if (error || !data) return <ErrorState message={error ?? tr('Data progres tidak tersedia.')} onRetry={reload} />;
 
   const { overall, streak, weekly, trend, topics, documents, study_days, weak_count } = data;
   const hasActivity = overall.attempts > 0 || overall.study_seconds > 0;
@@ -62,76 +63,76 @@ export function ProgressView() {
   return (
     <div className={styles.page}>
       <PageHeader
-        eyebrow="Wawasan"
-        title="Progres Pembelajaran"
-        description="Ringkasan nyata dari kuis, waktu belajar, dan penguasaan topikmu. Angka kosong berarti belum ada data, bukan nol."
+        eyebrow={tr('Wawasan')}
+        title={tr('Progres Pembelajaran')}
+        description={tr('Ringkasan nyata dari kuis, waktu belajar, dan penguasaan topikmu. Angka kosong berarti belum ada data, bukan nol.')}
       />
 
       {!hasActivity && (
         <EmptyState
           icon="chart"
-          title="Belum ada aktivitas belajar"
-          description="Selesaikan satu kuis atau belajar beberapa menit, dan grafik progresmu muncul di sini."
-          actionLabel="Ke halaman kuis"
+          title={tr('Belum ada aktivitas belajar')}
+          description={tr('Selesaikan satu kuis atau belajar beberapa menit, dan grafik progresmu muncul di sini.')}
+          actionLabel={tr('Ke halaman kuis')}
           onAction={() => navigate('/kuis')}
         />
       )}
 
-      <section aria-label="Ringkasan" className={styles.metrics}>
+      <section aria-label={tr('Ringkasan')} className={styles.metrics}>
         <MetricTile
-          label="Streak"
+          label={tr('Streak')}
           icon="flame"
           tone={streak.today.done ? 'success' : streak.at_risk ? 'warning' : 'accent'}
           value={streak.current}
-          unit="hari"
-          hint={`Terpanjang ${streak.longest} hari${streak.freezes ? ` · ${streak.freezes} pembeku` : ''}`}
+          unit={tr('hari')}
+          hint={tr('Terpanjang {a} hari{b}', { a: streak.longest, b: streak.freezes ? tr(' · {n} pembeku', { n: streak.freezes }) : '' })}
         />
-        <MetricTile label="Waktu belajar" icon="clock" value={overall.study_seconds > 0 ? study.value : null} unit={study.unit} hint="Total semua waktu" />
+        <MetricTile label={tr('Waktu belajar')} icon="clock" value={overall.study_seconds > 0 ? study.value : null} unit={study.unit} hint={tr('Total semua waktu')} />
         <MetricTile
-          label="Akurasi"
+          label={tr('Akurasi')}
           icon="target"
           value={overall.accuracy == null ? null : Math.round(overall.accuracy)}
           unit={overall.accuracy == null ? undefined : '%'}
-          hint={overall.answers ? `${overall.answers} jawaban` : 'Belum ada jawaban'}
+          hint={overall.answers ? tr('{a} jawaban', { a: overall.answers }) : tr('Belum ada jawaban')}
         />
-        <MetricTile label="Kuis dikerjakan" icon="quiz" value={overall.attempts || null} hint={`${overall.documents} materi · ${overall.questions} soal`} />
+        <MetricTile label={tr('Kuis dikerjakan')} icon="quiz" value={overall.attempts || null} hint={tr('{a} materi · {b} soal', { a: overall.documents, b: overall.questions })} />
       </section>
 
       <SurfaceCard className={styles.card}>
         <div className={styles.cardHead}>
-          <h2 className={styles.cardTitle}>Target minggu ini</h2>
+          <h2 className={styles.cardTitle}>{tr('Target minggu ini')}</h2>
           <span className={styles.cardMeta}>
-            {Math.round(weekly.seconds / 60)} dari {weekly.goal_min} menit
+            {tr('{a} dari {b} menit', { a: Math.round(weekly.seconds / 60), b: weekly.goal_min })}
           </span>
         </div>
-        <ProgressBar value={weeklyPct} label="Kemajuan target mingguan" tone={weeklyPct != null && weeklyPct >= 100 ? 'success' : 'accent'} showValue />
+        <ProgressBar value={weeklyPct} label={tr('Kemajuan target mingguan')} tone={weeklyPct != null && weeklyPct >= 100 ? 'success' : 'accent'} showValue />
         <p className={styles.cardNote}>
-          {weekly.quizzes} kuis diselesaikan minggu ini. Ubah target di <Link to="/pengaturan">Pengaturan</Link>.
+          {tr('{n} kuis diselesaikan minggu ini. Ubah target di', { n: weekly.quizzes })}{' '}<Link to="/pengaturan">{tr('Pengaturan')}</Link>.
         </p>
       </SurfaceCard>
 
       <div className={styles.twoCol}>
         <SurfaceCard className={styles.card}>
-          <h2 className={styles.cardTitle}>Skor kuis terakhir</h2>
+          <h2 className={styles.cardTitle}>{tr('Skor kuis terakhir')}</h2>
           {trend.length > 0 ? (
             <TrendChart
-              title={`Grafik skor ${trend.length} kuis terakhir, dari ${Math.round((trend[0]!.score / Math.max(1, trend[0]!.total)) * 100)} persen sampai ${Math.round((trend[trend.length - 1]!.score / Math.max(1, trend[trend.length - 1]!.total)) * 100)} persen`}
+              title={tr('Grafik skor {a} kuis terakhir, dari {b} persen sampai {c} persen', { a: trend.length, b: Math.round((trend[0]!.score / Math.max(1, trend[0]!.total)) * 100), c: Math.round((trend[trend.length - 1]!.score / Math.max(1, trend[trend.length - 1]!.total)) * 100) })}
               points={trend.map((t) => ({ label: tsLabel(t.ts), value: (t.score / Math.max(1, t.total)) * 100 }))}
             />
           ) : (
-            <p className={styles.noData}>Belum ada skor. Selesaikan satu kuis dan grafiknya muncul di sini.</p>
+            <p className={styles.noData}>{tr('Belum ada skor. Selesaikan satu kuis dan grafiknya muncul di sini.')}</p>
           )}
         </SurfaceCard>
 
         <SurfaceCard className={styles.card}>
-          <h2 className={styles.cardTitle}>Waktu belajar 14 hari</h2>
+          <h2 className={styles.cardTitle}>{tr('Waktu belajar 14 hari')}</h2>
           {study_days.some((d) => d.seconds > 0) ? (
             <MinutesChart
-              title="Menit belajar per hari selama 14 hari terakhir"
+              title={tr('Menit belajar per hari selama 14 hari terakhir')}
               days={study_days.map((d) => ({ label: dayLabel(d.day), minutes: d.seconds / 60 }))}
             />
           ) : (
-            <p className={styles.noData}>Belum ada waktu belajar tercatat dalam 14 hari terakhir.</p>
+            <p className={styles.noData}>{tr('Belum ada waktu belajar tercatat dalam 14 hari terakhir.')}</p>
           )}
         </SurfaceCard>
       </div>
@@ -139,8 +140,8 @@ export function ProgressView() {
       <div className={styles.twoCol}>
         <SurfaceCard className={styles.card}>
           <div className={styles.cardHead}>
-            <h2 className={styles.cardTitle}>Perlu diperkuat</h2>
-            <StatusBadge status="warning" label={`${weak_count} soal lemah`} />
+            <h2 className={styles.cardTitle}>{tr('Perlu diperkuat')}</h2>
+            <StatusBadge status="warning" label={tr('{a} soal lemah', { a: weak_count })} />
           </div>
           {weakTopics.length > 0 ? (
             <ul className={styles.topicList}>
@@ -149,17 +150,17 @@ export function ProgressView() {
               ))}
             </ul>
           ) : (
-            <p className={styles.noData}>{topics.length ? 'Tidak ada topik lemah saat ini.' : 'Topik muncul setelah kamu mengerjakan kuis.'}</p>
+            <p className={styles.noData}>{topics.length ? tr('Tidak ada topik lemah saat ini.') : tr('Topik muncul setelah kamu mengerjakan kuis.')}</p>
           )}
           {weak_count > 0 && (
             <Link to="/soal-lemah" className={styles.inlineLink}>
-              <Icon name="target" size={14} /> Ulangi soal lemah
+              <Icon name="target" size={14} />{' '}{tr('Ulangi soal lemah')}
             </Link>
           )}
         </SurfaceCard>
 
         <SurfaceCard className={styles.card}>
-          <h2 className={styles.cardTitle}>Sudah kuat</h2>
+          <h2 className={styles.cardTitle}>{tr('Sudah kuat')}</h2>
           {strongTopics.length > 0 ? (
             <ul className={styles.topicList}>
               {strongTopics.map((t) => (
@@ -167,21 +168,21 @@ export function ProgressView() {
               ))}
             </ul>
           ) : (
-            <p className={styles.noData}>Topik dengan akurasi 80% ke atas muncul di sini.</p>
+            <p className={styles.noData}>{tr('Topik dengan akurasi 80% ke atas muncul di sini.')}</p>
           )}
         </SurfaceCard>
       </div>
 
       {documents.length > 0 && (
         <SurfaceCard className={styles.card}>
-          <h2 className={styles.cardTitle}>Per materi</h2>
+          <h2 className={styles.cardTitle}>{tr('Per materi')}</h2>
           <ul className={styles.topicList}>
             {documents.map((d) => (
               <li key={d.id} className={styles.topicRow}>
                 <Link to={`/materi/${d.id}`} className={styles.topicName}>
                   {d.title}
                 </Link>
-                <span className={styles.topicCount}>{d.n} jawaban</span>
+                <span className={styles.topicCount}>{d.n}{' '}{tr('jawaban')}</span>
                 <span className={styles.topicPct}>{d.acc == null ? '—' : `${Math.round(d.acc)}%`}</span>
               </li>
             ))}
@@ -192,9 +193,9 @@ export function ProgressView() {
       {(profile || hub.data?.levels) && (
         <SurfaceCard className={styles.card}>
           <div className={styles.cardHead}>
-            <h2 className={styles.cardTitle}>Level & penguasaan konsep</h2>
+            <h2 className={styles.cardTitle}>{tr('Level & penguasaan konsep')}</h2>
             <Link to="/game" className={styles.inlineLink}>
-              Buka game <Icon name="arrow-right" size={14} />
+              {tr('Buka game')}{' '}<Icon name="arrow-right" size={14} />
             </Link>
           </div>
           {profile && (
@@ -203,7 +204,7 @@ export function ProgressView() {
               <div className={styles.xpBar}>
                 <ProgressBar
                   value={profile.next > profile.level_start ? ((profile.xp - profile.level_start) / (profile.next - profile.level_start)) * 100 : null}
-                  label="Kemajuan menuju level berikutnya"
+                  label={tr('Kemajuan menuju level berikutnya')}
                 />
               </div>
               <span className={styles.cardMeta}>
@@ -231,14 +232,14 @@ export function ProgressView() {
           {badges.length > 0 && (
             <>
               <h3 className={styles.subTitle}>
-                Lencana ({unlocked.length}/{badges.length})
+                {tr('Lencana ({a}/{b})', { a: unlocked.length, b: badges.length })}
               </h3>
               <ul className={styles.badges}>
                 {badges.map((b) => (
                   <li key={b.key} className={b.unlocked ? styles.badgeOn : styles.badgeOff} title={b.desc}>
                     <Icon name={b.unlocked ? 'award' : 'lock'} size={16} />
                     <span>{b.title}</span>
-                    <span className={styles.srOnly}>{b.unlocked ? ', sudah didapat' : ', belum didapat'}</span>
+                    <span className={styles.srOnly}>{b.unlocked ? tr(', sudah didapat') : tr(', belum didapat')}</span>
                   </li>
                 ))}
               </ul>
@@ -253,7 +254,7 @@ export function ProgressView() {
 function TopicRow({ t, tone }: { t: ProgressResponse['topics'][number]; tone: 'danger' | 'success' }) {
   return (
     <li className={styles.topicRow}>
-      <span className={styles.topicName}>{t.topic || 'Umum'}</span>
+      <span className={styles.topicName}>{t.topic || tr('Umum')}</span>
       <span className={styles.topicBar} aria-hidden="true">
         <i className={tone === 'danger' ? styles.barDanger : styles.barSuccess} style={{ width: `${t.acc}%` }} />
       </span>

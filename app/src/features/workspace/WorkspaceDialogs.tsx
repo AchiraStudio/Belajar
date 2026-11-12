@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Button, Dialog, Input, useToast } from '../../components/ui';
 import { rpcCall, dropCache } from '../../services/api/rpc';
+import { tr } from '../../services/i18n';
 
 /*
  * Confirmation dialogs of the material workspace. They use the shared accessible `Dialog`
@@ -31,7 +32,7 @@ export function RenameTitleDialog({ isOpen, onClose, documentId, currentTitle, o
     e.preventDefault();
     if (isSubmitting) return;
     if (!title.trim()) {
-      toast.error('Judul materi tidak boleh kosong.');
+      toast.error(tr('Judul materi tidak boleh kosong.'));
       return;
     }
 
@@ -40,27 +41,27 @@ export function RenameTitleDialog({ isOpen, onClose, documentId, currentTitle, o
       const next = title.trim().slice(0, 120);
       await rpcCall('update_document', { id: documentId, title: next });
       dropCache();
-      toast.success('Judul materi berhasil diperbarui');
+      toast.success(tr('Judul materi berhasil diperbarui'));
       onSuccess(next);
       onClose();
     } catch (err: any) {
-      toast.error(err?.message || 'Gagal mengubah judul materi');
+      toast.error(err?.message || tr('Gagal mengubah judul materi'));
     } finally {
       setIsSubmitting(false);
     }
   };
 
   return (
-    <Dialog open={isOpen} onClose={onClose} title="Ganti Judul Materi" size="sm" dismissible={!isSubmitting}>
+    <Dialog open={isOpen} onClose={onClose} title={tr('Ganti Judul Materi')} size="sm" dismissible={!isSubmitting}>
       <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '16px' }}>
-        <Input label="Judul Baru" value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} data-autofocus />
+        <Input label={tr('Judul Baru')} value={title} onChange={(e) => setTitle(e.target.value)} maxLength={120} data-autofocus />
 
         <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px' }}>
           <Button variant="ghost" size="sm" onClick={onClose} disabled={isSubmitting} type="button">
-            Batal
+            {tr('Batal')}
           </Button>
           <Button variant="primary" size="sm" type="submit" loading={isSubmitting} disabled={!title.trim() || isSubmitting}>
-            Simpan Judul
+            {tr('Simpan Judul')}
           </Button>
         </div>
       </form>
@@ -86,10 +87,10 @@ export function DeleteDocumentDialog({ isOpen, onClose, documentId, documentTitl
     try {
       await rpcCall('delete_document', { id: documentId });
       dropCache();
-      toast.success('Materi berhasil dihapus');
+      toast.success(tr('Materi berhasil dihapus'));
       onSuccess();
     } catch (err: any) {
-      toast.error(err?.message || 'Gagal menghapus materi');
+      toast.error(err?.message || tr('Gagal menghapus materi'));
       setIsDeleting(false);
     }
   };
@@ -98,23 +99,22 @@ export function DeleteDocumentDialog({ isOpen, onClose, documentId, documentTitl
     <Dialog
       open={isOpen}
       onClose={onClose}
-      title="Hapus Materi?"
+      title={tr('Hapus Materi?')}
       size="sm"
       dismissible={!isDeleting}
       footer={
         <>
           <Button variant="ghost" size="sm" onClick={onClose} disabled={isDeleting}>
-            Batal
+            {tr('Batal')}
           </Button>
           <Button variant="danger" size="sm" onClick={handleDelete} loading={isDeleting} disabled={isDeleting}>
-            Ya, Hapus Materi
+            {tr('Ya, Hapus Materi')}
           </Button>
         </>
       }
     >
       <p style={bodyText}>
-        Apakah kamu yakin ingin menghapus materi <b>&quot;{documentTitle}&quot;</b>? Seluruh catatan, data mind map, dan paket kuis yang terkait akan dihapus
-        secara permanen.
+        {tr('Apakah kamu yakin ingin menghapus materi “{title}”? Seluruh catatan, data mind map, dan paket kuis yang terkait akan dihapus secara permanen.', { title: documentTitle })}
       </p>
     </Dialog>
   );
@@ -131,12 +131,12 @@ export function RegenerateConfirmDialog({ isOpen, onClose, onConfirm }: Regenera
     <Dialog
       open={isOpen}
       onClose={onClose}
-      title="Gantikan Catatan Pribadi?"
+      title={tr('Gantikan Catatan Pribadi?')}
       size="sm"
       footer={
         <>
           <Button variant="ghost" size="sm" onClick={onClose}>
-            Batal
+            {tr('Batal')}
           </Button>
           <Button
             variant="primary"
@@ -146,13 +146,13 @@ export function RegenerateConfirmDialog({ isOpen, onClose, onConfirm }: Regenera
               onConfirm();
             }}
           >
-            Tetap Buat Ulang
+            {tr('Tetap Buat Ulang')}
           </Button>
         </>
       }
     >
       <p style={bodyText}>
-        Catatan ini telah kamu modifikasi secara manual. Jika kamu membuat ulang catatan dengan AI, seluruh editan pribadimu akan digantikan dengan rangkuman baru.
+        {tr('Catatan ini telah kamu modifikasi secara manual. Jika kamu membuat ulang catatan dengan AI, seluruh editan pribadimu akan digantikan dengan rangkuman baru.')}
       </p>
     </Dialog>
   );

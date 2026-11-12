@@ -1,3 +1,4 @@
+import { currentLocale, tr } from '../../services/i18n';
 import type { DeadlineState } from './types';
 
 const DAY = 86_400;
@@ -9,18 +10,18 @@ export const SOON_DAYS = 14;
  */
 export function deadlineState(deadline: number, nowSeconds: number = Date.now() / 1000): DeadlineState {
   const diff = deadline - nowSeconds;
-  if (diff <= 0) return { kind: 'closed', label: 'Ditutup', days: Math.floor(diff / DAY) };
+  if (diff <= 0) return { kind: 'closed', label: tr('Ditutup'), days: Math.floor(diff / DAY) };
   const days = Math.ceil(diff / DAY);
-  if (days <= SOON_DAYS) return { kind: 'soon', label: days === 1 ? 'Ditutup besok' : `Ditutup ${days} hari lagi`, days };
-  return { kind: 'open', label: 'Dibuka', days };
+  if (days <= SOON_DAYS) return { kind: 'soon', label: days === 1 ? tr('Ditutup besok') : tr('Ditutup {n} hari lagi', { n: days }), days };
+  return { kind: 'open', label: tr('Dibuka'), days };
 }
 
 export function formatDeadline(deadline: number): string {
-  return new Date(deadline * 1000).toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' });
+  return new Date(deadline * 1000).toLocaleDateString(currentLocale(), { day: 'numeric', month: 'long', year: 'numeric' });
 }
 
 export function categoryLabel(category: string): string {
-  return category === 'scholarship' ? 'Beasiswa' : category === 'competition' ? 'Kompetisi' : category;
+  return category === 'scholarship' ? tr('Beasiswa') : category === 'competition' ? tr('Kompetisi') : category;
 }
 
 /** Only http(s) links are ever rendered as anchors. */

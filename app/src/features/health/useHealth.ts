@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import { tr } from '../../services/i18n';
 import { apiFetch } from '../../services/api/client';
 
 export interface HealthResponse {
@@ -40,7 +41,7 @@ export function useHealth(intervalMs = 15_000): HealthState {
         if (controller.signal.aborted) return;
         setState({
           kind: 'down',
-          message: error instanceof Error ? error.message : 'Server tidak terjangkau.',
+          message: error instanceof Error ? error.message : tr('Server tidak terjangkau.'),
         });
       }
       timer = setTimeout(() => void check(), intervalMs);

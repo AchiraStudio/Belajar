@@ -4,7 +4,7 @@
 .groupDesc { margin: -6px 0 0; font-size: var(--text-sm); color: var(--text-secondary); line-height: var(--leading-normal); }
 
 .identity { display: flex; align-items: center; gap: 16px; flex-wrap: wrap; }
-.avatar { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 1.5rem; font-weight: 700; flex: none; }
+.avatar { display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%; background: var(--accent); color: var(--on-accent); font-size: 1.5rem; font-weight: 700; flex: none; }
 .idText { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
 .idName { margin: 0; font-size: var(--text-xl); font-weight: 650; overflow-wrap: anywhere; }
 .idMeta { display: flex; gap: 8px; flex-wrap: wrap; align-items: center; font-size: var(--text-sm); color: var(--text-secondary); }
@@ -20,6 +20,7 @@
 .env:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
 .envHead { display: flex; align-items: center; justify-content: space-between; gap: 8px; font-weight: 600; }
 .envDesc { font-size: var(--text-sm); color: var(--text-secondary); line-height: var(--leading-normal); }
+.envSummary { display: flex; flex-direction: column; gap: 6px; padding: 12px 14px; border-radius: var(--radius-lg); background: var(--accent-soft); border: 1.5px solid var(--accent); }
 .envTunes { margin: 0; padding-left: 18px; font-size: var(--text-xs); color: var(--text-muted); }
 
 .note { display: flex; gap: 10px; padding: 12px 14px; border-radius: var(--radius-md); background: var(--ice-soft); font-size: var(--text-sm); line-height: var(--leading-normal); }

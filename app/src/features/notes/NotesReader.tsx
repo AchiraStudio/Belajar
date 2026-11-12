@@ -4,6 +4,7 @@ import { Icon, useToast } from '../../components/ui';
 import { useTextSelection } from './useTextSelection';
 import type { TocItem } from './types';
 import styles from './Notes.module.css';
+import { tr } from '../../services/i18n';
 
 interface NotesReaderProps {
   contentMd: string;
@@ -72,15 +73,15 @@ export function NotesReader({
           ta.remove();
         }
         const originalText = copyBtn.textContent;
-        copyBtn.textContent = 'Disalin ✓';
+        copyBtn.textContent = tr('Disalin ✓');
         copyBtn.disabled = true;
-        toast.success('Kode disalin ke papan klip');
+        toast.success(tr('Kode disalin ke papan klip'));
         setTimeout(() => {
           copyBtn.textContent = originalText;
           copyBtn.disabled = false;
         }, 1600);
       } catch {
-        toast.error('Gagal menyalin kode');
+        toast.error(tr('Gagal menyalin kode'));
       }
     };
 
@@ -95,7 +96,7 @@ export function NotesReader({
         className={`${styles.sheet} ${readFont === 'serif' ? styles.serif : styles.soft}`}
         style={{ '--fs': `${fontScale}px` } as React.CSSProperties}
         dangerouslySetInnerHTML={{ __html: htmlContent }}
-        aria-label="Isi Catatan"
+        aria-label={tr('Isi Catatan')}
       />
 
       {/* Floating Selection "Tanya AI" Pill */}
@@ -109,10 +110,10 @@ export function NotesReader({
             clearSelection();
             onAskText(txt);
           }}
-          aria-label="Tanya AI tentang teks yang dipilih"
+          aria-label={tr('Tanya AI tentang teks yang dipilih')}
         >
           <Icon name="sparkles" size={14} />
-          <span>Tanya</span>
+          <span>{tr('Tanya')}</span>
         </button>
       )}
     </div>

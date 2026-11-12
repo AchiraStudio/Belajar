@@ -1,4 +1,4 @@
-# CONTEXT.md — Belajar (repo `FiePaw/MyLearn`)
+# CONTEXT.md — Stuby (repo `FiePaw/MyLearn`)
 
 Dokumen konteks komprehensif untuk asisten AI dan kontributor. Diperbarui untuk **Update v2.3.1** (`2.3.1`: canvas coding untuk kode, aturan kode/rumus pada prompt, perbaikan rumus otomatis; sebelumnya 2.3.0: mind map, metode catatan Detail, rumus KaTeX, huruf Nunito). Seluruh rangkaian uji pada Bagian 2 telah dijalankan dan lulus.
 
@@ -20,7 +20,7 @@ Browser ──HTTPS──▶ VPS: server/server.js (login, allowlist API, fronte
                               └─ HTTP ─▶ PAF-Model gateway (DeepSeek Stream / Qwen / Grok)
 ```
 
-- Seluruh data (SQLite `data/belajar.db`, berkas materi) dan seluruh pemanggilan AI berada di **agent lokal**. VPS tidak menyimpan data dan tidak memegang token PAF.
+- Seluruh data (SQLite `data/stuby.db`, berkas materi) dan seluruh pemanggilan AI berada di **agent lokal**. VPS tidak menyimpan data dan tidak memegang token PAF.
 - Bila agent mati/offline, antarmuka web tetap menyala dan menampilkan status "PC lokal sedang offline".
 - Hanya **satu agent** yang boleh terhubung ke VPS secara bersamaan (koneksi kedua memutus yang pertama dengan close code `4000`).
 - **Game Interaktif (v2.0)**: AI (DeepSeek Stream) bertindak dinamis sebagai murid, detektif, narator RPG, analis kasus, atau penguji, sedangkan **agent lokal tetap bertindak sebagai wasit** yang menyimpan kunci jawaban, rubrik rahasia, menghitung skor, XP, dan tingkat penguasaan konsep.
@@ -28,7 +28,7 @@ Browser ──HTTPS──▶ VPS: server/server.js (login, allowlist API, fronte
 | Lapisan | Teknologi |
 |---|---|
 | Agent (Backend sebenarnya) | Python 3.10+ (dev: 3.13), `asyncio`, `websockets>=12`, `requests`, `pymupdf`, `python-docx`, `python-pptx`, `Pillow`, `tzdata` |
-| Database | SQLite 3 (mode WAL), berkas `data/belajar.db`, skema berversi (v3) |
+| Database | SQLite 3 (mode WAL), berkas `data/stuby.db`, skema berversi (v3) |
 | Server VPS | Node.js 18+, Express `^4.19.2`, `multer`, `ws` |
 | Frontend | Vanilla JS SPA (tanpa framework, tanpa build step, mobile-first), router berbasis `#/hash`, CSS modern |
 | AI Gateway | PAF-Model gateway (OpenAI Chat Completions-like): DeepSeek (stream instant, image/files upload, chat), Qwen (auto/thinking), Grok (khusus tugas kompleks & deep) |
@@ -141,7 +141,7 @@ Seluruh pengujian menggunakan `tests/mock_paf.py` sehingga **tidak mengonsumsi k
 │   ├── bridge.js          AgentBridge: WebSocket server untuk koneksi agent tunggal
 │   ├── public/            Frontend statis Vanilla JS:
 │   │   ├── index.html     Halaman SPA utama
-│   │   ├── app.js         Router, shell, view dokumen/kuis/chat, renderer Markdown + rumus KaTeX, Belajar.sse, Belajar.createSmoother
+│   │   ├── app.js         Router, shell, view dokumen/kuis/chat, renderer Markdown + rumus KaTeX, Stuby.sse, Stuby.createSmoother
 │   │   ├── codecanvas.js  Canvas coding: pewarna sintaks, kartu kode, salin/unduh/layar penuh (window.CodeCanvas)
 │   │   ├── mindmap.js     Komponen mind map (SVG, pan/zoom, lipat, daftar, ekspor SVG/PNG)
 │   │   ├── vendor/katex/  KaTeX 0.19.1 (di-host sendiri; lihat vendor/LICENSES.md)
@@ -161,7 +161,7 @@ Seluruh pengujian menggunakan `tests/mock_paf.py` sehingga **tidak mengonsumsi k
 │   │           └── boss.js         Ujian evaluasi boss & rapor diagnosis
 │   └── *.example          Contoh .env, Caddyfile (flush_interval -1), systemd service
 ├── tests/                 Rangkaian pengujian: smoke_agent.py, smoke_play.py, smoke_cards.py, test_play_protocol.py, parity_actions.py, mock_paf.py
-└── data/                  Data lokal (belajar.db, files/, backup/) — diabaikan dari git tracking (.gitignore)
+└── data/                  Data lokal (stuby.db, files/, backup/) — diabaikan dari git tracking (.gitignore)
 ```
 
 ---

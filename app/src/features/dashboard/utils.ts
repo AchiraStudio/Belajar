@@ -1,10 +1,12 @@
+import { currentLocale, tr } from '../../services/i18n';
+
 export function fmtDur(seconds: number): string {
-  if (!seconds || seconds <= 0) return '0 mnt';
-  if (seconds < 60) return `${Math.round(seconds)} dtk`;
+  if (!seconds || seconds <= 0) return tr('0 mnt');
+  if (seconds < 60) return tr('{n} dtk', { n: Math.round(seconds) });
   const mins = Math.floor(seconds / 60);
-  if (mins < 60) return `${mins} mnt`;
+  if (mins < 60) return tr('{n} mnt', { n: mins });
   const hours = (seconds / 3600).toFixed(1).replace('.0', '');
-  return `${hours} jam`;
+  return tr('{n} jam', { n: hours });
 }
 
 export function relDay(val: string | number | undefined): string {
@@ -21,10 +23,10 @@ export function relDay(val: string | number | undefined): string {
   const diffMs = now.getTime() - date.getTime();
   const diffDays = Math.floor(diffMs / (1000 * 60 * 60 * 24));
 
-  if (diffDays <= 0) return 'Hari ini';
-  if (diffDays === 1) return 'Kemarin';
-  if (diffDays < 7) return `${diffDays} hari lalu`;
-  return date.toLocaleDateString('id-ID', { day: 'numeric', month: 'short' });
+  if (diffDays <= 0) return tr('Hari ini');
+  if (diffDays === 1) return tr('Kemarin');
+  if (diffDays < 7) return tr('{n} hari lalu', { n: diffDays });
+  return date.toLocaleDateString(currentLocale(), { day: 'numeric', month: 'short' });
 }
 
 export function fileKind(filename?: string): 'PDF' | 'DOCX' | 'PPTX' | 'IMG' | 'TXT' {
@@ -39,10 +41,10 @@ export function fileKind(filename?: string): 'PDF' | 'DOCX' | 'PPTX' | 'IMG' | '
 
 export function greeting(): string {
   const hour = new Date().getHours();
-  if (hour >= 4 && hour < 11) return 'Selamat pagi';
-  if (hour >= 11 && hour < 15) return 'Selamat siang';
-  if (hour >= 15 && hour < 18) return 'Selamat sore';
-  return 'Selamat malam';
+  if (hour >= 4 && hour < 11) return tr('Selamat pagi');
+  if (hour >= 11 && hour < 15) return tr('Selamat siang');
+  if (hour >= 15 && hour < 18) return tr('Selamat sore');
+  return tr('Selamat malam');
 }
 
 export function tone(pct: number): 'good' | 'mid' | 'bad' {

@@ -1,6 +1,7 @@
 // Typed fetch wrapper for /api/v1 and /api. Understands the server error model (ADR-7):
 //   { "error": { "code": "...", "message": "<Indonesian>", "retryable": false } }
 import { config } from '../../config';
+import { tr } from '../i18n';
 
 export class ApiError extends Error {
   constructor(
@@ -31,7 +32,7 @@ export interface RequestOptions {
 }
 
 /** Fired when the server answers 401 so the app can return to the login screen. */
-export const UNAUTHORIZED_EVENT = 'belajar:unauthorized';
+export const UNAUTHORIZED_EVENT = 'stuby:unauthorized';
 
 const NETWORK_MESSAGE = 'Tidak dapat terhubung ke server. Periksa koneksi internet.';
 
@@ -65,7 +66,7 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
     });
   } catch (error) {
     if (options.signal?.aborted) throw error; // the caller cancelled: not an API failure
-    throw new ApiError(NETWORK_MESSAGE, 'network', 0, true);
+    throw new ApiError(tr(NETWORK_MESSAGE), 'network', 0, true);
   }
 
   if (response.ok) return (await response.json()) as T;
@@ -89,7 +90,7 @@ export async function apiFetch<T>(path: string, options: RequestOptions = {}): P
   }
 
   throw new ApiError(
-    detail?.message ?? `Terjadi kesalahan (${response.status})`,
+    detail?.message ?? tr('Terjadi kesalahan ({a})', { a: response.status }),
     detail?.code ?? 'http_error',
     response.status,
     detail?.retryable ?? response.status >= 500,
@@ -121,7 +122,7 @@ export async function apiStream(
     response = await fetch(apiUrl(path), { method: 'POST', headers, body: JSON.stringify(body), signal: opts.signal });
   } catch (error) {
     if (opts.signal?.aborted) throw error;
-    throw new ApiError(NETWORK_MESSAGE, 'network', 0, true);
+    throw new ApiError(tr(NETWORK_MESSAGE), 'network', 0, true);
   }
 
   if (response.status === 401 && typeof window !== 'undefined' && path.startsWith('/api/chat/')) {
@@ -130,7 +131,7 @@ export async function apiStream(
   const isStream = (response.headers.get('content-type') ?? '').includes('text/event-stream');
   if (!response.ok && !isStream) {
     if (response.status === 404 || response.status === 405 || response.status === 501) return 'not-stream';
-    let message = `Terjadi kesalahan (${response.status})`;
+    let message = tr('Terjadi kesalahan ({a})', { a: response.status });
     try {
       const payload = (await response.json()) as ErrorPayload;
       const detail = payload?.error;
@@ -152,7 +153,7 @@ export async function apiStream(
         chunk = await reader.read();
       } catch (error) {
         if (opts.signal?.aborted) throw error;
-        throw new ApiError(NETWORK_MESSAGE, 'network', 0, true);
+        throw new ApiError(tr(NETWORK_MESSAGE), 'network', 0, true);
       }
       if (chunk.done) break;
       buffer += decoder.decode(chunk.value, { stream: true });

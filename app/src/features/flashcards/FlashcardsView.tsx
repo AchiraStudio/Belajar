@@ -18,6 +18,7 @@ import { copyText, downloadTextFile } from '../../services/files';
 import { dropCache, rpcCall } from '../../services/api/rpc';
 import { GRADES, type CardCounts, type CardsDueResponse, type DueCard, type HubDocument } from './types';
 import styles from './Flashcards.module.css';
+import { tr } from '../../services/i18n';
 
 export function FlashcardsView() {
   const due = useRpcQuery<CardsDueResponse>('cards_due', { limit: 30 });
@@ -42,13 +43,13 @@ export function FlashcardsView() {
   return (
     <div className={styles.page}>
       <PageHeader
-        eyebrow="Belajar"
-        title="Kartu Belajar"
-        description="Ulangan berjarak (SM-2): kartu yang kamu kuasai muncul makin jarang, yang sulit muncul lebih sering. Konsep yang lemah di game otomatis masuk ke sini."
+        eyebrow={tr('Belajar')}
+        title={tr('Kartu Belajar')}
+        description={tr('Ulangan berjarak (SM-2): kartu yang kamu kuasai muncul makin jarang, yang sulit muncul lebih sering. Konsep yang lemah di game otomatis masuk ke sini.')}
       />
 
       {due.loading && !due.data && (
-        <div aria-busy="true" aria-label="Memuat kartu" className={styles.statGrid}>
+        <div aria-busy="true" aria-label={tr('Memuat kartu')} className={styles.statGrid}>
           {[0, 1, 2, 3].map((i) => (
             <Skeleton key={i} height="86px" borderRadius="16px" />
           ))}
@@ -62,8 +63,8 @@ export function FlashcardsView() {
             <div className={styles.doneBanner} role="status">
               <Icon name="check-circle" size={20} />
               <span>
-                Review selesai: {lastReview.total} kartu diulang
-                {lastReview.again ? `, ${lastReview.again}× perlu diulang lagi` : ''}.
+                {tr('Review selesai: {n} kartu diulang', { n: lastReview.total })}
+                {lastReview.again ? tr(', {n}× perlu diulang lagi', { n: lastReview.again }) : ''}.
               </span>
             </div>
           )}
@@ -73,21 +74,21 @@ export function FlashcardsView() {
           {due.data.cards.length > 0 ? (
             <SurfaceCard className={styles.startCard}>
               <div>
-                <h2 className={styles.startTitle}>{due.data.counts.due} kartu menunggu diulang hari ini</h2>
-                <p className={styles.startSub}>Sesi ini memuat hingga {due.data.cards.length} kartu. Satu kartu pada satu waktu.</p>
+                <h2 className={styles.startTitle}>{tr('{n} kartu menunggu diulang hari ini', { n: due.data.counts.due })}</h2>
+                <p className={styles.startSub}>{tr('Sesi ini memuat hingga {n} kartu. Satu kartu pada satu waktu.', { n: due.data.cards.length })}</p>
               </div>
               <Button size="lg" icon="play" onClick={() => { setLastReview(null); setReviewing(due.data!.cards); }}>
-                Mulai review
+                {tr('Mulai review')}
               </Button>
             </SurfaceCard>
           ) : (
             <EmptyState
               icon="cards"
-              title={due.data.counts.total ? 'Tidak ada kartu jatuh tempo' : 'Belum ada kartu'}
+              title={due.data.counts.total ? tr('Tidak ada kartu jatuh tempo') : tr('Belum ada kartu')}
               description={
                 due.data.counts.total
-                  ? 'Semua kartu sudah diulang. Kembali lagi besok.'
-                  : 'Bangun kartu dari istilah materi di bawah, atau mainkan game: konsep yang lemah otomatis dibuatkan kartu.'
+                  ? tr('Semua kartu sudah diulang. Kembali lagi besok.')
+                  : tr('Bangun kartu dari istilah materi di bawah, atau mainkan game: konsep yang lemah otomatis dibuatkan kartu.')
               }
             />
           )}
@@ -102,10 +103,10 @@ export function FlashcardsView() {
 function Counts({ counts }: { counts: CardCounts }) {
   return (
     <div className={styles.statGrid}>
-      <MetricTile label="Jatuh tempo" value={counts.due} icon="clock" tone={counts.due > 0 ? 'accent' : 'default'} />
-      <MetricTile label="Baru" value={counts.new} icon="sparkles" />
-      <MetricTile label="Dipelajari" value={counts.learning} icon="refresh" />
-      <MetricTile label="Matang" value={counts.mature} icon="check-circle" tone="success" hint={`Total ${counts.total} kartu`} />
+      <MetricTile label={tr('Jatuh tempo')} value={counts.due} icon="clock" tone={counts.due > 0 ? 'accent' : 'default'} />
+      <MetricTile label={tr('Baru')} value={counts.new} icon="sparkles" />
+      <MetricTile label={tr('Dipelajari')} value={counts.learning} icon="refresh" />
+      <MetricTile label={tr('Matang')} value={counts.mature} icon="check-circle" tone="success" hint={tr('Total {a} kartu', { a: counts.total })} />
     </div>
   );
 }
@@ -124,11 +125,11 @@ function ManageCards({ documents, onChanged }: { documents: HubDocument[]; onCha
         'cards_build',
         source === 'all' ? {} : { document_id: Number(source) },
       );
-      toast.success(res.added ? `${res.added} kartu baru dibuat` : 'Semua istilah sudah punya kartu');
+      toast.success(res.added ? tr('{a} kartu baru dibuat', { a: res.added }) : tr('Semua istilah sudah punya kartu'));
       res.achievements?.forEach((a) => toast.info(a.title, 'Lencana baru'));
       onChanged();
     } catch (err) {
-      toast.error(errorMessage(err, 'Gagal membangun kartu.'));
+      toast.error(errorMessage(err, tr('Gagal membangun kartu.')));
     } finally {
       setBuilding(false);
     }
@@ -140,19 +141,19 @@ function ManageCards({ documents, onChanged }: { documents: HubDocument[]; onCha
     try {
       const res = await rpcCall<{ text: string; count: number }>('cards_export');
       if (!res.count) {
-        toast.warning('Belum ada kartu untuk diekspor.');
+        toast.warning(tr('Belum ada kartu untuk diekspor.'));
         return;
       }
       if (mode === 'copy') {
         const ok = await copyText(res.text);
-        ok ? toast.success('Disalin. Tempel ke Anki sebagai teks dipisah tab.') : toast.error('Tidak bisa menyalin ke papan klip.');
+        ok ? toast.success(tr('Disalin. Tempel ke Anki sebagai teks dipisah tab.')) : toast.error(tr('Tidak bisa menyalin ke papan klip.'));
       } else if (downloadTextFile('kartu-belajar.tsv', res.text, 'text/tab-separated-values;charset=utf-8')) {
-        toast.success('Diekspor. Impor ke Anki sebagai teks dipisah tab.');
+        toast.success(tr('Diekspor. Impor ke Anki sebagai teks dipisah tab.'));
       } else {
-        toast.error('Perangkat ini tidak mengizinkan unduhan. Gunakan "Salin TSV".');
+        toast.error(tr('Perangkat ini tidak mengizinkan unduhan. Gunakan "Salin TSV".'));
       }
     } catch (err) {
-      toast.error(errorMessage(err, 'Gagal mengekspor kartu.'));
+      toast.error(errorMessage(err, tr('Gagal mengekspor kartu.')));
     } finally {
       setExporting(false);
     }
@@ -160,24 +161,24 @@ function ManageCards({ documents, onChanged }: { documents: HubDocument[]; onCha
 
   return (
     <SurfaceCard className={styles.manage}>
-      <h2 className={styles.manageTitle}>Kelola kartu</h2>
+      <h2 className={styles.manageTitle}>{tr('Kelola kartu')}</h2>
       <div className={styles.manageRow}>
         <Select
-          label="Bangun kartu dari istilah"
+          label={tr('Bangun kartu dari istilah')}
           value={source}
           onChange={(e) => setSource(e.target.value)}
-          options={[{ value: 'all', label: 'Semua materi' }, ...documents.map((d) => ({ value: String(d.id), label: d.title }))]}
+          options={[{ value: 'all', label: tr('Semua materi') }, ...documents.map((d) => ({ value: String(d.id), label: d.title }))]}
         />
         <Button variant="outline" icon="plus" loading={building} onClick={build}>
-          Bangun kartu
+          {tr('Bangun kartu')}
         </Button>
       </div>
       <div className={styles.manageRow}>
         <Button variant="ghost" icon="download" loading={exporting} onClick={() => void exportTsv('file')}>
-          Ekspor ke Anki (TSV)
+          {tr('Ekspor ke Anki (TSV)')}
         </Button>
         <Button variant="ghost" icon="copy" disabled={exporting} onClick={() => void exportTsv('copy')}>
-          Salin TSV
+          {tr('Salin TSV')}
         </Button>
       </div>
     </SurfaceCard>
@@ -214,7 +215,7 @@ function ReviewSession({ cards, onExit }: { cards: DueCard[]; onExit: (summary: 
         else setDone((n) => n + 1);
         setFlipped(false);
       } catch (err) {
-        toast.error(errorMessage(err, 'Gagal menyimpan penilaian kartu.'));
+        toast.error(errorMessage(err, tr('Gagal menyimpan penilaian kartu.')));
       } finally {
         setRating(false);
       }
@@ -245,14 +246,14 @@ function ReviewSession({ cards, onExit }: { cards: DueCard[]; onExit: (summary: 
           <span className={styles.finishIcon}>
             <Icon name="check" size={34} />
           </span>
-          <h1 className={styles.finishTitle}>Review selesai</h1>
+          <h1 className={styles.finishTitle}>{tr('Review selesai')}</h1>
           <p className={styles.finishText}>
-            {total} kartu diulang{again ? `, ${again}× perlu diulang lagi` : ''}.
+            {tr('{n} kartu diulang', { n: total })}{again ? tr(', {n}× perlu diulang lagi', { n: again }) : ''}.
           </p>
           <div className={styles.finishActions}>
-            <Button onClick={() => onExit({ total, again })}>Kembali ke kartu</Button>
+            <Button onClick={() => onExit({ total, again })}>{tr('Kembali ke kartu')}</Button>
             <Link to="/game" className={styles.plainLink}>
-              Ke game
+              {tr('Ke game')}
             </Link>
           </div>
         </div>
@@ -264,23 +265,23 @@ function ReviewSession({ cards, onExit }: { cards: DueCard[]; onExit: (summary: 
     <div className={styles.review}>
       <div className={styles.reviewTop}>
         <Button size="sm" variant="ghost" icon="x" onClick={() => onExit({ total: done, again })}>
-          Akhiri sesi
+          {tr('Akhiri sesi')}
         </Button>
         <span className={styles.reviewCount} aria-live="polite">
-          {done} / {total} selesai
+          {done} / {total}{' '}{tr('selesai')}
         </span>
       </div>
-      <ProgressBar value={(done / total) * 100} label="Kemajuan sesi review" />
+      <ProgressBar value={(done / total) * 100} label={tr('Kemajuan sesi review')} />
 
       <div className={styles.stage}>
         {!flipped ? (
-          <button type="button" className={styles.card} onClick={() => setFlipped(true)} aria-label="Balik kartu untuk melihat jawaban">
+          <button type="button" className={styles.card} onClick={() => setFlipped(true)} aria-label={tr('Balik kartu untuk melihat jawaban')}>
             <small className={styles.cardSource}>{current.doc_title}</small>
             <div className={styles.cardText}>{current.front}</div>
-            <span className={styles.cardHint}>Ketuk atau tekan Spasi untuk melihat jawaban</span>
+            <span className={styles.cardHint}>{tr('Ketuk atau tekan Spasi untuk melihat jawaban')}</span>
           </button>
         ) : (
-          <div className={`${styles.card} ${styles.cardBack}`} role="group" aria-label="Jawaban kartu">
+          <div className={`${styles.card} ${styles.cardBack}`} role="group" aria-label={tr('Jawaban kartu')}>
             <small className={styles.cardSource}>{current.front}</small>
             <div className={`${styles.cardText} ${styles.cardDef}`}>{current.back}</div>
           </div>
@@ -288,7 +289,7 @@ function ReviewSession({ cards, onExit }: { cards: DueCard[]; onExit: (summary: 
       </div>
 
       {flipped && (
-        <div className={styles.rates} role="group" aria-label="Seberapa baik kamu mengingatnya?">
+        <div className={styles.rates} role="group" aria-label={tr('Seberapa baik kamu mengingatnya?')}>
           {GRADES.map((g, i) => (
             <button
               key={g.grade}
@@ -296,10 +297,10 @@ function ReviewSession({ cards, onExit }: { cards: DueCard[]; onExit: (summary: 
               disabled={rating}
               className={`${styles.rate} ${styles[`rate_${g.tone}`]}`}
               onClick={() => void rate(g.grade)}
-              title={g.hint}
+              title={tr(g.hint)}
             >
               <kbd>{i + 1}</kbd>
-              {g.label}
+              {tr(g.label)}
             </button>
           ))}
         </div>

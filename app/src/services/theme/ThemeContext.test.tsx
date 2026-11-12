@@ -32,7 +32,7 @@ describe('ThemeContext', () => {
   });
 
   it('reads stored theme from localStorage', () => {
-    window.localStorage.setItem('belajar-theme', 'dark');
+    window.localStorage.setItem('stuby-theme', 'dark');
 
     const { result } = renderHook(() => useTheme(), {
       wrapper: ({ children }) => <ThemeProvider>{children}</ThemeProvider>,
@@ -45,7 +45,7 @@ describe('ThemeContext', () => {
   });
 
   it('normalizes legacy "auto" theme setting to "system"', () => {
-    window.localStorage.setItem('belajar-theme', 'auto');
+    window.localStorage.setItem('stuby-theme', 'auto');
 
     const { result } = renderHook(() => useTheme(), {
       wrapper: ({ children }) => <ThemeProvider>{children}</ThemeProvider>,
@@ -65,7 +65,7 @@ describe('ThemeContext', () => {
 
     expect(result.current.theme).toBe('dark');
     expect(result.current.resolvedTheme).toBe('dark');
-    expect(window.localStorage.getItem('belajar-theme')).toBe('dark');
+    expect(window.localStorage.getItem('stuby-theme')).toBe('dark');
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
     expect(document.documentElement.style.colorScheme).toBe('dark');
 
@@ -75,7 +75,7 @@ describe('ThemeContext', () => {
 
     expect(result.current.theme).toBe('light');
     expect(result.current.resolvedTheme).toBe('light');
-    expect(window.localStorage.getItem('belajar-theme')).toBe('light');
+    expect(window.localStorage.getItem('stuby-theme')).toBe('light');
     expect(document.documentElement.getAttribute('data-theme')).toBe('light');
   });
 
@@ -101,9 +101,9 @@ describe('ThemeContext', () => {
     expect(result.current.resolvedTheme).toBe('light');
   });
 
-  it('dispatches belajar:theme CustomEvent on theme change', () => {
+  it('dispatches stuby:theme CustomEvent on theme change', () => {
     const listener = vi.fn();
-    document.addEventListener('belajar:theme', listener);
+    document.addEventListener('stuby:theme', listener);
 
     const { result } = renderHook(() => useTheme(), {
       wrapper: ({ children }) => <ThemeProvider>{children}</ThemeProvider>,
@@ -119,7 +119,7 @@ describe('ThemeContext', () => {
     expect(lastCall.detail.resolvedTheme).toBe('dark');
     expect(lastCall.detail.dark).toBe(true);
 
-    document.removeEventListener('belajar:theme', listener);
+    document.removeEventListener('stuby:theme', listener);
   });
 
   it('calls Tauri window setTheme when Tauri environment is detected', () => {

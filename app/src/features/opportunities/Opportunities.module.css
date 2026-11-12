@@ -24,7 +24,7 @@
 .card { display: flex; flex-direction: column; gap: 8px; height: 100%; }
 .closed { opacity: 0.78; }
 .cardTop { display: flex; align-items: center; justify-content: space-between; gap: 8px; flex-wrap: wrap; }
-.cat { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-xs); font-weight: 650; letter-spacing: var(--tracking-wide); text-transform: uppercase; color: var(--accent); }
+.cat { display: inline-flex; align-items: center; gap: 6px; font-size: var(--text-xs); font-weight: 650; letter-spacing: var(--tracking-wide);  color: var(--accent); }
 .cardTitle { margin: 0; font-size: var(--text-lg); line-height: var(--leading-snug); font-weight: 600; }
 .titleBtn { all: unset; cursor: pointer; color: var(--text-primary); overflow-wrap: anywhere; border-radius: 4px; }
 .titleBtn:hover { color: var(--accent); }
@@ -44,7 +44,7 @@
 .soon p { margin: 0; font-size: var(--text-sm); color: var(--text-secondary); line-height: var(--leading-normal); }
 
 .detail { display: flex; flex-direction: column; gap: 14px; font-size: var(--text-base); line-height: var(--leading-normal); }
-.detail h3 { margin: 0 0 4px; font-size: var(--text-sm); text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--text-secondary); }
+.detail h3 { margin: 0 0 4px; font-size: var(--text-sm);  letter-spacing: var(--tracking-wide); color: var(--text-secondary); }
 .detail p { margin: 0; overflow-wrap: anywhere; }
 .detailHead { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; font-size: var(--text-sm); color: var(--text-secondary); }
 .pre { white-space: pre-wrap; }

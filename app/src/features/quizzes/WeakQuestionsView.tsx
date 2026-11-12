@@ -5,6 +5,7 @@ import { errorMessage, useRpcQuery } from '../../hooks/useRpcQuery';
 import { rpcCall } from '../../services/api/rpc';
 import type { AttemptResponse } from './types';
 import styles from './Quizzes.module.css';
+import { tr } from '../../services/i18n';
 
 interface DashboardWeak {
   weak_count: number;
@@ -29,7 +30,7 @@ export function WeakQuestionsView() {
       const res = await rpcCall<AttemptResponse>('start_review', { count: Number(count) });
       navigate(`/latihan/${res.attempt.id}`);
     } catch (err) {
-      toast.error(errorMessage(err, 'Gagal memulai ulangan.'));
+      toast.error(errorMessage(err, tr('Gagal memulai ulangan.')));
     } finally {
       setBusy(false);
     }
@@ -38,26 +39,26 @@ export function WeakQuestionsView() {
   return (
     <div className={styles.page}>
       <PageHeader
-        eyebrow="Belajar"
-        title="Soal Lemah"
-        description="Soal yang jawaban terakhirnya salah masuk antrean ini. Ulangi sampai benar agar penguasaanmu naik."
+        eyebrow={tr('Belajar')}
+        title={tr('Soal Lemah')}
+        description={tr('Soal yang jawaban terakhirnya salah masuk antrean ini. Ulangi sampai benar agar penguasaanmu naik.')}
         actions={
           <Link to="/kuis" className={styles.linkButton}>
             <Icon name="quiz" size={16} />
-            Semua kuis
+            {tr('Semua kuis')}
           </Link>
         }
       />
 
-      {loading && !data && <Skeleton height="200px" borderRadius="20px" aria-label="Memuat soal lemah" />}
+      {loading && !data && <Skeleton height="200px" borderRadius="20px" aria-label={tr('Memuat soal lemah')} />}
       {error && !data && <ErrorState message={error} onRetry={reload} />}
 
       {data && data.weak_count === 0 && (
         <EmptyState
           icon="check-circle"
-          title="Belum ada soal lemah"
-          description="Kerjakan kuis dulu. Soal yang salah akan masuk ke sini supaya bisa kamu ulangi."
-          actionLabel="Ke daftar kuis"
+          title={tr('Belum ada soal lemah')}
+          description={tr('Kerjakan kuis dulu. Soal yang salah akan masuk ke sini supaya bisa kamu ulangi.')}
+          actionLabel={tr('Ke daftar kuis')}
           onAction={() => navigate('/kuis')}
         />
       )}
@@ -66,11 +67,11 @@ export function WeakQuestionsView() {
         <SurfaceCard className={styles.weakCard}>
           <div className={styles.weakCount}>
             <span className={styles.weakNumber}>{data.weak_count}</span>
-            <span className={styles.weakLabel}>soal perlu diulang</span>
+            <span className={styles.weakLabel}>{tr('soal perlu diulang')}</span>
           </div>
           {data.weak_topics.length > 0 && (
             <div>
-              <h2 className={styles.sectionTitle}>Topik yang paling lemah</h2>
+              <h2 className={styles.sectionTitle}>{tr('Topik yang paling lemah')}</h2>
               <ul className={styles.topicList}>
                 {data.weak_topics.map((t) => (
                   <li key={t.topic} className={styles.topicRow}>
@@ -80,7 +81,7 @@ export function WeakQuestionsView() {
                         <span className={styles.topicBar} aria-hidden="true">
                           <i className={styles.bar_bad} style={{ width: `${t.acc}%` }} />
                         </span>
-                        <span className={styles.topicVal}>{Math.round(t.acc)}% benar</span>
+                        <span className={styles.topicVal}>{Math.round(t.acc)}{tr('% benar')}</span>
                       </>
                     )}
                   </li>
@@ -90,13 +91,13 @@ export function WeakQuestionsView() {
           )}
           <div className={styles.weakStart}>
             <Select
-              label="Jumlah soal per ulangan"
+              label={tr('Jumlah soal per ulangan')}
               value={count}
               onChange={(e) => setCount(e.target.value)}
-              options={[5, 10, 20, 40].map((n) => ({ value: n, label: `${n} soal` }))}
+              options={[5, 10, 20, 40].map((n) => ({ value: n, label: tr('{a} soal', { a: n }) }))}
             />
             <Button size="lg" icon="play" loading={busy} onClick={start}>
-              Mulai ulangi soal lemah
+              {tr('Mulai ulangi soal lemah')}
             </Button>
           </div>
         </SurfaceCard>

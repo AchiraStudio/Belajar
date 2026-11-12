@@ -1,10 +1,10 @@
 import { cleanup, fireEvent, screen } from '@testing-library/react';
 import React from 'react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
-import { TitleBar } from '../../../components/layout/TitleBar';
+import { TopBar } from '../../../components/layout/TopBar';
 import { mockRpc, renderWithProviders, unstubTauri } from '../harness';
 
-describe('Feature 5: Tauri Custom Titlebar', () => {
+describe('Feature 5: Tauri title bar (merged into the top bar)', () => {
   beforeEach(() => {
     unstubTauri();
     mockRpc.install();
@@ -19,25 +19,32 @@ describe('Feature 5: Tauri Custom Titlebar', () => {
     vi.useRealTimers();
   });
 
-  it('05.1 - Browser Zero DOM Null Rendering', () => {
-    // In browser mode (isTauri: false)
-    renderWithProviders(<TitleBar />, { isTauri: false });
+  it('05.1 - Browser has the top bar but no window buttons', () => {
+    renderWithProviders(<TopBar />, { isTauri: false });
 
-    expect(screen.queryByRole('banner')).toBeNull();
-    expect(screen.queryByText('Belajar')).toBeNull();
+    expect(screen.queryByRole('banner', { name: 'Bilah judul aplikasi' })).toBeNull();
+    expect(screen.queryByRole('button', { name: 'Tutup' })).toBeNull();
+  });
+
+  it('05.1b - No window chrome on Android (the system provides it)', () => {
+    const ua = vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue('Mozilla/5.0 (Linux; Android 14) Chrome/120 Mobile');
+    renderWithProviders(<TopBar />, { isTauri: true });
+
+    expect(screen.queryByRole('button', { name: 'Tutup' })).toBeNull();
+    ua.mockRestore();
   });
 
   it('05.2 - Tauri Desktop Frame Rendering', () => {
     // Under Tauri desktop simulation
-    renderWithProviders(<TitleBar />, { isTauri: true });
+    renderWithProviders(<TopBar />, { isTauri: true });
 
     const banner = screen.getByRole('banner', { name: 'Bilah judul aplikasi' });
     expect(banner).toBeTruthy();
-    expect(banner.textContent).toContain('Belajar');
+    expect(banner.textContent).toMatch(/stuby/i);
   });
 
   it('05.3 - Minimize Control Dispatch', () => {
-    renderWithProviders(<TitleBar />, { isTauri: true });
+    renderWithProviders(<TopBar />, { isTauri: true });
 
     const minBtn = screen.getByRole('button', { name: 'Perkecil' });
     expect(minBtn).toBeTruthy();
@@ -48,7 +55,7 @@ describe('Feature 5: Tauri Custom Titlebar', () => {
   });
 
   it('05.4 - Maximize and Restore Toggle', () => {
-    renderWithProviders(<TitleBar />, { isTauri: true });
+    renderWithProviders(<TopBar />, { isTauri: true });
 
     const maxBtn = screen.getByRole('button', { name: /perbesar|pulihkan/i });
     expect(maxBtn).toBeTruthy();
@@ -59,7 +66,7 @@ describe('Feature 5: Tauri Custom Titlebar', () => {
   });
 
   it('05.5 - Close Window Control Dispatch', () => {
-    renderWithProviders(<TitleBar />, { isTauri: true });
+    renderWithProviders(<TopBar />, { isTauri: true });
 
     const closeBtn = screen.getByRole('button', { name: 'Tutup' });
     expect(closeBtn).toBeTruthy();

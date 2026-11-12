@@ -34,6 +34,7 @@ import { useTocScrollspy } from './useTocScrollspy';
 import { useReadingPreferences } from './useReadingPreferences';
 import { NotesReader, NotesEditor, TanyaPanel } from '../notes';
 import styles from './Workspace.module.css';
+import { tr } from '../../services/i18n';
 
 export function WorkspaceShell() {
   const { id } = useParams<{ id: string }>();
@@ -85,7 +86,7 @@ export function WorkspaceShell() {
   const loadDocument = useCallback(
     async (bypass = false) => {
       if (!docId || isNaN(docId)) {
-        setError('Materi tidak ditemukan.');
+        setError(tr('Materi tidak ditemukan.'));
         setLoading(false);
         return;
       }
@@ -104,10 +105,10 @@ export function WorkspaceShell() {
           setJob(res.job || null);
           setError(null);
         } else {
-          setError('Materi tidak ditemukan.');
+          setError(tr('Materi tidak ditemukan.'));
         }
       } catch (err: any) {
-        setError(err?.message || 'Materi tidak ditemukan.');
+        setError(err?.message || tr('Materi tidak ditemukan.'));
       } finally {
         setLoading(false);
       }
@@ -160,7 +161,7 @@ export function WorkspaceShell() {
         Array.from(root?.querySelectorAll<HTMLElement>(sel) ?? []).find((e) => (e.textContent ?? '').toLowerCase().includes(needle));
       const hit = pick('h2, h3, h4') ?? pick('strong') ?? pick('p, li, td, th');
       if (!hit) {
-        toast.warning('Istilah itu tidak ditemukan di catatan.');
+        toast.warning(tr('Istilah itu tidak ditemukan di catatan.'));
       } else {
         const reduce = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
         hit.scrollIntoView({ behavior: reduce ? 'auto' : 'smooth', block: 'center' });
@@ -185,7 +186,7 @@ export function WorkspaceShell() {
     a.click();
     a.remove();
     setTimeout(() => URL.revokeObjectURL(url), 1000);
-    toast.success('File Markdown diunduh');
+    toast.success(tr('File Markdown diunduh'));
   };
 
   const handlePrint = () => {
@@ -202,10 +203,10 @@ export function WorkspaceShell() {
         force: true,
       });
       dropCache();
-      toast.success('Membuat ulang catatan...');
+      toast.success(tr('Membuat ulang catatan...'));
       loadDocument(true);
     } catch (err: any) {
-      toast.error(err?.message || 'Gagal membuat ulang catatan');
+      toast.error(err?.message || tr('Gagal membuat ulang catatan'));
     }
   };
 
@@ -220,7 +221,7 @@ export function WorkspaceShell() {
 
   if (loading) {
     return (
-      <div className={styles.container} aria-label="Memuat ruang kerja materi">
+      <div className={styles.container} aria-label={tr('Memuat ruang kerja materi')}>
         <Skeleton width="180px" height="24px" />
         <Skeleton width="340px" height="38px" />
         <div style={{ display: 'flex', gap: '12px' }}>
@@ -237,12 +238,12 @@ export function WorkspaceShell() {
 
   if (error || !document) {
     return (
-      <div className={styles.container} aria-label="Error ruang kerja materi">
+      <div className={styles.container} aria-label={tr('Error ruang kerja materi')}>
         <ErrorState
-          title="Materi Tidak Ditemukan"
-          message={error || 'Materi yang kamu cari tidak ada atau sudah dihapus.'}
+          title={tr('Materi Tidak Ditemukan')}
+          message={error || tr('Materi yang kamu cari tidak ada atau sudah dihapus.')}
           onRetry={() => navigate('/materi')}
-          retryLabel="Kembali ke Semua Materi"
+          retryLabel={tr('Kembali ke Semua Materi')}
         />
       </div>
     );
@@ -266,7 +267,7 @@ export function WorkspaceShell() {
       />
 
       {/* Tab Strip */}
-      <div className={styles.tabStrip} role="tablist" aria-label="Navigasi Ruang Kerja">
+      <div className={styles.tabStrip} role="tablist" aria-label={tr('Navigasi Ruang Kerja')}>
         <button
           type="button"
           role="tab"
@@ -275,7 +276,7 @@ export function WorkspaceShell() {
           onClick={() => handleTabChange('catatan')}
         >
           <Icon name="book" size={16} />
-          <span>Catatan</span>
+          <span>{tr('Catatan')}</span>
         </button>
 
         <button
@@ -286,7 +287,7 @@ export function WorkspaceShell() {
           onClick={() => handleTabChange('mindmap')}
         >
           <Icon name="network" size={16} />
-          <span>Mind Map</span>
+          <span>{tr('Mind Map')}</span>
         </button>
 
         <button
@@ -297,7 +298,7 @@ export function WorkspaceShell() {
           onClick={() => handleTabChange('chat')}
         >
           <Icon name="message" size={16} />
-          <span>Tanya AI</span>
+          <span>{tr('Tanya AI')}</span>
         </button>
 
         <button
@@ -308,7 +309,7 @@ export function WorkspaceShell() {
           onClick={() => handleTabChange('kuis')}
         >
           <Icon name="quiz" size={16} />
-          <span>Kuis</span>
+          <span>{tr('Kuis')}</span>
           <span className={styles.tabCount}>{quizzes.length}</span>
         </button>
       </div>
@@ -317,11 +318,11 @@ export function WorkspaceShell() {
       {isProcessing ? (
         <SurfaceCard padded className={styles.processingCard}>
           <h2 style={{ fontSize: '1.25rem', fontWeight: 700, margin: 0 }}>
-            Catatan Sedang Dibuat
+            {tr('Catatan Sedang Dibuat')}
           </h2>
           <div style={{ display: 'flex', alignItems: 'center', gap: '8px', color: 'var(--text-secondary)' }}>
             <Icon name="refresh" size={16} className="spin" />
-            <span>{job?.message || 'Menunggu giliran diproses oleh AI...'}</span>
+            <span>{job?.message || tr('Menunggu giliran diproses oleh AI...')}</span>
           </div>
           <div
             className={styles.processingBarTrack}
@@ -336,7 +337,7 @@ export function WorkspaceShell() {
             />
           </div>
           <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)', margin: 0, maxWidth: '440px' }}>
-            Materi panjang bisa memakan beberapa menit. Halaman ini boleh ditinggalkan, prosesnya tetap berjalan otomatis.
+            {tr('Materi panjang bisa memakan beberapa menit. Halaman ini boleh ditinggalkan, prosesnya tetap berjalan otomatis.')}
           </p>
         </SurfaceCard>
       ) : (
@@ -359,7 +360,7 @@ export function WorkspaceShell() {
                   />
                 ) : (
                   <NotesReader
-                    contentMd={note?.content_md || 'Belum ada isi catatan.'}
+                    contentMd={note?.content_md || tr('Belum ada isi catatan.')}
                     documentTitle={document.title}
                     fontScale={fontSize}
                     readFont={fontFamily}

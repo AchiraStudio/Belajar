@@ -2,7 +2,7 @@ import { vi } from 'vitest';
 import { dropCache } from '../../../services/api/rpc';
 import type {
   Adr7Error,
-  BelajarRpcActionName,
+  StubyRpcActionName,
   HealthResponse,
   UploadResponse,
 } from './contracts';
@@ -362,7 +362,7 @@ export class MockRpcDispatcher {
       }
 
       // Default Fixture Dispatcher for all 38 Actions
-      const defaultData = this.getDefaultActionData(action as BelajarRpcActionName, body);
+      const defaultData = this.getDefaultActionData(action as StubyRpcActionName, body);
       return Response.json({ ok: true, data: defaultData });
     }
 
@@ -380,9 +380,9 @@ export class MockRpcDispatcher {
   }
 
   /**
-   * Returns default realistic fixture data for any Belajar RPC action.
+   * Returns default realistic fixture data for any Stuby RPC action.
    */
-  private getDefaultActionData(action: BelajarRpcActionName | string, payload: any): any {
+  private getDefaultActionData(action: StubyRpcActionName | string, payload: any): any {
     switch (action) {
       case 'dashboard':
         return defaultDashboardFixture;

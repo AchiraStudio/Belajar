@@ -1,0 +1,30 @@
+[package]
+name = "stuby-storage"
+description = "Persistence for Stuby: PostgreSQL (Supabase) via sqlx, with row-level security per owner."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[features]
+# Test helpers (fresh isolated database per test). Enabled by this crate's own tests and by
+# downstream crates' dev-dependencies. Needs TEST_DATABASE_ADMIN_URL (see crates/stuby-devdb).
+testing = []
+
+[dependencies]
+regex.workspace = true
+serde = { workspace = true, features = ["derive"] }
+serde_json.workspace = true
+sqlx.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+uuid.workspace = true
+
+[dev-dependencies]
+stuby-storage = { path = ".", features = ["testing"] }
+tokio.workspace = true

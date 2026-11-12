@@ -1,4 +1,5 @@
 import React, { useId } from 'react';
+import { tr } from '../../services/i18n';
 import { Icon, type IconName } from './Icon';
 import styles from './ui.module.css';
 
@@ -85,7 +86,7 @@ export const Input = React.forwardRef<
               type="button"
               className={styles.clearButton}
               onClick={onClear}
-              aria-label="Hapus teks"
+              aria-label={tr('Hapus teks')}
             >
               <Icon name="x" size={14} />
             </button>

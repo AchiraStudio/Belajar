@@ -1,6 +1,9 @@
 import React, { useRef } from 'react';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
+import { Dropdown } from './Dropdown';
 import { Icon, type IconName } from './Icon';
 import styles from './ui.module.css';
+import { tr } from '../../services/i18n';
 
 export interface TabItem {
   id: string;
@@ -15,7 +18,12 @@ export interface TabsProps {
   onChange: (id: string) => void;
   variant?: 'segmented' | 'underline';
   className?: string;
+  /** Accessible name of the tab set (also names the dropdown it becomes on a phone). */
+  label?: string;
 }
+
+/** More tabs than this stop fitting side by side on a phone and become a dropdown there. */
+const MAX_INLINE_TABS_ON_PHONE = 3;
 
 export function Tabs({
   items,
@@ -23,8 +31,26 @@ export function Tabs({
   onChange,
   variant = 'segmented',
   className = '',
+  label,
 }: TabsProps) {
   const tabsRef = useRef<(HTMLButtonElement | null)[]>([]);
+  const phone = useMediaQuery('(max-width: 768px)');
+
+  if (phone && items.length > MAX_INLINE_TABS_ON_PHONE) {
+    return (
+      <Dropdown
+        aria-label={label ?? tr('Pilih tampilan')}
+        className={className}
+        value={activeTab}
+        onChange={onChange}
+        options={items.map((item) => ({
+          value: item.id,
+          label: item.count !== undefined ? `${item.label} (${item.count})` : item.label,
+          icon: item.icon,
+        }))}
+      />
+    );
+  }
 
   const handleKeyDown = (e: React.KeyboardEvent, index: number) => {
     let nextIndex = index;

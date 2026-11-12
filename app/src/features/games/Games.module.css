@@ -17,10 +17,10 @@
 .heroLevel { display: flex; align-items: center; gap: 14px; }
 .levelNum {
   display: grid; place-items: center; width: 64px; height: 64px; border-radius: 50%;
-  background: var(--accent); color: #fff; font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums;
+  background: var(--accent); color: var(--on-accent); font-size: 1.7rem; font-weight: 700; font-variant-numeric: tabular-nums;
   box-shadow: 0 6px 18px -6px color-mix(in srgb, var(--accent) 70%, transparent);
 }
-.levelLabel { font-size: var(--text-xs); text-transform: uppercase; letter-spacing: var(--tracking-wide); color: var(--text-secondary); }
+.levelLabel { font-size: var(--text-xs);  letter-spacing: var(--tracking-wide); color: var(--text-secondary); }
 .levelXp { font-size: var(--text-xl); font-weight: 650; font-variant-numeric: tabular-nums; }
 .heroBar { display: flex; flex-direction: column; gap: 6px; min-width: 0; }
 .heroNext { font-size: var(--text-xs); color: var(--text-secondary); }

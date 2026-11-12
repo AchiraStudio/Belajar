@@ -1,0 +1,9 @@
+.limits { padding-block: 110px 40px; }
+.list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 56px; }
+.item { position: relative; padding: 18px 0 18px 26px; border-bottom: 1px solid var(--line-strong); color: var(--text-2); }
+.item::before { content: ''; position: absolute; left: 2px; top: 27px; width: 9px; height: 9px; border-radius: 50%; background: var(--sun); }
+
+@media (max-width: 760px) {
+  .limits { padding-top: 80px; }
+  .list { grid-template-columns: 1fr; }
+}

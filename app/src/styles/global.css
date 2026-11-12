@@ -34,12 +34,26 @@ html {
 
 body {
   margin: 0;
-  background: var(--canvas);
+  background: transparent;
   color: var(--text-primary);
   font: 450 var(--text-base)/var(--leading-normal) var(--font-sans);
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
   min-height: 100vh;
+}
+
+/* The one atmospheric backdrop every glass surface sits on. Fixed, so it never scrolls or repaints. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  background: var(--wallpaper);
+  pointer-events: none;
+}
+
+::selection {
+  background: color-mix(in srgb, var(--accent) 28%, transparent);
 }
 
 h1, h2, h3, h4, p, ul, ol, dl, dd, figure {
@@ -59,9 +73,11 @@ a {
   color: inherit;
 }
 
+/* Two-tone ring: the accent line stays visible on the pale glass, the halo on the dark one. */
 :focus-visible {
-  outline: 3px solid var(--accent);
+  outline: 2px solid var(--accent);
   outline-offset: 2px;
+  box-shadow: 0 0 0 5px color-mix(in srgb, var(--surface-opaque) 70%, transparent);
   border-radius: var(--radius-sm);
 }
 
@@ -142,10 +158,10 @@ a {
 
 /* Brief highlight when "Cari di catatan" scrolls to a match (mind map -> notes). */
 [data-flash] {
-  animation: belajar-flash 1.9s ease-out;
+  animation: stuby-flash 1.9s ease-out;
   border-radius: 6px;
 }
-@keyframes belajar-flash {
+@keyframes stuby-flash {
   0%, 35% { background: color-mix(in srgb, var(--accent) 28%, transparent); box-shadow: 0 0 0 6px color-mix(in srgb, var(--accent) 28%, transparent); }
   100% { background: transparent; box-shadow: 0 0 0 6px transparent; }
 }
@@ -154,8 +170,8 @@ a {
 }
 
 /* Busy indicator for inline icons (e.g. <Icon className="spin" />). CSS-module keyframes are scoped, so this one is global. */
-.spin { animation: belajar-spin 1s linear infinite; transform-origin: center; }
-@keyframes belajar-spin { to { transform: rotate(360deg); } }
+.spin { animation: stuby-spin 1s linear infinite; transform-origin: center; }
+@keyframes stuby-spin { to { transform: rotate(360deg); } }
 @media (prefers-reduced-motion: reduce) {
   .spin { animation-duration: 2.4s; }
 }

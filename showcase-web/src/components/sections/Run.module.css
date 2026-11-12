@@ -1,0 +1,30 @@
+.run { padding-block: 120px 20px; }
+.platforms { border-top: 2px solid var(--text); }
+.platforms > li { border-bottom: 1px solid var(--line-strong); }
+.row { display: grid; grid-template-columns: minmax(180px, 0.8fr) minmax(0, 2fr) 150px; gap: 12px 40px; align-items: baseline; padding: 24px 0; }
+.row h3 { font-size: clamp(1.4rem, 1.1rem + 1.2vw, 2.1rem); font-weight: 800; letter-spacing: -0.045em; line-height: 1.05; }
+.row p { color: var(--text-2); max-width: 62ch; }
+.stat { font-weight: 700; font-size: 0.9375rem; color: var(--accent); white-space: nowrap; text-align: right; }
+.dim h3, .dim p, .dim .stat { color: var(--text-3); }
+
+.codeGrid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 24px; margin-top: 48px; }
+.code { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.code p { color: var(--text-2); font-size: 0.97rem; }
+.code .preWrap { margin-top: auto; }
+.preWrap { position: relative; border: 2px solid var(--frame); border-radius: var(--r-lg); background: #141816; color: #e6ebdf; box-shadow: 5px 5px 0 var(--hard); }
+:global(:root[data-theme='dark']) .preWrap { background: #0a0d0b; }
+.preWrap pre { margin: 0; padding: 20px 20px 70px; font-size: 0.9375rem; line-height: 1.7; overflow-x: auto; }
+.preWrap code { background: none; padding: 0; color: inherit; }
+.copy { position: absolute; right: 12px; bottom: 12px; min-height: 44px; padding: 0 14px; background: #8dc63f; color: #141816; border: 2px solid #141816; border-radius: var(--r-md); font-weight: 700; font-size: 0.9375rem; overflow: hidden; transition: background-color 160ms ease, transform 200ms var(--ease-out); }
+.copy:hover { background: #a1d45a; }
+.copy:active { transform: scale(0.96); }
+.copyIn { display: inline-flex; align-items: center; gap: 8px; }
+.status { min-height: 1.6em; margin-top: 14px; font-weight: 650; font-size: 0.9375rem; color: var(--accent); }
+.err { color: var(--bad); }
+
+@media (max-width: 760px) {
+  .run { padding-top: 80px; }
+  .codeGrid { grid-template-columns: 1fr; }
+  .row { grid-template-columns: 1fr; gap: 6px; padding: 20px 0; }
+  .stat { text-align: left; }
+}

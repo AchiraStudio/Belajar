@@ -1,0 +1,16 @@
+.head { display: grid; gap: 14px; max-width: 760px; margin-bottom: 44px; }
+.head > div { display: grid; gap: 14px; }
+.split { max-width: none; grid-template-columns: 1.1fr 1fr; align-items: end; gap: 28px 64px; }
+.sub { font-size: 1.125rem; color: var(--text-2); max-width: 60ch; }
+
+.kicker { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; font-size: 0.9375rem; color: var(--accent); }
+.node { width: 26px; height: 26px; fill: var(--bamboo); stroke: #141816; stroke-width: 1.8; stroke-linejoin: round; stroke-linecap: round; transition: transform 500ms var(--ease-out); }
+.head:hover .node { transform: rotate(-8deg) scale(1.08); }
+
+.dark { color: var(--band-text); }
+.dark .sub { color: var(--band-text-2); }
+.dark .kicker { color: #9ad44b; }
+
+@media (max-width: 1080px) {
+  .split { grid-template-columns: 1fr; gap: 20px; }
+}

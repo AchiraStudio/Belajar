@@ -1,6 +1,7 @@
 import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { useNavigate } from 'react-router';
 import { rpcCall } from '../../services/api/rpc';
+import { useI18n } from '../../services/i18n';
 import { Dialog } from '../ui/Dialog';
 import { Icon, type IconName } from '../ui/Icon';
 import { ALL_ENTRIES } from './navigation';
@@ -26,6 +27,7 @@ interface DocLite {
  */
 export function CommandMenu({ open, onClose }: { open: boolean; onClose: () => void }) {
   const navigate = useNavigate();
+  const { t } = useI18n();
   const [query, setQuery] = useState('');
   const [docs, setDocs] = useState<DocLite[]>([]);
   const [active, setActive] = useState(0);
@@ -50,10 +52,10 @@ export function CommandMenu({ open, onClose }: { open: boolean; onClose: () => v
 
   const results = useMemo<Result[]>(() => {
     const q = query.trim().toLowerCase();
-    const pages: Result[] = ALL_ENTRIES.filter((e) => !q || `${e.label} ${e.keywords ?? ''}`.toLowerCase().includes(q)).map((e) => ({
+    const pages: Result[] = ALL_ENTRIES.filter((e) => !q || `${e.label} ${t(e.label)} ${e.keywords ?? ''}`.toLowerCase().includes(q)).map((e) => ({
       key: `p:${e.path}`,
-      label: e.label,
-      hint: e.soon ? 'Segera' : 'Halaman',
+      label: t(e.label),
+      hint: e.soon ? t('Segera') : t('Halaman'),
       icon: e.icon,
       to: e.path,
     }));
@@ -61,10 +63,10 @@ export function CommandMenu({ open, onClose }: { open: boolean; onClose: () => v
       ? docs
           .filter((d) => d.title.toLowerCase().includes(q) || (d.subject_name ?? '').toLowerCase().includes(q))
           .slice(0, 8)
-          .map((d) => ({ key: `d:${d.id}`, label: d.title, hint: d.subject_name || 'Materi', icon: 'book' as const, to: `/materi/${d.id}` }))
+          .map((d) => ({ key: `d:${d.id}`, label: d.title, hint: d.subject_name || t('Materi'), icon: 'book' as const, to: `/materi/${d.id}` }))
       : [];
     return [...materials, ...pages].slice(0, 12);
-  }, [query, docs]);
+  }, [query, docs, t]);
 
   useEffect(() => {
     setActive(0);
@@ -94,7 +96,7 @@ export function CommandMenu({ open, onClose }: { open: boolean; onClose: () => v
   };
 
   return (
-    <Dialog open={open} onClose={onClose} title="Cari" description="Lompat ke halaman atau buka materi." size="md">
+    <Dialog open={open} onClose={onClose} title={t('Cari')} description={t('Lompat ke halaman atau buka materi.')} size="md">
       <div className={styles.box}>
         <div className={styles.field}>
           <Icon name="search" size={16} />
@@ -105,8 +107,8 @@ export function CommandMenu({ open, onClose }: { open: boolean; onClose: () => v
             aria-expanded="true"
             aria-controls="cmd-list"
             aria-activedescendant={results[active] ? `cmd-${results[active]!.key}` : undefined}
-            aria-label="Cari halaman atau materi"
-            placeholder="Ketik nama halaman atau judul materi…"
+            aria-label={t('Cari halaman atau materi')}
+            placeholder={t('Ketik nama halaman atau judul materi…')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onKeyDown}
@@ -114,7 +116,7 @@ export function CommandMenu({ open, onClose }: { open: boolean; onClose: () => v
             spellCheck={false}
           />
         </div>
-        <ul id="cmd-list" ref={listRef} role="listbox" aria-label="Hasil pencarian" className={styles.list}>
+        <ul id="cmd-list" ref={listRef} role="listbox" aria-label={t('Hasil pencarian')} className={styles.list}>
           {results.map((r, i) => (
             <li
               key={r.key}
@@ -130,7 +132,7 @@ export function CommandMenu({ open, onClose }: { open: boolean; onClose: () => v
               <span className={styles.hint}>{r.hint}</span>
             </li>
           ))}
-          {results.length === 0 && <li className={styles.empty}>Tidak ada hasil untuk “{query}”.</li>}
+          {results.length === 0 && <li className={styles.empty}>{t('Tidak ada hasil untuk “{query}”.', { query })}</li>}
         </ul>
       </div>
     </Dialog>

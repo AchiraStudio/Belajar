@@ -1,15 +1,16 @@
 {
-  "name": "belajar-app",
+  "name": "stuby-app",
   "private": true,
   "version": "0.1.0",
   "type": "module",
-  "description": "Belajar client: one React codebase for web and Tauri (desktop + mobile).",
+  "description": "Stuby client: one React codebase for web and Tauri (desktop + mobile).",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
+    "build:standalone": "tsc --noEmit && vite build --mode standalone",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
@@ -17,7 +18,8 @@
     "android:init": "tauri android init --ci",
     "android:build": "node scripts/build-android.cjs",
     "android:dev": "tauri android dev",
-    "desktop:build": "node scripts/build-desktop.cjs"
+    "desktop:build": "node scripts/build-desktop.cjs",
+    "dev:mock": "vite --mode mock"
   },
   "dependencies": {
     "react": "^19.3.1",
@@ -28,6 +30,7 @@
     "@tauri-apps/cli": "^2.12.4",
     "@testing-library/dom": "^10.4.2",
     "@testing-library/react": "^16.3.3",
+    "@types/node": "^26.6.6",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.3.0",

@@ -14,4 +14,14 @@ target/
 app/dist/
 app/src-tauri/gen/schemas/
 .devdb/
-*.md
+/.agents
+docs/TECHNICAL_RISKS.md
+docs/MIGRATION_PLAN.md
+docs/LINUX_SERVER_SETUP.md
+docs/FEATURE_INVENTORY.md
+docs/DESKTOP_STANDALONE.md
+docs/CONTRIBUTING.md
+docs/ARCHITECTURE_AUDIT.md
+
+# Showcase site build output
+showcase-web/dist/

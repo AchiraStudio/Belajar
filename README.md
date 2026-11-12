@@ -1,126 +1,178 @@
-# Belajar
+# Stuby
 
-Webapp belajar pribadi: unggah materi (PDF, DOCX, PPTX, gambar, TXT/MD), lalu AI membuat catatan dan kuis. Ada streak harian dan halaman progres. Data (database dan file) tinggal di PC lokal; VPS hanya menjadi pintu masuk.
+**Turn your own study material into notes, quizzes, flashcards and games, and keep the habit going.**
 
-## Cara kerjanya
+Stuby is a personal learning platform. Upload a PDF, slide deck, document or image; AI turns it into structured notes, a mind map, quizzes and spaced-repetition cards. Progress, streaks and mastery tracking show what to review next. One codebase ships as a standalone desktop app, a self-hosted web app and an Android app.
+
+![Rust](https://img.shields.io/badge/backend-Rust-b7410e) ![React](https://img.shields.io/badge/client-React%2019-149eca) ![Tauri](https://img.shields.io/badge/shell-Tauri%202-24c8db) ![Postgres](https://img.shields.io/badge/data-PostgreSQL%20%2F%20Supabase-3ecf8e) ![License](https://img.shields.io/badge/license-MIT-blue)
+
+---
+
+## Why Stuby
+
+| Advantage | What it means |
+|---|---|
+| **Your material, not generic content** | Everything is generated from files you upload, with the source page or slide cited on questions. |
+| **A complete study loop** | Read, test, review, play and track in one place: notes, quizzes, flashcards, games and progress share one model of what you know. |
+| **Honest learning data** | Mastery, streaks and weak topics come from real answers. Empty states say "no data yet", never a fake zero. |
+| **Runs where you want** | The desktop app embeds its own server (nothing to start first). The same server runs on Linux for web and mobile clients. |
+| **Fast and light** | Rust server and Tauri shell instead of a bundled browser runtime; the React client is code-split per feature. |
+| **Private by design** | Per-owner row-level security in the database, a restricted DB role, no secrets compiled into the app, strict CSP. |
+| **Accessible UI** | Keyboard and screen-reader support throughout, reduced-motion paths, contrast-checked light and dark themes. |
+
+## Core functionality
+
+| Area | What you get |
+|---|---|
+| **Library** | Upload PDF, DOCX, PPTX, images, TXT and MD (up to 40 MB). Group by subject. A background pipeline extracts text, reads image-only pages with a vision model and chunks long documents; failed chunks retry without redoing the rest. |
+| **AI notes** | Eight styles: general (concise, Cornell, simple) and detailed (Sentence, Charting, Outline, Worked Examples). Markdown with LaTeX math and code cards; editable, downloadable, regenerable. |
+| **Ask and chat** | Select text in a note to ask about it; per-document chat with streamed answers and persistent history. |
+| **Mind maps** | AI-built concept trees with cross-links; pan, zoom, collapse, list view, export to SVG/PNG, jump back to the source note. |
+| **Quizzes** | Multiple choice, true/false and short answer, spread evenly across the material. Practice mode (instant feedback) and exam mode (timer, survives reload). Short answers are graded locally first, with AI only for uncertain cases. |
+| **Weak questions** | Anything you last got wrong is queued for review. |
+| **Flashcards** | SM-2 spaced repetition built from concepts and games, with Anki-compatible TSV export. |
+| **Games** | Six AI-guided modes (teach-back, spot-the-error, branching adventure, real-world case, rapid-fire, boss exam). The server is the referee: answer keys never reach the browser before judging and AI output is treated as untrusted. |
+| **Mastery** | Per-concept score updated from evidence of different kinds; a concept counts as mastered only with enough, varied proof. |
+| **Progress** | Daily streak with freezes, 20-week activity map, weekly goal, scores per quiz and topic, study time. |
+| **Opportunities** | Scholarships and competitions matched to your learning environment, with saved deadlines. |
+| **Learning environment** | Pick your level (primary to professional); copy, pacing and suggestions adapt. |
+| **Banner slots** | Three configurable promo/ad placements (hero carousel, side card, strip), labelled "Promo" or "Iklan" for transparency. |
+
+## Interface
+
+- **The panda's palette.** Colours come from the logo: ink, bamboo green, cream, with one sun-yellow accent. Primary things carry the logo's heavy outline and a hard shadow; everything else is flat and hairline. Light and dark share one token set (`app/src/styles/tokens.css`).
+- **One glass element.** The floating dock is the only blurred surface; cards, menus, dialogs and the top bar are solid.
+- **Floating dock instead of a sidebar.** On desktop it shows every destination at once. On a phone it is five tabs: tap to go, or hold a tab and its related pages rise out of it (slide onto one and release to open; keyboard: `ArrowUp`). It hides when idle and returns on scroll, touch, the bottom edge or the keyboard.
+- **Phone layout.** No top bar; the home screen is its own composition (a focal "today" card, a sideways scroller, an inline stat strip, a column chart), not the desktop grid squeezed narrow.
+- **Startup screen.** An animated panda while the app really does the work: reach the server, check your session, load your first screens.
+- **Languages.** English (default), Bahasa Indonesia, Español and 中文 (简体), chosen in Settings and remembered per device. The shell, dashboard, Settings and login are fully translated; other pages are being migrated and show Indonesian meanwhile. To translate a screen, wrap its text in `t('…')` and add a row to `app/src/services/i18n/messages.ts` (a test fails if a row is missing a language or a placeholder).
+
+## Architecture
 
 ```
-Browser ──HTTPS──▶ VPS: server.js (login, API, frontend) + bridge WebSocket (/bridge)
-                              ▲
-                              │ WebSocket, dibuka OLEH PC lokal (tanpa public IP)
-                              │
-                   PC Windows: agent.py ── SQLite + folder file
-                              │
-                              └─ HTTP ─▶ PAF-Model (Qwen utama, Grok untuk penjelasan mendalam)
+React 19 + Vite client (app/)  ─┬─ Tauri 2 desktop shell ── embeds ─┐
+                                ├─ Browser (self-hosted)             │
+                                └─ Tauri Android shell (remote UI)   ▼
+                                                        stuby-server (axum, single origin: UI + API)
+                                                                  │
+                      ┌───────────────────────────────────────────┼───────────────────────┐
+                      ▼                                           ▼                       ▼
+               stuby-application                             stuby-ai               stuby-storage
+        workflows, job queue, handlers                AI gateway client          sqlx + PostgreSQL (Supabase)
+                      │                         (levels, retries, streaming,     row-level security per owner
+                      ▼                              JSON repair)
+                 stuby-core
+     pure learning logic: grading, SM-2, mastery,
+     stats, streaks (no I/O; golden-tested)
 ```
 
-- Semua pemanggilan AI dilakukan **agent di PC lokal**, jadi API token PAF tidak pernah ada di VPS.
-- Bila PC mati, halaman tetap terbuka tetapi menampilkan "PC lokal sedang offline". Begitu agent menyala, ia tersambung sendiri.
-- Hanya satu agent yang boleh terhubung. Agent kedua akan memutus yang pertama, dan agent memberi peringatan jelas di log.
-
-## Fitur
-
-| Fitur | Keterangan |
+| Crate | Responsibility |
 |---|---|
-| Catatan otomatis | PDF, DOCX, PPTX, gambar, TXT/MD. Halaman/slide berisi gambar atau hasil scan dibaca model visi. Gaya Umum: ringkas, Cornell, sederhana. Gaya Detail (model Grok): detail, Sentence Method, Charting Method, Outline Notes, Worked Examples. Rumus LaTeX dirender KaTeX dan kode tampil sebagai canvas coding (nomor baris, warna sintaks, salin/unduh/layar penuh). Bisa diedit, diunduh `.md`, dicetak, dan dibuat ulang. |
-| Mind map | Konsep utama, cabang pembahasan, dan hubungan lintas cabang disusun AI dari catatan. Peta SVG yang bisa digeser/di-zoom, dilipat, ditampilkan sebagai daftar, dan diunduh SVG/PNG. |
-| Chat AI per materi | Tanya-jawab interaktif menggunakan model DeepSeek. Mendukung mode **NEW** (merangkai seluruh konteks materi) dan **CONTINUE** (melanjutkan obrolan yang sudah ada). |
-| Materi besar | Teks dipecah per bagian (±7000 karakter), tiap bagian satu request. Bagian yang gagal bisa diulang tanpa mengulang yang sudah berhasil. |
-| Kuis | Pilihan ganda, benar/salah, isian singkat. Soal diambil merata dari seluruh materi, dengan sumber (slide/halaman) dan penjelasan. Mode **latihan** (umpan balik langsung) dan **ujian** (timer, jawaban tersimpan walau halaman dimuat ulang). Kuis gabungan per mata pelajaran. |
-| Soal lemah | Soal yang jawaban terakhirnya salah masuk antrean "Ulangi soal lemah". |
-| Penjelasan mendalam | Tombol "Jelaskan lebih dalam" memakai Grok (fallback Qwen berpikir). |
-| Streak harian | Hari dihitung bila target menit tercapai **atau** satu kuis selesai. Cadangan streak (freeze) didapat tiap kelipatan 7 hari, maksimal 2, dipakai otomatis. Peta aktivitas 20 minggu. |
-| Progres | Skor per kuis, penguasaan per topik (lemah/kuat), per materi, waktu belajar 14 hari, target mingguan. |
-| Backup | Salinan database harian di `agent/data/backup/` (7 terakhir). |
+| `stuby-core` | Deterministic learning logic with no I/O; checked against golden files recorded from the original implementation. |
+| `stuby-storage` | PostgreSQL access, versioned migrations, sessions, row-level security. |
+| `stuby-ai` | AI gateway client: model levels, retries, sessions, streaming, structured-output repair. |
+| `stuby-application` | Use cases and action handlers; background jobs for document processing. |
+| `stuby-api` | HTTP surface: `/api/v1` plus the compatible RPC routes the client uses. |
+| `stuby-server` | Server binary and library (embedded by the desktop app). |
+| `stuby-devdb` | Local embedded PostgreSQL for development and tests (not shipped). |
 
-### Pembagian model AI
+## Platforms
 
-| Tugas | Backend |
+| Platform | How it works |
 |---|---|
-| Catatan, ringkasan, soal, baca gambar | Qwen `auto` |
-| Penilaian isian singkat | Qwen `thinking` |
-| Kuis mode "Teliti" | Qwen `thinking` |
-| "Jelaskan lebih dalam" | Grok, lalu Qwen `thinking` bila Grok gagal |
-| Chat AI per materi | DeepSeek (fallback Qwen `auto`) |
+| **Windows / macOS / Linux desktop** | Standalone: the app starts its own server on a loopback port and shows it. First launch shows a setup screen (database address and a password), so there is no file to edit by hand. |
+| **Web / Linux server** | `deploy/linux/install.sh` builds and installs a hardened systemd service; put Caddy in front for HTTPS. |
+| **Android** | Tauri shell that loads the UI from your server's address, so session cookies stay on one origin. |
 
-Bila satu backend terkena `429`/`504`, agent mencoba ulang dengan jeda, lalu pindah ke backend lain (matikan dengan `LLM_FALLBACK=0`).
+## Quick start
 
-## Game belajar (v2)
-
-Menu **Game** adalah permainan belajar interaktif yang dipandu AI dari materimu sendiri. Dua peran dipisah tegas: **AI menulis** narasi dan tantangan (DeepSeek, sesi persisten, di-stream), sedangkan **agent menjadi wasit**: kunci jawaban disimpan di SQLite dan tidak pernah dikirim ke browser sebelum giliran dinilai, skor dihitung di agent, dan keluaran AI selalu dianggap data tak tepercaya (di-clamp dan divalidasi).
-
-| Mode | Inti | Penilaian |
-|---|---|---|
-| **Ajari Aku** | Jelaskan konsep ke murid AI yang kritis (metode Feynman) | AI memberi rubrik 4 dimensi (0–3); agent menghitung skor dari rubrik |
-| **Detektif Salah Kaprah** | Temukan 1–2 kalimat keliru dalam penjelasan yang meyakinkan | lokal (tebakan vs kunci), koreksi opsional dinilai AI |
-| **Petualangan** | Cerita bercabang dengan 3 nyawa; item = kartu SM-2 | lokal; isian ambigu dinilai AI |
-| **Kasus Nyata** | Skenario tanpa menyebut istilah materi | pilihan lokal + alasan opsional dinilai AI |
-| **Kilat** | Soal cepat 5–20, batch 5 diprefetch | lokal; isian ambigu ke model cepat, lalu fuzzy lokal |
-| **Ujian Boss** | Ujian lintas topik tanpa petunjuk dan tanpa umpan balik, ditutup rapor | lokal, rapor akhir oleh AI |
-
-- **Penguasaan konsep** (`mastery`/`evidence` di SQLite): `skor_baru = skor_lama + w × (100·obs − skor_lama)` dengan `w` menurut jenis bukti (recall 0,25; jelas 0,35; terapan 0,35; boss 0,45) dan `obs` dipotong 15% per tingkat petunjuk. **Kuasai** butuh skor ≥ 75, ≥ 4 bukti, dan ≥ 2 jenis bukti. Konsep yang lemah otomatis menjadi kartu SM-2.
-- **Direktur** memilih konsep fokus (kartu jatuh tempo ×3, lemah ×2, baru ×1,5, dikuasai ×0,3, penalti bila baru dipakai) dan menyiapkan bahan sumber dari materi (FTS5/BM25 bila SQLite mendukung, jika tidak LIKE).
-- **Tangguh**: tiap giliran punya `client_key` idempoten (kirim ulang tidak menggandakan), teks parsial disimpan sehingga browser yang putus bisa menyambung ulang, generasi berjalan di thread terpisah, blok data yang rusak diperbaiki otomatis (maks 2 kali), dan sesi gateway yang hilang (`mode_fallback`) dipulihkan dari ringkasan status SQLite.
-- **Gamifikasi**: XP, level, kombo, 9 lencana, misi harian (3/hari), dan peta penguasaan (`#/game/peta`). Tanpa koin. Satu permainan paling banyak 300 XP.
-- **Petunjuk** 3 tingkat (arah, pertanyaan pemandu, separuh jawaban) mengurangi skor; tombol **Soal ini keliru** membuang bukti giliran itu.
-- **Kartu belajar** (`#/kartu`): ulangan berjarak SM-2 dan ekspor TSV untuk Anki.
-- Game membutuhkan stream DeepSeek: jalankan worker gateway dengan `--enable-stream`. Tombol **Tes koneksi AI** di Pengaturan ikut menguji stream.
-- Upgrade dari v1: saat agent pertama kali berjalan, DB dicadangkan ke `data/backup/belajar-premigrate-v2.db`, lalu data game lama (kota, cerita, XP, koin, lencana, riwayat game) dihapus; materi, soal, kartu, dan statistik belajar tidak disentuh.
-
-Struktur kode: `play_protocol.py` (protokol stream), `play_games.py` (skema dan penilai per mode), `play_prompts.py`, `play_director.py`, `play_engine.py` (giliran, pemulihan, hadiah), `play.py` (handler RPC), `profile.py` (XP, lencana, misi), `cards.py`, `concepts.py`; frontend di `server/public/play/` dengan gaya `play.css`. Aturan impor: `handlers` harus dimuat paling dulu.
-
-- Gateway mengotomasi antarmuka web DeepSeek/Qwen/Grok. Itu bisa putus bila tampilan mereka berubah dan mungkin melanggar ketentuan layanan penyedia; cukup untuk pemakaian pribadi, tetapi jangan dijadikan satu-satunya andalan.
-
-## Catatan desain (perilaku gateway PAF)
-
-- Hanya pesan `user` terakhir yang dikirim, jadi tiap request memuat instruksi dan materi sekaligus.
-- Pekerjaan dokumen (Qwen/Grok) tidak di-stream dan bisa lama, jadi berjalan sebagai **job** (progres disimpan di SQLite, browser polling), bukan request yang menggantung.
-- Sesi gateway tidak kedaluwarsa otomatis, jadi agent memakai sesi baru per request lalu menghapusnya (`DELETE /v1/sessions/{id}`).
-- DeepSeek di-stream (SSE) untuk chat, Panel Tanya, dan game; `x_meta.full_text` dipakai sebagai teks final dan `x_meta.mode_fallback` dideteksi.
-- Tidak ada mode JSON: jawaban divalidasi, dan bila rusak agent meminta ulang dengan catatan perbaikan. Rumus LaTeX (`\frac`, `\beta`, dst.) dilindungi agar tidak terbaca sebagai karakter kontrol JSON.
-
-## Pengujian
+Prerequisites: Rust (pinned in `rust-toolchain.toml`), Node.js 22+, and on Windows the MSVC Build Tools and WebView2. A PostgreSQL database is required: a Supabase project, or the local one from `stuby-devdb`.
 
 ```bash
-pip install -r requirements.txt && (cd server && npm install)
-python tests/smoke_agent.py          # logika agent dengan gateway PAF tiruan
-python tests/smoke_cards.py          # migrasi v2 dari DB lama sintetis, SM-2, kartu, istilah
-python tests/test_play_protocol.py   # parser stream dan validasi keluaran AI
-python tests/smoke_play.py           # mesin game: 6 mode, koreksi format, pemulihan sesi, idempoten, mastery
-python tests/smoke_notes.py          # gaya catatan Detail (Grok), rumus & struktur, mind map
-python tests/smoke_codemath.py       # deteksi kode/matematika, pagar kode, perbaikan rumus, aturan prompt
-python tests/parity_actions.py       # handler agent = ACTIONS server.js, dan impor mandiri modul
-NODE_PATH=/path/ke/node_modules node tests/markdown_math_check.js   # renderer Markdown + KaTeX (jsdom)
-NODE_PATH=/path/ke/node_modules node tests/code_canvas_check.js     # canvas coding (jsdom)
-NODE_PATH=/path/ke/node_modules node tests/mindmap_ui_harness.js    # UI mind map (jsdom)
-NODE_PATH=/path/ke/node_modules node tests/play_ui_harness.js   # UI game (jsdom)
-npm install jsdom                    # di folder mana saja, lalu atur NODE_PATH ke node_modules-nya
-NODE_PATH=/path/ke/node_modules bash tests/run_e2e.sh   # server + bridge + agent + UI
+npm install                      # root postinstall installs app/
+cargo run -p stuby-server        # API on http://127.0.0.1:8080 (needs DATABASE_URL, APP_PASSWORD)
+npm run dev:react                # web client on http://localhost:5173, proxies /api to :8080
+npm run tauri:dev                # desktop app in dev mode
 ```
 
-`tests/mock_paf.py` meniru gateway sehingga uji tidak memakai token atau kuota asli.
+### Try it without building
 
-## Klien React (`app/`) dan Android
+You do not need an installer to see a change. Pick one:
 
-Klien baru (React 19 + Vite + Tauri 2, desain Frost UI) ada di `app/`. Status layar dan kontrak yang dipakai: `docs/FRONTEND_REDESIGN_STATUS.md`.
+| Command | What you get |
+|---|---|
+| `npm run dev:mock` | The whole UI in the browser at http://localhost:5173 with **fictional data and no database or server**. Hot reload, instant. Best for styling and layout work. |
+| `npm run server` + `npm run dev:react` in two terminals | The real UI with hot reload against your real server and database (Vite proxies `/api`, so login works). |
+| `npm run tauri:dev` | A native window around the server-served UI (run `npm run build:standalone` in `app/` first). |
+
+For phone layouts, open the browser dev tools, toggle the device toolbar (Ctrl+Shift+M) and use a touch device: the hold-to-open tab menu works with touch emulation. Only the embedded-server startup of the desktop app needs a real build.
+
+Build installers:
 
 ```bash
-cd app && npm install
-npm run dev            # Vite di :5173, proxy /api ke server :8080
-npm run typecheck && npm test && npm run build
-# Sajikan klien baru lewat server Rust (default-nya masih server/public):
-STATIC_DIR=app/dist cargo run -p belajar-server
+cd app
+node scripts/build-desktop.cjs                                  # standalone desktop installer (NSIS)
+node scripts/build-android.cjs --server https://stuby.example.org   # Android APK pointed at your server
 ```
 
-Aplikasi Android (APK debug, memuat UI dari alamat server agar cookie sesi tetap satu origin): `npm run android:build`, lihat `docs/ANDROID.md`.
+Serve the web client from the server: `npm run build:standalone` in `app/`, then `STATIC_DIR=app/dist cargo run -p stuby-server`. Always use `build:standalone` for bundles the Stuby server itself serves; plain `build` bakes in the dev API address.
 
-## Batasan saat ini
+### Configuration
 
-- Format `.doc` dan `.ppt` lama belum didukung (simpan ulang sebagai `.docx`/`.pptx`).
-- Gambar di dalam DOCX tidak dibaca; PPTX hanya slide yang hampir tanpa teks.
-- Rumus ditampilkan sebagai teks LaTeX, belum dirender.
-- Satu pengguna dan satu agent.
+| Variable | Purpose |
+|---|---|
+| `DATABASE_URL` | **Required.** PostgreSQL connection (Supabase session pooler, restricted role). |
+| `APP_PASSWORD` / `APP_PASSWORD_HASH` | Owner login (plain, or an Argon2 hash). One is required. |
+| `HOST`, `PORT` | Listen address (default `127.0.0.1:8080`). |
+| `STATIC_DIR`, `FILES_DIR` | Built web UI and uploaded files. |
+| `SESSION_DAYS`, `MAX_UPLOAD_MB`, `JOB_WORKERS` | Session length (30), upload limit (40), background workers (2). |
+| `TIMEZONE`, `DAY_START_HOUR` | Day boundaries for streaks (default `Asia/Jakarta`, `0`). |
+| `COOKIE_SECURE`, `TRUST_PROXY` | Set to `1` behind HTTPS and a reverse proxy. |
 
-## Rencana berikutnya
+The desktop app reads the same settings from `stuby.env` in its config folder (it tells you where on first launch). Details: [`docs/DESKTOP_STANDALONE.md`](docs/DESKTOP_STANDALONE.md), [`docs/LINUX_SERVER_SETUP.md`](docs/LINUX_SERVER_SETUP.md).
 
-Tanya-jawab dengan dokumen (menyebut halaman/slide sumber). Flashcard SM-2 dan ekspor Anki tersedia lewat menu Game.
+## Security and privacy
+
+- Login with a password; sessions are stored server-side and carried in `SameSite=Strict` cookies. The password can be configured as an Argon2 hash.
+- The server connects as a restricted database role. Row-level security is enabled on every table and forced on data tables, so queries only see the owner's rows.
+- No secrets are compiled into any binary; they live in the environment or in `stuby.env` on your machine.
+- Strict Content-Security-Policy in the app shell; user content is sanitised before rendering.
+- AI output is validated and treated as untrusted data; game answer keys stay on the server until a turn is judged.
+
+## Quality
+
+```bash
+npm run check          # rustfmt, clippy (warnings denied), Rust tests, client build, client tests
+cargo test --workspace
+npm test               # ~590 client tests (components, features, accessibility, end-to-end flows)
+```
+
+Tests that need PostgreSQL provision a throwaway database through `stuby-devdb`.
+
+## Project layout
+
+```
+crates/   Rust workspace (core, storage, ai, application, api, server, devdb)
+app/      React client, Tauri shell (app/src-tauri), build scripts
+deploy/   Linux systemd service, Caddyfile, installer
+docs/     Architecture, setup guides, migration plan, feature inventory
+parity/   Golden files that pin the Rust logic to the original behaviour
+```
+
+The repository also keeps the original Python/Node implementation (repository root, `server/`, `tests/`) as a frozen reference until it is retired. It is not part of the product.
+
+## Status and limits
+
+- Community, direct messages, notifications and the cross-material AI assistant are visible as "coming soon"; they have no backend yet.
+- One owner per server instance. The desktop app is single-user, single-machine.
+- Generating notes, quizzes and games needs a reachable AI gateway. Already-generated material, flashcards and progress keep working without one.
+- Legacy `.doc` and `.ppt` files are not supported (re-save as `.docx` / `.pptx`).
+- iOS is not built yet.
+
+## Documentation
+
+[`docs/ARCHITECTURE_AUDIT.md`](docs/ARCHITECTURE_AUDIT.md) · [`docs/FEATURE_INVENTORY.md`](docs/FEATURE_INVENTORY.md) · [`docs/MIGRATION_PLAN.md`](docs/MIGRATION_PLAN.md) · [`docs/CONTRIBUTING.md`](docs/CONTRIBUTING.md) · [`docs/TECHNICAL_RISKS.md`](docs/TECHNICAL_RISKS.md) · [`design.md`](design.md) · [`CHANGELOG.md`](CHANGELOG.md)
+
+## License
+
+MIT. See [`LICENSE`](LICENSE).

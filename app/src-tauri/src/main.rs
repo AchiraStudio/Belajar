@@ -2,5 +2,5 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
 
 fn main() {
-    belajar_app_lib::run();
+    stuby_app_lib::run();
 }

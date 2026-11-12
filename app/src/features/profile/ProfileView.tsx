@@ -1,8 +1,10 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Button, ErrorState, Icon, Input, PageHeader, Skeleton, StatusBadge, SurfaceCard, useToast } from '../../components/ui';
+import { Button, Dropdown, ErrorState, Icon, Input, PageHeader, Skeleton, StatusBadge, SurfaceCard, useToast } from '../../components/ui';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { apiFetch, ApiError } from '../../services/api/client';
 import { ENVIRONMENTS, useEnvironment, type EducationEnvironment } from '../../services/environment/EnvironmentContext';
 import styles from './Profile.module.css';
+import { tr } from '../../services/i18n';
 
 interface PeerProfile {
   id: number;
@@ -34,6 +36,8 @@ function initials(name: string): string {
 export function ProfileView() {
   const toast = useToast();
   const { environment, setEnvironment, info } = useEnvironment();
+  const compact = useMediaQuery('(max-width: 768px)');
+  const chosen = ENVIRONMENTS.find((env) => env.id === environment);
   const [profile, setProfile] = useState<PeerProfile | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<{ message: string; auth: boolean } | null>(null);
@@ -65,7 +69,7 @@ export function ProfileView() {
     } catch (err) {
       if (signal?.aborted) return;
       const auth = err instanceof ApiError && (err.status === 401 || err.status === 403);
-      setError({ message: err instanceof Error ? err.message : 'Gagal memuat profil.', auth });
+      setError({ message: err instanceof Error ? err.message : tr('Gagal memuat profil.'), auth });
     } finally {
       if (!signal?.aborted) setLoading(false);
     }
@@ -79,10 +83,10 @@ export function ProfileView() {
 
   const skillList = splitList(skills);
   const yearN = year.trim() === '' ? null : Number(year);
-  const yearErr = yearN !== null && (!Number.isInteger(yearN) || yearN < 1950 || yearN > 2100) ? 'Isi tahun antara 1950 dan 2100.' : undefined;
+  const yearErr = yearN !== null && (!Number.isInteger(yearN) || yearN < 1950 || yearN > 2100) ? tr('Isi tahun antara 1950 dan 2100.') : undefined;
   const skillErr = skillList.length > MAX_SKILLS ? `Maksimal ${MAX_SKILLS} keahlian.` : undefined;
   const bioErr = bio.length > MAX_BIO ? `Maksimal ${MAX_BIO} karakter.` : undefined;
-  const nameErr = name.trim() === '' ? 'Nama wajib diisi.' : undefined;
+  const nameErr = name.trim() === '' ? tr('Nama wajib diisi.') : undefined;
   const invalid = Boolean(yearErr || skillErr || bioErr || nameErr);
 
   const save = async (e: React.FormEvent) => {
@@ -104,7 +108,7 @@ export function ProfileView() {
       hydrate(res.profile);
       toast.success('Profil disimpan');
     } catch (err) {
-      toast.error(err instanceof Error ? err.message : 'Gagal menyimpan profil.');
+      toast.error(err instanceof Error ? err.message : tr('Gagal menyimpan profil.'));
     } finally {
       setSaving(false);
     }
@@ -114,7 +118,7 @@ export function ProfileView() {
 
   return (
     <div className={styles.page}>
-      <PageHeader eyebrow="Pertumbuhan" title="Profil" description="Identitas belajarmu, lingkungan belajar, dan data profil yang tersimpan di server." />
+      <PageHeader eyebrow={tr('Pertumbuhan')} title={tr('Profil')} description={tr('Identitas belajarmu, lingkungan belajar, dan data profil yang tersimpan di server.')} />
 
       <SurfaceCard className={styles.identity}>
         <span className={styles.avatar} aria-hidden="true">
@@ -123,19 +127,40 @@ export function ProfileView() {
         <div className={styles.idText}>
           <h2 className={styles.idName}>{displayName}</h2>
           <div className={styles.idMeta}>
-            <StatusBadge status="neutral" label="Peran: Pelajar" />
-            {info ? <StatusBadge status="ready" label={info.short} /> : <span>Lingkungan belajar belum dipilih</span>}
+            <StatusBadge status="neutral" label={tr('Peran: Pelajar')} />
+            {info ? <StatusBadge status="ready" label={tr(info.short)} /> : <span>{tr('Lingkungan belajar belum dipilih')}</span>}
             {profile?.major && profile.major.trim() !== '' && <span>{profile.major}</span>}
           </div>
         </div>
       </SurfaceCard>
 
       <SurfaceCard className={styles.group}>
-        <h2 className={styles.groupTitle}>Lingkungan belajar</h2>
+        <h2 className={styles.groupTitle}>{tr('Lingkungan belajar')}</h2>
         <p className={styles.groupDesc}>
-          Pilih jenjang yang paling sesuai. Kamu bisa mengubahnya kapan saja, dan itu tidak menghapus materi, riwayat belajar, atau lencana.
+          {tr('Pilih jenjang yang paling sesuai. Kamu bisa mengubahnya kapan saja, dan itu tidak menghapus materi, riwayat belajar, atau lencana.')}
         </p>
-        <div role="radiogroup" aria-label="Lingkungan belajar" className={styles.envGrid}>
+        {compact ? (
+          <>
+            <Dropdown
+              aria-label={tr('Lingkungan belajar')}
+              placeholder={tr('Pilih jenjang')}
+              value={environment ?? ''}
+              onChange={(v) => setEnvironment(v as EducationEnvironment)}
+              options={ENVIRONMENTS.map((env) => ({ value: env.id, label: tr(env.label), icon: 'graduation' as const }))}
+            />
+            {chosen && (
+              <div className={styles.envSummary}>
+                <p className={styles.envDesc}>{tr(chosen.description)}</p>
+                <ul className={styles.envTunes}>
+                  {chosen.tunes.map((t) => (
+                    <li key={t}>{tr(t)}</li>
+                  ))}
+                </ul>
+              </div>
+            )}
+          </>
+        ) : (
+        <div role="radiogroup" aria-label={tr('Lingkungan belajar')} className={styles.envGrid}>
           {ENVIRONMENTS.map((env) => (
             <button
               key={env.id}
@@ -146,43 +171,43 @@ export function ProfileView() {
               onClick={() => setEnvironment(env.id as EducationEnvironment)}
             >
               <span className={styles.envHead}>
-                {env.label}
+                {tr(env.label)}
                 {environment === env.id && <Icon name="check-circle" size={18} />}
               </span>
-              <span className={styles.envDesc}>{env.description}</span>
+              <span className={styles.envDesc}>{tr(env.description)}</span>
               <ul className={styles.envTunes}>
                 {env.tunes.map((t) => (
-                  <li key={t}>{t}</li>
+                  <li key={t}>{tr(t)}</li>
                 ))}
               </ul>
             </button>
           ))}
         </div>
+        )}
         <div className={styles.note} role="note">
           <Icon name="info" size={16} />
           <span>
-            Pilihan ini disimpan <strong>di perangkat ini saja</strong>. Server belum punya kolom jenjang pendidikan, jadi belum dipakai untuk
-            menyesuaikan konten, bahasa AI, atau pembatasan keamanan. Untuk akun anak, perlindungan harus ditegakkan server, bukan sekadar pilihan di layar.
+            {tr('Pilihan ini disimpan di perangkat ini saja.')}{' '}{tr('Server belum punya kolom jenjang pendidikan, jadi belum dipakai untuk menyesuaikan konten, bahasa AI, atau pembatasan keamanan. Untuk akun anak, perlindungan harus ditegakkan server, bukan sekadar pilihan di layar.')}
           </span>
         </div>
         {environment && (
           <div className={styles.actions}>
             <Button variant="ghost" size="sm" onClick={() => setEnvironment(null)}>
-              Hapus pilihan
+              {tr('Hapus pilihan')}
             </Button>
           </div>
         )}
       </SurfaceCard>
 
       <SurfaceCard className={styles.group}>
-        <h2 className={styles.groupTitle}>Data profil</h2>
-        {loading && !profile && <Skeleton height="260px" borderRadius="16px" aria-label="Memuat profil" />}
+        <h2 className={styles.groupTitle}>{tr('Data profil')}</h2>
+        {loading && !profile && <Skeleton height="260px" borderRadius="16px" aria-label={tr('Memuat profil')} />}
         {error && !profile && (
           <ErrorState
-            title={error.auth ? 'Profil belum bisa dimuat' : 'Gagal memuat profil'}
+            title={error.auth ? tr('Profil belum bisa dimuat') : tr('Gagal memuat profil')}
             message={
               error.auth
-                ? 'Profil memakai API v1 yang membutuhkan identitas pengguna. Sesi ini belum dikenali oleh API tersebut. Fitur lain tetap berfungsi.'
+                ? tr('Profil memakai API v1 yang membutuhkan identitas pengguna. Sesi ini belum dikenali oleh API tersebut. Fitur lain tetap berfungsi.')
                 : error.message
             }
             onRetry={() => void load()}
@@ -193,30 +218,30 @@ export function ProfileView() {
             {profile.full_name === SERVER_DEFAULT_NAME && (
               <div className={`${styles.note} ${styles.warn}`} role="note">
                 <Icon name="alert-triangle" size={16} />
-                <span>Nama dan jurusan masih berupa isian bawaan dari server. Ganti dengan data yang sebenarnya.</span>
+                <span>{tr('Nama dan jurusan masih berupa isian bawaan dari server. Ganti dengan data yang sebenarnya.')}</span>
               </div>
             )}
             <div className={styles.two}>
-              <Input label="Nama lengkap" value={name} onChange={(e) => setName(e.target.value)} error={nameErr} maxLength={120} autoComplete="name" />
-              <Input label="Jurusan / bidang" value={major} onChange={(e) => setMajor(e.target.value)} maxLength={120} />
+              <Input label={tr('Nama lengkap')} value={name} onChange={(e) => setName(e.target.value)} error={nameErr} maxLength={120} autoComplete="name" />
+              <Input label={tr('Jurusan / bidang')} value={major} onChange={(e) => setMajor(e.target.value)} maxLength={120} />
             </div>
             <div className={styles.two}>
               <Input
-                label="Tahun angkatan"
+                label={tr('Tahun angkatan')}
                 type="number"
                 inputMode="numeric"
                 value={year}
                 onChange={(e) => setYear(e.target.value)}
                 error={yearErr}
-                hint="Opsional"
+                hint={tr('Opsional')}
               />
             </div>
-            <Input label="Bio singkat" multiline rows={4} value={bio} onChange={(e) => setBio(e.target.value)} error={bioErr} hint={`${bio.length}/${MAX_BIO}`} />
-            <Input label="Minat akademik" value={interests} onChange={(e) => setInterests(e.target.value)} hint="Pisahkan dengan koma" />
-            <Input label="Keahlian" value={skills} onChange={(e) => setSkills(e.target.value)} error={skillErr} hint={`Pisahkan dengan koma (maks ${MAX_SKILLS})`} />
+            <Input label={tr('Bio singkat')} multiline rows={4} value={bio} onChange={(e) => setBio(e.target.value)} error={bioErr} hint={`${bio.length}/${MAX_BIO}`} />
+            <Input label={tr('Minat akademik')} value={interests} onChange={(e) => setInterests(e.target.value)} hint={tr('Pisahkan dengan koma')} />
+            <Input label={tr('Keahlian')} value={skills} onChange={(e) => setSkills(e.target.value)} error={skillErr} hint={tr('Pisahkan dengan koma (maks {a})', { a: MAX_SKILLS })} />
             <div className={styles.actions}>
               <Button type="submit" loading={saving} disabled={invalid}>
-                Simpan profil
+                {tr('Simpan profil')}
               </Button>
             </div>
           </form>
@@ -224,20 +249,19 @@ export function ProfileView() {
       </SurfaceCard>
 
       <SurfaceCard className={styles.group}>
-        <h2 className={styles.groupTitle}>Privasi dan peran</h2>
+        <h2 className={styles.groupTitle}>{tr('Privasi dan peran')}</h2>
         <ul className={styles.list}>
           <li>
-            <strong>Visibilitas per kolom belum tersedia.</strong> Server belum menyimpan pengaturan publik / pengikut / grup / privat, jadi profil ini belum
-            dibagikan kepada pengguna lain oleh aplikasi ini. Info kontak tidak ditampilkan atau diubah di sini.
+            <strong>{tr('Visibilitas per kolom belum tersedia.')}</strong>{' '}{tr('Server belum menyimpan pengaturan publik / pengikut / grup / privat, jadi profil ini belum dibagikan kepada pengguna lain oleh aplikasi ini. Info kontak tidak ditampilkan atau diubah di sini.')}
           </li>
           <li>
-            <strong>Materi, catatan, riwayat kuis, dan percakapan AI</strong> bersifat pribadi dan tidak pernah dipakai untuk profil publik.
+            <strong>{tr('Materi, catatan, riwayat kuis, dan percakapan AI')}</strong>{' '}{tr('bersifat pribadi dan tidak pernah dipakai untuk profil publik.')}
           </li>
           <li>
-            <strong>Peran lain (pendidik, wali, moderator)</strong> belum ada. Peran harus ditegakkan oleh server, jadi tidak ditampilkan sebagai panel tiruan.
+            <strong>{tr('Peran lain (pendidik, wali, moderator)')}</strong>{' '}{tr('belum ada. Peran harus ditegakkan oleh server, jadi tidak ditampilkan sebagai panel tiruan.')}
           </li>
           <li>
-            <strong>Ekspor atau penghapusan akun</strong> belum tersedia. Hubungi pemilik server untuk meminta salinan atau penghapusan data.
+            <strong>{tr('Ekspor atau penghapusan akun')}</strong>{' '}{tr('belum tersedia. Hubungi pemilik server untuk meminta salinan atau penghapusan data.')}
           </li>
         </ul>
       </SurfaceCard>

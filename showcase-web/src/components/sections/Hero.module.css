@@ -1,0 +1,46 @@
+.hero { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.12fr); gap: 20px 56px; align-items: center; padding-block: 56px 28px; }
+.copy { min-width: 0; }
+.hero h1 { font-size: clamp(2.6rem, 1rem + 4.9vw, 4.9rem); line-height: 0.98; font-weight: 800; letter-spacing: -0.055em; text-wrap: balance; }
+.l1 { display: block; }
+.mask { display: inline-block; overflow: hidden; vertical-align: top; padding: 0.04em 0.06em 0.1em; margin: -0.04em -0.06em -0.1em; }
+.word { display: inline-block; will-change: transform; transform-origin: 0 100%; }
+.hl {
+  background-image: linear-gradient(var(--bamboo), var(--bamboo));
+  background-repeat: no-repeat;
+  background-position: left center;
+  color: var(--on-bamboo);
+  padding: 0 0.14em;
+  border-radius: 0.18em;
+  -webkit-box-decoration-break: clone; box-decoration-break: clone;
+  line-height: 1.14;
+}
+.lede { margin-top: 26px; font-size: clamp(1.0625rem, 1rem + 0.4vw, 1.3125rem); line-height: 1.5; color: var(--text-2); max-width: 36em; }
+.cta { display: flex; flex-wrap: wrap; gap: 14px; margin-top: 32px; }
+.facts { margin-top: 40px; border-top: 2px solid var(--text); }
+.facts > div { display: grid; grid-template-columns: 6.2rem 1fr; gap: 16px; padding: 11px 0; border-bottom: 1px solid var(--line); }
+.facts dt { font-weight: 750; font-size: 0.9375rem; }
+.facts dd { color: var(--text-2); font-size: 0.9375rem; }
+
+.visual { position: relative; padding: 70px 0 30px; min-width: 0; }
+.pandaWrap { position: absolute; z-index: 0; top: 0; right: 9%; width: clamp(104px, 12vw, 170px); }
+.panda { width: 100%; height: auto; }
+:global(:root[data-theme='dark']) .panda { filter: drop-shadow(1.6px 0 0 #f1f4ec) drop-shadow(-1.6px 0 0 #f1f4ec) drop-shadow(0 1.6px 0 #f1f4ec) drop-shadow(0 -1.6px 0 #f1f4ec); }
+.winWrap { position: relative; z-index: 1; }
+.winHero { box-shadow: 9px 9px 0 var(--hard); }
+.phoneWrap { position: absolute; z-index: 2; width: clamp(110px, 13vw, 170px); left: -9%; bottom: -6%; }
+.phoneHero { width: 100%; }
+.note { grid-column: 1 / -1; font-size: 0.8125rem; color: var(--text-3); text-align: right; }
+
+@media (max-width: 1080px) {
+  .hero { grid-template-columns: 1fr; gap: 24px; padding-top: 36px; }
+  .visual { max-width: 720px; width: 100%; margin-inline: auto; }
+}
+@media (max-width: 760px) {
+  .facts > div { grid-template-columns: 1fr; gap: 2px; }
+  .note { text-align: left; }
+  .phoneWrap { left: -2%; }
+  .visual { padding-top: 56px; }
+}
+@media (max-width: 560px) {
+  .cta > * { width: 100%; }
+}

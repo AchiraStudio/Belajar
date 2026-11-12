@@ -81,7 +81,7 @@ describe('QuizRunner', () => {
     expect(mockRpc.getCalls('check_answer')).toHaveLength(0);
     expect(screen.queryByText('Jawaban benar')).toBeNull();
     // The answer survives a reload: it lives in localStorage keyed by the attempt.
-    expect(JSON.parse(window.localStorage.getItem('belajar-exam-7') ?? '{}')).toEqual({ '11': '0' });
+    expect(JSON.parse(window.localStorage.getItem('stuby-exam-7') ?? '{}')).toEqual({ '11': '0' });
 
     fireEvent.click(screen.getByRole('button', { name: 'Kumpulkan' }));
     expect(await screen.findByText('1 soal belum dijawab.')).toBeTruthy();
@@ -93,11 +93,11 @@ describe('QuizRunner', () => {
     await screen.findByText('Halaman hasil');
     expect(mockRpc.getCalls('finish_attempt')).toHaveLength(1);
     expect(mockRpc.getLastCall('finish_attempt')?.payload).toMatchObject({ attempt_id: 7, answers: { '11': '0' } });
-    expect(window.localStorage.getItem('belajar-exam-7')).toBeNull();
+    expect(window.localStorage.getItem('stuby-exam-7')).toBeNull();
   });
 
   it('restores saved exam answers after a reload', async () => {
-    window.localStorage.setItem('belajar-exam-7', JSON.stringify({ '11': '1' }));
+    window.localStorage.setItem('stuby-exam-7', JSON.stringify({ '11': '1' }));
     mockRpc.setResponse('get_attempt', { attempt: { ...baseAttempt, mode: 'exam', time_limit: 3600 }, questions });
 
     renderRunner();

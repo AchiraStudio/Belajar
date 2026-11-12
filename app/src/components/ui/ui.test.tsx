@@ -151,9 +151,9 @@ describe('UI Primitives', () => {
         />,
       );
 
-      const select = screen.getByLabelText('Pilih Topik') as HTMLSelectElement;
-      fireEvent.change(select, { target: { value: 'kimia' } });
-      expect(handleChange).toHaveBeenCalled();
+      fireEvent.click(screen.getByRole('combobox', { name: 'Pilih Topik' }));
+      fireEvent.click(screen.getByRole('option', { name: 'Kimia' }));
+      expect(handleChange).toHaveBeenCalledWith({ target: { value: 'kimia', name: undefined } });
     });
   });
 

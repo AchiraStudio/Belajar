@@ -1,0 +1,162 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="color-scheme" content="light dark" />
+    <title>Stuby</title>
+    <link rel="icon" href="/brand/favicon.svg" type="image/svg+xml" />
+    <style>
+      /* The native startup screen (src-tauri/src/embedded.rs drives it through splash.js). Same look and
+         the same panda as the in-app startup screen (src/features/startup), so the hand-over is seamless.
+         Colours are the logo's: ink, bamboo, cream. */
+      :root { --bg: #F6F4EC; --ink: #141816; --muted: #55605A; --card: #FFFFFF; --line: rgba(20,24,22,.24); --fill: #8DC63F; --danger: #B0281F; --rim: transparent; --green: #8DC63F; --pk: #151515; }
+      @media (prefers-color-scheme: dark) {
+        :root { --bg: #0E1210; --ink: #F1F4EC; --muted: #98A494; --card: #171C19; --line: rgba(255,255,255,.22); --danger: #FF8F85; --rim: #F1F4EC; }
+      }
+      * { box-sizing: border-box; }
+      html, body { margin: 0; min-height: 100%; }
+      body {
+        min-height: 100dvh; display: grid; place-items: center; padding: 24px;
+        background: var(--bg); color: var(--ink);
+        font-family: 'Segoe UI', system-ui, -apple-system, Roboto, sans-serif;
+      }
+      main { width: min(380px, 100%); display: flex; flex-direction: column; align-items: center; gap: 12px; text-align: center; }
+
+      /* ---- the panda ---- */
+      .art { display: block; overflow: visible; width: 190px; height: auto; }
+      .art .sh, .art .ear, .art .eye, .art .mouth, .art .leaf, .art .body, .art .head, .art .bamboo { transform-box: fill-box; }
+      .sh ellipse { fill: rgba(20,24,22,.14); transform-origin: center; transform-box: fill-box; }
+      .ear { fill: var(--pk); stroke: var(--rim); stroke-width: 4; transform-origin: center; }
+      .face { fill: #fff; stroke: var(--pk); stroke-width: 14; }
+      .eye { transform-origin: center; }
+      .eye ellipse { fill: var(--pk); }
+      .nose { fill: var(--pk); stroke: var(--pk); stroke-width: 6; stroke-linejoin: round; }
+      .mouth path { fill: none; stroke: var(--pk); stroke-width: 6; stroke-linecap: round; stroke-linejoin: round; }
+      .mouth { transform-origin: 50% 20%; }
+      .outline { fill: none; stroke: var(--pk); stroke-width: 36; stroke-linecap: round; stroke-linejoin: round; }
+      .tube { fill: none; stroke: var(--green); stroke-width: 25; stroke-linecap: round; stroke-linejoin: round; }
+      .joints { fill: none; stroke: var(--pk); stroke-width: 25; stroke-dasharray: .5 6.4; opacity: .85; }
+      .leaf { fill: var(--green); stroke: var(--pk); stroke-width: 7; stroke-linejoin: round; transform-origin: 90% 80%; }
+      .body, .head { transform-origin: 50% 100%; } .head { transform-origin: 50% 80%; }
+      .body { animation: drop 620ms cubic-bezier(.3,1.5,.5,1) both; }
+      .sh ellipse { animation: shadowIn 620ms ease-out both; }
+      .earL { animation: pop 420ms cubic-bezier(.3,1.8,.5,1) 380ms both; }
+      .earR { animation: pop 420ms cubic-bezier(.3,1.8,.5,1) 470ms both; }
+      .eye { animation: eyes 380ms cubic-bezier(.3,1.6,.5,1) 760ms both, blink 4.6s ease-in-out 3s infinite; }
+      .nose { animation: fade 240ms ease-out 700ms both; }
+      .mouth { animation: fade 240ms ease-out 700ms both, munch 900ms ease-in-out 2300ms infinite; }
+      .outline, .tube { stroke-dasharray: 100; animation: grow 1100ms cubic-bezier(.45,0,.2,1) 1000ms both; }
+      .joints { animation: fade 300ms ease-out 1900ms both; }
+      .leafA { animation: leaf 380ms cubic-bezier(.3,1.8,.5,1) 1150ms both; }
+      .leafB { animation: leaf 380ms cubic-bezier(.3,1.8,.5,1) 2000ms both; }
+      .head { animation: chew 900ms ease-in-out 2300ms infinite; }
+      @keyframes drop { 0% { opacity: 0; transform: translateY(-70px) scale(.86,1.12); } 55% { opacity: 1; transform: translateY(6px) scale(1.06,.92); } 80% { transform: translateY(-3px) scale(.99,1.02); } 100% { opacity: 1; transform: none; } }
+      @keyframes shadowIn { 0% { opacity: 0; transform: scale(.3); } 60% { opacity: 1; transform: scale(1.1); } 100% { opacity: 1; transform: scale(1); } }
+      @keyframes pop { from { transform: scale(0); } to { transform: scale(1); } }
+      @keyframes eyes { from { transform: scaleY(.05); } to { transform: scaleY(1); } }
+      @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+      @keyframes grow { from { stroke-dashoffset: 100; } to { stroke-dashoffset: 0; } }
+      @keyframes leaf { from { transform: scale(0) rotate(-20deg); } to { transform: scale(1) rotate(0); } }
+      @keyframes chew { 0%,100% { transform: none; } 30% { transform: translateY(3px) rotate(-1.4deg); } 65% { transform: translateY(-1px) rotate(1.2deg); } }
+      @keyframes munch { 0%,100% { transform: scaleY(1); } 35% { transform: scaleY(1.35); } 65% { transform: scaleY(.8); } }
+      @keyframes blink { 0%,93%,100% { transform: scaleY(1); } 96% { transform: scaleY(.08); } }
+
+      .wordmark { display: flex; margin: 2px 0 0; font-size: 2.3rem; line-height: 1; font-weight: 800; letter-spacing: -.05em; }
+      .wordmark span { display: inline-block; animation: letter 420ms cubic-bezier(.34,1.4,.64,1) both; }
+      @keyframes letter { from { opacity: 0; transform: translateY(14px) scale(.6); } to { opacity: 1; transform: none; } }
+
+      #headline { margin: 0; font-size: 1.1rem; font-weight: 700; min-height: 1.5em; }
+      #detail { margin: 0; max-width: 36ch; font-size: .85rem; line-height: 1.5; color: var(--muted); white-space: pre-wrap; overflow-wrap: anywhere; }
+      .bar { width: 100%; height: 14px; border-radius: 99px; border: 2px solid var(--ink); background: var(--card); overflow: hidden; }
+      .bar i { display: block; height: 100%; width: 4%; border-radius: inherit; background: var(--fill); transition: width .5s cubic-bezier(.22,1,.36,1); }
+      ol { list-style: none; margin: 4px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; width: 100%; text-align: left; }
+      li { display: flex; align-items: center; gap: 10px; font-size: .85rem; font-weight: 600; color: var(--muted); }
+      li .mark { display: grid; place-items: center; flex: none; width: 20px; height: 20px; border-radius: 50%; border: 2px solid var(--line); font-size: 12px; line-height: 1; color: #141816; }
+      li[data-state="active"] { color: var(--ink); } li[data-state="active"] .mark { border-color: var(--ink); }
+      li[data-state="active"] .mark::after { content: ""; width: 9px; height: 9px; border-radius: 50%; border: 2px solid var(--ink); border-right-color: transparent; animation: spin .8s linear infinite; }
+      li[data-state="done"] .mark { background: var(--fill); border-color: #141816; }
+      li[data-state="done"] .mark::after { content: "\2713"; font-weight: 800; }
+      li[data-state="error"] { color: var(--danger); } li[data-state="error"] .mark { background: var(--danger); border-color: var(--danger); color: #fff; }
+      li[data-state="error"] .mark::after { content: "\00d7"; font-weight: 800; }
+      @keyframes spin { to { transform: rotate(360deg); } }
+
+      /* ---- setup form and error actions ---- */
+      #setup, #actions { width: 100%; text-align: left; display: none; flex-direction: column; gap: 12px; }
+      body[data-state="setup"] #setup { display: flex; }
+      body[data-state="error"] #actions { display: flex; }
+      /* While retrying, once an attempt has failed, offer a way out instead of making people wait. */
+      body[data-state="loading"][data-note] #actions { display: flex; }
+      body[data-state="loading"][data-note] #retry { display: none; }
+      body[data-state="setup"] .bar, body[data-state="setup"] ol, body[data-state="error"] .bar { display: none; }
+      body[data-state="error"] #headline { color: var(--danger); }
+      #setup h2 { margin: 0; font-size: 1rem; }
+      #setup p { margin: 0; font-size: .85rem; line-height: 1.5; color: var(--muted); }
+      label { display: flex; flex-direction: column; gap: 6px; font-size: .8rem; font-weight: 700; }
+      input[type="password"], input[type="text"] { height: 42px; padding: 0 12px; border-radius: 12px; border: 1.5px solid var(--line); background: var(--card); color: var(--ink); font: inherit; font-size: .9rem; }
+      input:focus-visible { outline: 3px solid var(--fill); outline-offset: 1px; border-color: var(--ink); }
+      .show { display: inline-flex; flex-direction: row; align-items: center; gap: 8px; font-weight: 600; color: var(--muted); }
+      .show input { width: 16px; height: 16px; accent-color: #2F7A1F; }
+      button { height: 46px; padding: 0 18px; border-radius: 14px; font: inherit; font-size: .95rem; font-weight: 700; cursor: pointer; }
+      .primary { background: var(--fill); color: #141816; border: 2px solid #141816; box-shadow: 0 3px 0 #141816; }
+      .primary:active { transform: translateY(2px); box-shadow: 0 1px 0 #141816; }
+      .ghost { background: transparent; color: var(--ink); border: 1.5px solid var(--line); }
+      button:focus-visible { outline: 3px solid var(--ink); outline-offset: 2px; }
+      #formError { min-height: 1.2em; color: var(--danger); font-size: .82rem; font-weight: 600; }
+      .row { display: flex; gap: 10px; flex-wrap: wrap; }
+
+      @media (prefers-reduced-motion: reduce) {
+        .art *, .wordmark span { animation: none !important; }
+        .head { animation: chew 2400ms ease-in-out infinite !important; }
+        li[data-state="active"] .mark::after { animation-duration: 2.4s !important; }
+        .bar i { transition: none; }
+      }
+    </style>
+  </head>
+  <body data-state="loading">
+    <main>
+      <svg class="art" viewBox="0 0 418 416" aria-hidden="true" focusable="false">
+        <g class="sh"><ellipse cx="215" cy="398" rx="125" ry="9"/></g>
+        <g class="body">
+          <g class="head">
+            <circle class="ear earL" cx="106" cy="65" r="53"/>
+            <circle class="ear earR" cx="325" cy="65" r="53"/>
+            <ellipse class="face" cx="215" cy="184" rx="143" ry="106"/>
+            <g class="eye"><ellipse cx="154.3" cy="157.6" rx="31.3" ry="45.6" transform="rotate(36.5 154.3 157.6)"/></g>
+            <g class="eye"><ellipse cx="275.3" cy="157.7" rx="31.2" ry="44.2" transform="rotate(-31.6 275.3 157.7)"/></g>
+            <path class="nose" d="M199 186 Q215 176 231 186 Q229 202 215 206 Q201 202 199 186Z"/>
+            <g class="mouth"><path d="M193 210 Q204 222 215 210 Q226 222 237 210"/></g>
+          </g>
+          <g class="bamboo">
+            <path class="outline" pathLength="100" d="M318 238 C314 238 304 237 295 235 C286 234 278 230 265 229 C253 228 235 228 220 227 C205 227 188 226 175 226 C163 227 155 227 145 230 C135 233 124 239 115 243 C107 247 100 249 94 252 C88 255 84 258 80 261 C76 264 74 269 72 272 C70 276 70 279 70 282 C70 285 70 288 73 291 C76 294 81 297 86 300 C91 303 98 307 103 310 C109 313 115 317 119 320 C123 324 124 328 125 331 C126 335 125 338 124 341 C123 344 119 348 117 351 C115 354 115 357 112 360 C109 363 103 368 98 369 C93 370 87 370 82 368 C77 366 71 362 68 358 C65 355 63 349 62 347"/>
+            <path class="tube" pathLength="100" d="M318 238 C314 238 304 237 295 235 C286 234 278 230 265 229 C253 228 235 228 220 227 C205 227 188 226 175 226 C163 227 155 227 145 230 C135 233 124 239 115 243 C107 247 100 249 94 252 C88 255 84 258 80 261 C76 264 74 269 72 272 C70 276 70 279 70 282 C70 285 70 288 73 291 C76 294 81 297 86 300 C91 303 98 307 103 310 C109 313 115 317 119 320 C123 324 124 328 125 331 C126 335 125 338 124 341 C123 344 119 348 117 351 C115 354 115 357 112 360 C109 363 103 368 98 369 C93 370 87 370 82 368 C77 366 71 362 68 358 C65 355 63 349 62 347"/>
+            <path class="joints" pathLength="100" d="M318 238 C314 238 304 237 295 235 C286 234 278 230 265 229 C253 228 235 228 220 227 C205 227 188 226 175 226 C163 227 155 227 145 230 C135 233 124 239 115 243 C107 247 100 249 94 252 C88 255 84 258 80 261 C76 264 74 269 72 272 C70 276 70 279 70 282 C70 285 70 288 73 291 C76 294 81 297 86 300 C91 303 98 307 103 310 C109 313 115 317 119 320 C123 324 124 328 125 331 C126 335 125 338 124 341 C123 344 119 348 117 351 C115 354 115 357 112 360 C109 363 103 368 98 369 C93 370 87 370 82 368 C77 366 71 362 68 358 C65 355 63 349 62 347"/>
+          </g>
+          <path class="leaf leafA" d="M316 232 C328 204 356 196 382 210 C370 236 338 246 316 232Z"/>
+          <path class="leaf leafB" d="M64 350 C44 326 22 326 14 342 C28 362 54 366 64 350Z"/>
+        </g>
+      </svg>
+
+      <p class="wordmark" aria-hidden="true"><span style="animation-delay:520ms">s</span><span style="animation-delay:590ms">t</span><span style="animation-delay:660ms">u</span><span style="animation-delay:730ms">b</span><span style="animation-delay:800ms">y</span></p>
+
+      <div role="status" aria-live="polite">
+        <p id="headline">Starting the app…</p>
+        <p id="detail"></p>
+      </div>
+
+      <div class="bar" role="progressbar" aria-label="Starting" aria-valuemin="0" aria-valuemax="100" aria-valuenow="0"><i id="fill"></i></div>
+      <ol id="steps">
+        <li data-step="config" data-state="pending"><span class="mark" aria-hidden="true"></span><span>Getting ready</span></li>
+        <li data-step="database" data-state="pending"><span class="mark" aria-hidden="true"></span><span>Opening your study data</span></li>
+        <li data-step="server" data-state="pending"><span class="mark" aria-hidden="true"></span><span>Starting Stuby</span></li>
+      </ol>
+
+      <div id="actions">
+        <div class="row">
+          <button type="button" class="primary" id="retry">Try again</button>
+        </div>
+      </div>
+    </main>
+    <script src="/splash.js"></script>
+  </body>
+</html>

@@ -23,6 +23,7 @@ import { buildLayout, canvasMeasure, defaultCollapsed, findPath } from './layout
 import { MindMapCanvas, type CanvasHandle } from './MindMapCanvas';
 import type { MindJob, MindMapResponse, MindNode } from './types';
 import styles from './MindMap.module.css';
+import { tr } from '../../services/i18n';
 
 interface Props {
   documentId: number;
@@ -81,7 +82,7 @@ export function MindMapView({ documentId, onFindInNotes }: Props) {
         }
         return r;
       } catch (err) {
-        setError(errorMessage(err, 'Gagal memuat mind map.'));
+        setError(errorMessage(err, tr('Gagal memuat mind map.')));
         return null;
       } finally {
         setLoading(false);
@@ -101,7 +102,7 @@ export function MindMapView({ documentId, onFindInNotes }: Props) {
       if (!done) return;
       if (done.status === 'failed') {
         setJob(null);
-        toast.error(done.error || 'Mind map gagal dibuat.');
+        toast.error(done.error || tr('Mind map gagal dibuat.'));
         return;
       }
       dropCache();
@@ -124,7 +125,7 @@ export function MindMapView({ documentId, onFindInNotes }: Props) {
       setJob({ id: r.job_id, status: 'queued', progress: 3, message: 'Menunggu giliran' });
       void watch(r.job_id);
     } catch (err) {
-      toast.error(errorMessage(err, 'Gagal memulai pembuatan mind map.'));
+      toast.error(errorMessage(err, tr('Gagal memulai pembuatan mind map.')));
     }
   };
 
@@ -170,17 +171,17 @@ export function MindMapView({ documentId, onFindInNotes }: Props) {
     try {
       const svg = await buildSvg(mm, THEME_LIGHT);
       if (kind === 'copy') {
-        (await copyText(svg.text)) ? toast.success('SVG disalin ke papan klip') : toast.error('Tidak bisa menyalin ke papan klip.');
+        (await copyText(svg.text)) ? toast.success(tr('SVG disalin ke papan klip')) : toast.error(tr('Tidak bisa menyalin ke papan klip.'));
       } else if (kind === 'svg') {
         saveBlob(new Blob([svg.text], { type: 'image/svg+xml;charset=utf-8' }), exportFileName(mm, 'svg'))
-          ? toast.success('SVG diunduh')
-          : toast.error('Perangkat ini tidak mengizinkan unduhan. Coba "Salin SVG".');
+          ? toast.success(tr('SVG diunduh'))
+          : toast.error(tr('Perangkat ini tidak mengizinkan unduhan. Coba "Salin SVG".'));
       } else {
         const blob = await svgToPng(svg);
-        blob && saveBlob(blob, exportFileName(mm, 'png')) ? toast.success('PNG diunduh') : toast.error('Gagal membuat PNG.');
+        blob && saveBlob(blob, exportFileName(mm, 'png')) ? toast.success(tr('PNG diunduh')) : toast.error(tr('Gagal membuat PNG.'));
       }
     } catch {
-      toast.error('Gagal mengekspor mind map.');
+      toast.error(tr('Gagal mengekspor mind map.'));
     } finally {
       setExporting(null);
     }
@@ -189,7 +190,7 @@ export function MindMapView({ documentId, onFindInNotes }: Props) {
   // ------------------------------------------------------------------ states
   if (loading && !resp) {
     return (
-      <div className={styles.wrap} aria-busy="true" aria-label="Memuat mind map">
+      <div className={styles.wrap} aria-busy="true" aria-label={tr('Memuat mind map')}>
         <Skeleton height="460px" borderRadius="20px" />
       </div>
     );
@@ -200,9 +201,9 @@ export function MindMapView({ documentId, onFindInNotes }: Props) {
       return (
         <UnavailableState
           icon="network"
-          title="Mind map belum tersedia di server ini"
-          description={`${error} Mind map disusun AI dari catatanmu, jadi tidak ditampilkan sebagai data tiruan.`}
-          requirements={['Layanan AI dikonfigurasi di server', 'Aksi mindmap_get dan mindmap_generate tersedia']}
+          title={tr('Mind map belum tersedia di server ini')}
+          description={tr('{a} Mind map disusun AI dari catatanmu, jadi tidak ditampilkan sebagai data tiruan.', { a: error })}
+          requirements={[tr('Layanan AI dikonfigurasi di server'), tr('Aksi mindmap_get dan mindmap_generate tersedia')]}
         />
       );
     }
@@ -214,10 +215,10 @@ export function MindMapView({ documentId, onFindInNotes }: Props) {
     return (
       <SurfaceCard className={styles.progressCard} role="status" aria-live="polite">
         <Icon name="refresh" size={20} className="spin" />
-        <h2 className={styles.stateTitle}>Menyusun mind map…</h2>
-        <p className={styles.stateText}>{job.message || 'Menunggu giliran diproses AI.'}</p>
-        <ProgressBar value={p} label="Kemajuan pembuatan mind map" showValue />
-        <p className={styles.stateHint}>Halaman ini boleh ditinggalkan; prosesnya tetap berjalan.</p>
+        <h2 className={styles.stateTitle}>{tr('Menyusun mind map…')}</h2>
+        <p className={styles.stateText}>{job.message || tr('Menunggu giliran diproses AI.')}</p>
+        <ProgressBar value={p} label={tr('Kemajuan pembuatan mind map')} showValue />
+        <p className={styles.stateHint}>{tr('Halaman ini boleh ditinggalkan; prosesnya tetap berjalan.')}</p>
       </SurfaceCard>
     );
   }
@@ -226,9 +227,9 @@ export function MindMapView({ documentId, onFindInNotes }: Props) {
     return (
       <EmptyState
         icon="network"
-        title="Belum ada mind map"
-        description="AI akan menyusun konsep utama, cabang pembahasan, dan hubungan antarcabang dari catatan materi ini."
-        actionLabel="Buat mind map"
+        title={tr('Belum ada mind map')}
+        description={tr('AI akan menyusun konsep utama, cabang pembahasan, dan hubungan antarcabang dari catatan materi ini.')}
+        actionLabel={tr('Buat mind map')}
         onAction={generate}
       />
     );
@@ -250,29 +251,29 @@ export function MindMapView({ documentId, onFindInNotes }: Props) {
       {mm.stale && (
         <div className={styles.stale} role="status">
           <Icon name="alert-triangle" size={16} />
-          <span>Catatan berubah sejak mind map ini dibuat, jadi isinya mungkin sudah usang.</span>
+          <span>{tr('Catatan berubah sejak mind map ini dibuat, jadi isinya mungkin sudah usang.')}</span>
           <Button size="sm" variant="outline" onClick={generate}>
-            Buat ulang
+            {tr('Buat ulang')}
           </Button>
         </div>
       )}
 
-      <div className={styles.toolbar} role="toolbar" aria-label="Kontrol mind map">
-        <div className={styles.seg} role="group" aria-label="Mode tampilan">
+      <div className={styles.toolbar} role="toolbar" aria-label={tr('Kontrol mind map')}>
+        <div className={styles.seg} role="group" aria-label={tr('Mode tampilan')}>
           <button type="button" aria-pressed={view === 'peta'} onClick={() => setView('peta')}>
-            <Icon name="network" size={15} /> Peta
+            <Icon name="network" size={15} />{' '}{tr('Peta')}
           </button>
           <button type="button" aria-pressed={view === 'daftar'} onClick={() => setView('daftar')}>
-            <Icon name="list" size={15} /> Daftar
+            <Icon name="list" size={15} />{' '}{tr('Daftar')}
           </button>
         </div>
 
         <label className={styles.search}>
           <Icon name="search" size={15} />
-          <span className={styles.srOnly}>Cari konsep di peta</span>
+          <span className={styles.srOnly}>{tr('Cari konsep di peta')}</span>
           <input
             type="search"
-            placeholder="Cari konsep…"
+            placeholder={tr('Cari konsep…')}
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             onKeyDown={onSearchKey}
@@ -281,33 +282,33 @@ export function MindMapView({ documentId, onFindInNotes }: Props) {
         </label>
 
         {view === 'peta' && (
-          <div className={styles.group} role="group" aria-label="Zoom">
-            <IconButton label="Perkecil" icon="zoom-out" size="sm" variant="ghost" onClick={() => handle.current?.zoomBy(1 / 1.2)} />
+          <div className={styles.group} role="group" aria-label={tr('Zoom')}>
+            <IconButton label={tr('Perkecil')} icon="zoom-out" size="sm" variant="ghost" onClick={() => handle.current?.zoomBy(1 / 1.2)} />
             <span className={styles.zoom} aria-live="off">{zoom}%</span>
-            <IconButton label="Perbesar" icon="zoom-in" size="sm" variant="ghost" onClick={() => handle.current?.zoomBy(1.2)} />
-            <IconButton label="Sesuaikan ke layar" icon="maximize" size="sm" variant="ghost" onClick={() => handle.current?.fit()} />
-            <IconButton label="Reset zoom" icon="undo" size="sm" variant="ghost" onClick={() => handle.current?.reset()} />
+            <IconButton label={tr('Perbesar')} icon="zoom-in" size="sm" variant="ghost" onClick={() => handle.current?.zoomBy(1.2)} />
+            <IconButton label={tr('Sesuaikan ke layar')} icon="maximize" size="sm" variant="ghost" onClick={() => handle.current?.fit()} />
+            <IconButton label={tr('Reset zoom')} icon="undo" size="sm" variant="ghost" onClick={() => handle.current?.reset()} />
           </div>
         )}
 
         <label className={styles.check}>
           <input type="checkbox" checked={showRel} onChange={(e) => setShowRel(e.target.checked)} />
-          Hubungan antarcabang
+          {tr('Hubungan antarcabang')}
         </label>
 
         <details className={styles.menu}>
           <summary>
-            <Icon name="download" size={15} /> Ekspor
+            <Icon name="download" size={15} />{' '}{tr('Ekspor')}
           </summary>
           <div className={styles.menuPanel}>
             <button type="button" onClick={() => void doExport('svg')} disabled={exporting !== null}>
-              Unduh SVG
+              {tr('Unduh SVG')}
             </button>
             <button type="button" onClick={() => void doExport('png')} disabled={exporting !== null}>
-              Unduh PNG
+              {tr('Unduh PNG')}
             </button>
             <button type="button" onClick={() => void doExport('copy')} disabled={exporting !== null}>
-              Salin SVG
+              {tr('Salin SVG')}
             </button>
           </div>
         </details>
@@ -327,24 +328,24 @@ export function MindMapView({ documentId, onFindInNotes }: Props) {
             onSelect={setSelected}
             onToggle={toggle}
             onZoom={setZoom}
-            label="Peta konsep. Seret untuk menggeser, Ctrl dan gulir untuk zoom, atau gunakan tombol panah."
+            label={tr('Peta konsep. Seret untuk menggeser, Ctrl dan gulir untuk zoom, atau gunakan tombol panah.')}
           />
           {sel && selNode && (
-            <aside className={styles.detail} aria-label="Detail konsep terpilih">
+            <aside className={styles.detail} aria-label={tr('Detail konsep terpilih')}>
               <div className={styles.detailHead}>
                 <strong>{selNode.label}</strong>
-                <IconButton label="Tutup detail" icon="x" size="sm" variant="ghost" onClick={() => setSelected(null)} />
+                <IconButton label={tr('Tutup detail')} icon="x" size="sm" variant="ghost" onClick={() => setSelected(null)} />
               </div>
               {trail.length > 1 && <div className={styles.trail}>{trail.slice(0, -1).map((t) => t.label).join(' › ')}</div>}
               {(selNode.children?.length ?? 0) > 0 && (
-                <p className={styles.detailMeta}>{selNode.children!.length} sub-topik</p>
+                <p className={styles.detailMeta}>{selNode.children!.length}{' '}{tr('sub-topik')}</p>
               )}
               {related.length > 0 && (
                 <ul className={styles.related}>
                   {related.map((r) => (
                     <li key={r.id}>
                       <button type="button" onClick={() => { setSelected(r.id); handle.current?.centerOn(r.id); }}>
-                        {r.relation ? <em>{r.relation}</em> : <em>terkait</em>} {r.label}
+                        {r.relation ? <em>{r.relation}</em> : <em>{tr('terkait')}</em>} {r.label}
                       </button>
                     </li>
                   ))}
@@ -352,11 +353,11 @@ export function MindMapView({ documentId, onFindInNotes }: Props) {
               )}
               <div className={styles.detailActions}>
                 <Button size="sm" icon="book" onClick={() => onFindInNotes(selNode.label)}>
-                  Cari di catatan
+                  {tr('Cari di catatan')}
                 </Button>
                 {sel.hasKids && sel.depth > 0 && (
                   <Button size="sm" variant="outline" onClick={() => toggle(selNode.id)}>
-                    {collapsed.has(selNode.id) ? 'Buka cabang' : 'Lipat cabang'}
+                    {collapsed.has(selNode.id) ? tr('Buka cabang') : tr('Lipat cabang')}
                   </Button>
                 )}
               </div>
@@ -371,7 +372,7 @@ export function MindMapView({ documentId, onFindInNotes }: Props) {
 
       <div className={styles.footer}>
         <StatusBadge status="neutral" label={`${mm.node_count} simpul`} />
-        <span>Dibuat dari catatan oleh AI. Periksa kembali isinya terhadap sumber.</span>
+        <span>{tr('Dibuat dari catatan oleh AI. Periksa kembali isinya terhadap sumber.')}</span>
       </div>
     </div>
   );
@@ -406,7 +407,7 @@ function Outline({
           ) : (
             <span className={styles.foldSpace} />
           )}
-          <button type="button" className={`${styles.nodeBtn} ${depth === 0 ? styles.nodeRoot : ''}`} onClick={() => onFind(node.label)} title="Cari di catatan">
+          <button type="button" className={`${styles.nodeBtn} ${depth === 0 ? styles.nodeRoot : ''}`} onClick={() => onFind(node.label)} title={tr('Cari di catatan')}>
             {node.label}
           </button>
           {closed && <span className={styles.count}>{kids.length}</span>}

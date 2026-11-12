@@ -8,6 +8,7 @@ import { Select } from '../../../components/ui/Select';
 import { StatusBadge } from '../../../components/ui/StatusBadge';
 import { SurfaceCard } from '../../../components/ui/SurfaceCard';
 import { rpcCall } from '../../../services/api/rpc';
+import { chooseOption } from '../harness/select';
 import {
   defaultDocumentsFixture,
   defaultSubjectsFixture,
@@ -168,7 +169,7 @@ describe('Feature 9: Materials Library', () => {
     await screen.findByText('Pengantar Jaringan Komputer & OSI Layer');
 
     const subjectSelect = screen.getByRole('combobox', { name: 'Mata Pelajaran' });
-    fireEvent.change(subjectSelect, { target: { value: '1' } }); // Ilmu Komputer
+    chooseOption(subjectSelect, /Ilmu Komputer/);
 
     expect(screen.getByText('Pengantar Jaringan Komputer & OSI Layer')).toBeTruthy();
     expect(screen.queryByText('Termodinamika & Siklus Carnot')).toBeNull(); // subject_id: 2

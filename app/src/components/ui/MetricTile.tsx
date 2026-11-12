@@ -1,6 +1,7 @@
 import React from 'react';
 import { Icon, type IconName } from './Icon';
 import styles from './ui.module.css';
+import { tr } from '../../services/i18n';
 
 export interface MetricTileProps {
   label: string;
@@ -21,7 +22,7 @@ export function MetricTile({ label, value, unit, hint, icon, tone = 'default' }:
         <span>{label}</span>
       </div>
       <div className={styles.metricValue}>
-        {empty ? <span aria-label="Belum ada data">—</span> : value}
+        {empty ? <span aria-label={tr('Belum ada data')}>—</span> : value}
         {!empty && unit && <span className={styles.metricUnit}>{unit}</span>}
       </div>
       {hint && <div className={styles.metricHint}>{hint}</div>}

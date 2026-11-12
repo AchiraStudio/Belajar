@@ -1,0 +1,31 @@
+.note { padding: 24px clamp(16px, 3vw, 30px); font-family: var(--font-serif); font-size: 1.0625rem; line-height: 1.65; color: var(--text); min-height: 300px; }
+.note h4 { font-family: var(--font-sans); font-size: 1.3rem; font-weight: 800; letter-spacing: -0.03em; margin: 0 0 14px; }
+.note sub { font-size: 0.7em; }
+.note b { white-space: nowrap; }
+
+.cornell { display: grid; grid-template-columns: minmax(110px, 0.34fr) 1fr; border: 1px solid var(--line-strong); border-radius: var(--r-sm); overflow: hidden; }
+.cues { background: var(--tint-leaf); padding: 14px; border-right: 1px solid var(--line-strong); font-family: var(--font-sans); font-weight: 650; font-size: 0.9rem; line-height: 1.35; display: grid; gap: 14px; align-content: start; }
+.main { padding: 14px 16px; display: grid; gap: 10px; }
+.sum { grid-column: 1 / -1; padding: 12px 16px; background: var(--tint-sun); border-top: 1px solid var(--line-strong); font-size: 0.95rem; }
+.sum b { font-family: var(--font-sans); }
+
+.outline { display: grid; gap: 8px; }
+.outline li { position: relative; padding-left: 20px; }
+.outline li::before { content: ''; position: absolute; left: 2px; top: 0.7em; width: 8px; height: 8px; border-radius: 3px; background: var(--bamboo); border: 1.5px solid #141816; }
+.outline ul { margin-top: 8px; display: grid; gap: 6px; font-size: 0.97rem; }
+.outline ul li::before { background: transparent; border-color: var(--text-3); }
+
+.worked { display: grid; gap: 10px; }
+.step { display: grid; grid-template-columns: 5.2rem 1fr; gap: 10px; padding: 10px 0; border-bottom: 1px solid var(--line); }
+.step b { font-family: var(--font-sans); font-size: 0.875rem; color: var(--accent); white-space: normal; }
+.ans { background: var(--tint-leaf); border: 2px solid var(--frame); border-radius: var(--r-sm); padding: 10px 14px; font-weight: 600; }
+
+.ask { padding: 0 clamp(16px, 3vw, 30px) 22px; display: grid; gap: 14px; justify-items: start; }
+.answer { overflow: hidden; width: 100%; }
+.answerIn { border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--tint-cream); padding: 14px 16px; display: grid; gap: 6px; font-size: 0.97rem; }
+.who { font-size: 0.8125rem; color: var(--text-3); }
+
+@media (max-width: 760px) {
+  .cornell { grid-template-columns: 1fr; }
+  .cues { border-right: 0; border-bottom: 1px solid var(--line-strong); }
+}

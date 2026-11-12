@@ -1,0 +1,8 @@
+.stalk { position: fixed; z-index: 120; inset: 0 0 auto 0; height: 7px; pointer-events: none; }
+.fill {
+  display: block; height: 100%; width: 100%;
+  background:
+    repeating-linear-gradient(90deg, transparent 0 46px, rgba(20, 24, 22, 0.55) 46px 49px),
+    var(--bamboo);
+  border-bottom: 2px solid #141816;
+}

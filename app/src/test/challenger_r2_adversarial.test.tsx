@@ -632,7 +632,7 @@ describe('Challenger R2 Adversarial Verification Suite', () => {
     });
 
     it('survives corrupted JSON or malformed theme values in localStorage gracefully', () => {
-      window.localStorage.setItem('belajar-theme', '{"not": "valid theme"}');
+      window.localStorage.setItem('stuby-theme', '{"not": "valid theme"}');
 
       const { result, unmount } = renderHook(() => useTheme(), {
         wrapper: ({ children }) => <ThemeProvider defaultTheme="system">{children}</ThemeProvider>,

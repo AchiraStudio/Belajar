@@ -1,28 +1,19 @@
 .container {
   width: 100%;
   margin: 0 auto;
-  padding: 24px max(24px, env(safe-area-inset-right, 0)) 48px max(24px, env(safe-area-inset-left, 0));
+  /* The bottom space keeps the last content clear of the floating dock when it is showing. */
+  padding: 20px max(20px, env(safe-area-inset-right, 0)) calc(var(--dock-height) + var(--dock-gap) * 2 + env(safe-area-inset-bottom, 0px) + 28px)
+    max(20px, env(safe-area-inset-left, 0));
   outline: none;
 }
 
-.narrow {
-  max-width: 720px;
-}
+.narrow { max-width: 760px; }
+.standard { max-width: 980px; }
 
-.standard {
-  max-width: 960px;
-}
-
-.wide {
-  max-width: 1200px;
-}
-
-.full {
-  max-width: 100%;
-}
+/* Pages cap their own width (reading and form pages stay narrow); this is only the ceiling. */
+.wide { max-width: 1280px; }
+.full { max-width: 100%; }
 
 @media (max-width: 768px) {
-  .container {
-    padding: 16px 16px calc(var(--mobilenav-height) + 24px) 16px;
-  }
+  .container { padding: 14px 16px calc(var(--dock-height) + var(--dock-gap) * 2 + env(safe-area-inset-bottom, 0px) + 24px) 16px; }
 }

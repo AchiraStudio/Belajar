@@ -1,9 +1,11 @@
 import React, { useState } from 'react';
 import { Button, Icon, Input } from '../../components/ui';
 import { apiFetch, ApiError } from '../../services/api/client';
+import { useI18n } from '../../services/i18n';
 import styles from './Auth.module.css';
 
 export function LoginView({ onSuccess }: { onSuccess: () => void }) {
+  const { t } = useI18n();
   const [password, setPassword] = useState('');
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -18,7 +20,7 @@ export function LoginView({ onSuccess }: { onSuccess: () => void }) {
       setPassword('');
       onSuccess();
     } catch (err) {
-      setError(err instanceof ApiError ? err.message : 'Gagal masuk. Coba lagi.');
+      setError(err instanceof ApiError ? err.message : t('Gagal masuk. Coba lagi.'));
     } finally {
       setBusy(false);
     }
@@ -31,11 +33,11 @@ export function LoginView({ onSuccess }: { onSuccess: () => void }) {
           <Icon name="book" size={26} />
         </span>
         <h1 id="login-title" className={styles.title}>
-          Masuk ke Belajar
+          {t('Masuk ke Stuby')}
         </h1>
-        <p className={styles.lead}>Ruang belajar pribadimu. Masukkan kata sandi untuk melanjutkan.</p>
+        <p className={styles.lead}>{t('Ruang belajar pribadimu. Masukkan kata sandi untuk melanjutkan.')}</p>
         <Input
-          label="Kata sandi"
+          label={t('Kata sandi')}
           type="password"
           autoComplete="current-password"
           value={password}
@@ -46,9 +48,9 @@ export function LoginView({ onSuccess }: { onSuccess: () => void }) {
           autoFocus
         />
         <Button type="submit" fullWidth loading={busy} disabled={!password}>
-          Masuk
+          {t('Masuk')}
         </Button>
-        <p className={styles.fine}>Kata sandi dikirim ke server Belajar-mu dan tidak disimpan di perangkat ini.</p>
+        <p className={styles.fine}>{t('Kata sandi dikirim ke server Stuby-mu dan tidak disimpan di perangkat ini.')}</p>
       </form>
     </main>
   );

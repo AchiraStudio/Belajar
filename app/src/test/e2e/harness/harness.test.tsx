@@ -17,7 +17,7 @@ import {
   defaultDocumentDetailFixture,
 } from './index';
 
-describe('Belajar E2E Test Harness Verification', () => {
+describe('Stuby E2E Test Harness Verification', () => {
   beforeEach(() => {
     mockRpc.install();
     mockRpc.reset();
@@ -40,7 +40,7 @@ describe('Belajar E2E Test Harness Verification', () => {
       const data = await res.json();
       expect(data).toEqual({
         status: 'ok',
-        service: 'belajar-server',
+        service: 'stuby-server',
         version: '0.1.0',
       });
 
@@ -58,7 +58,7 @@ describe('Belajar E2E Test Harness Verification', () => {
     it('supports custom response override on health endpoint', async () => {
       mockRpc.setResponse('health', {
         status: 'maintenance',
-        service: 'belajar-test',
+        service: 'stuby-test',
         version: '0.9.9',
       });
 
@@ -244,12 +244,12 @@ describe('Belajar E2E Test Harness Verification', () => {
       const storage = createLocalStorageMock();
       expect(storage.getItem('key')).toBeNull();
 
-      storage.setItem('belajar-theme', 'dark');
-      expect(storage.getItem('belajar-theme')).toBe('dark');
+      storage.setItem('stuby-theme', 'dark');
+      expect(storage.getItem('stuby-theme')).toBe('dark');
       expect(storage.length).toBe(1);
 
-      storage.removeItem('belajar-theme');
-      expect(storage.getItem('belajar-theme')).toBeNull();
+      storage.removeItem('stuby-theme');
+      expect(storage.getItem('stuby-theme')).toBeNull();
 
       storage.setItem('a', '1');
       storage.setItem('b', '2');

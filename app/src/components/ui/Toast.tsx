@@ -1,4 +1,5 @@
 import React, { createContext, useCallback, useContext, useMemo, useState } from 'react';
+import { tr } from '../../services/i18n';
 import { Icon } from './Icon';
 import styles from './ui.module.css';
 
@@ -97,7 +98,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
       {toasts.length > 0 && (
         <aside
           role="region"
-          aria-label="Pemberitahuan"
+          aria-label={tr('Pemberitahuan')}
           aria-live="polite"
           className={styles.toastViewport}
         >
@@ -116,7 +117,7 @@ export function ToastProvider({ children }: { children: React.ReactNode }) {
                 type="button"
                 onClick={() => removeToast(t.id)}
                 className={styles.toastClose}
-                aria-label="Tutup pemberitahuan"
+                aria-label={tr('Tutup pemberitahuan')}
               >
                 <Icon name="x" size={16} />
               </button>

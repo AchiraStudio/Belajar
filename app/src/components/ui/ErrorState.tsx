@@ -1,4 +1,5 @@
 import React from 'react';
+import { tr } from '../../services/i18n';
 import { Button } from './Button';
 import { Icon } from './Icon';
 import styles from './ui.module.css';
@@ -13,10 +14,10 @@ export interface ErrorStateProps {
 }
 
 export function ErrorState({
-  title = 'Terjadi Kesalahan',
+  title = tr('Terjadi Kesalahan'),
   message,
   onRetry,
-  retryLabel = 'Coba Lagi',
+  retryLabel = tr('Coba Lagi'),
   isOffline = false,
   className = '',
 }: ErrorStateProps) {
@@ -25,7 +26,7 @@ export function ErrorState({
       {isOffline && (
         <div className={styles.offlineBanner}>
           <Icon name="wifi-off" size={16} />
-          <span>Koneksi terputus. Bekerja secara luring.</span>
+          <span>{tr('Koneksi terputus. Bekerja secara luring.')}</span>
         </div>
       )}
       <div className={styles.errorIcon}>

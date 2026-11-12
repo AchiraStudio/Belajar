@@ -195,7 +195,7 @@ describe('Adversarial Stress & Edge Case Suite for MockRpcDispatcher', () => {
       const foreignRes = await fetch('/third-party-service/health');
       expect(foreignRes.status).toBe(200);
       const data = await foreignRes.json();
-      expect(data.service).toBe('belajar-server');
+      expect(data.service).toBe('stuby-server');
     });
 
     it('tests file upload endpoint variations (/api/upload, /api/v1/upload, with slashes)', async () => {

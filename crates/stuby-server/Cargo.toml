@@ -1,0 +1,39 @@
+[package]
+name = "stuby-server"
+description = "Stuby production server binary."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[lib]
+name = "stuby_server"
+path = "src/lib.rs"
+
+[[bin]]
+name = "stuby-server"
+path = "src/main.rs"
+
+[dependencies]
+stuby-api.workspace = true
+stuby-application.workspace = true
+stuby-storage.workspace = true
+chrono-tz.workspace = true
+uuid.workspace = true
+anyhow.workspace = true
+axum.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+tracing-subscriber.workspace = true
+dotenvy = "0.15"
+
+[dev-dependencies]
+reqwest.workspace = true
+serde_json.workspace = true
+uuid.workspace = true
+tokio = { workspace = true, features = ["macros", "rt-multi-thread"] }

@@ -18,15 +18,15 @@ function checkHealth() {
 async function main() {
   const isAlive = await checkHealth();
   if (isAlive) {
-    console.log('[belajar] Server is already running on http://127.0.0.1:8080');
+    console.log('[stuby] Server is already running on http://127.0.0.1:8080');
     // Keep alive until killed by parent so devUrl watcher doesn't see early process termination
     await new Promise(() => {});
     return;
   }
 
-  console.log('[belajar] Starting belajar-server on http://127.0.0.1:8080...');
+  console.log('[stuby] Starting stuby-server on http://127.0.0.1:8080...');
   const rootDir = path.resolve(__dirname, '..');
-  const server = spawn('cargo', ['run', '-p', 'belajar-server'], {
+  const server = spawn('cargo', ['run', '-p', 'stuby-server'], {
     cwd: rootDir,
     stdio: 'inherit',
     shell: true,
@@ -41,6 +41,6 @@ async function main() {
 }
 
 main().catch((err) => {
-  console.error('[belajar] Error checking/starting server:', err);
+  console.error('[stuby] Error checking/starting server:', err);
   process.exit(1);
 });

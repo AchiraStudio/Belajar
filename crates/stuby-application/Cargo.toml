@@ -1,0 +1,28 @@
+[package]
+name = "stuby-application"
+description = "Stuby workflows and the legacy-compatible action handlers: coordinates core, storage and AI."
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license.workspace = true
+publish.workspace = true
+
+[lints]
+workspace = true
+
+[dependencies]
+stuby-core.workspace = true
+stuby-storage.workspace = true
+stuby-ai.workspace = true
+chrono.workspace = true
+chrono-tz.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
+tokio.workspace = true
+tracing.workspace = true
+futures-util.workspace = true
+
+[dev-dependencies]
+stuby-storage = { workspace = true, features = ["testing"] }
+sqlx.workspace = true
+tokio.workspace = true

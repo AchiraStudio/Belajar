@@ -49,7 +49,7 @@ export const ENVIRONMENTS: EnvironmentInfo[] = [
   },
 ];
 
-const STORAGE_KEY = 'belajar-environment';
+const STORAGE_KEY = 'stuby-environment';
 
 export function isEnvironment(value: unknown): value is EducationEnvironment {
   return typeof value === 'string' && ENVIRONMENTS.some((e) => e.id === value);

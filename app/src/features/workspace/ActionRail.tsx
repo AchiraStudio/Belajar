@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Button, Icon, Select } from '../../components/ui';
 import type { TocItem, NoteStyle } from './types';
 import styles from './Workspace.module.css';
+import { tr } from '../../services/i18n';
 
 interface ActionRailProps {
   tocItems: TocItem[];
@@ -48,12 +49,12 @@ export function ActionRail({
   };
 
   return (
-    <aside className={styles.actionRail} aria-label="Alat dan navigasi catatan">
+    <aside className={styles.actionRail} aria-label={tr('Alat dan navigasi catatan')}>
       {/* 1. TOC (Isi Catatan) - only in reading mode */}
       {!isEditing && tocItems.length > 0 && (
         <div className={styles.railSection}>
-          <div className={styles.railSectionTitle}>Isi Catatan</div>
-          <nav className={styles.tocList} aria-label="Daftar isi catatan">
+          <div className={styles.railSectionTitle}>{tr('Isi Catatan')}</div>
+          <nav className={styles.tocList} aria-label={tr('Daftar isi catatan')}>
             {tocItems.map((item) => (
               <button
                 key={item.id}
@@ -71,7 +72,7 @@ export function ActionRail({
 
       {/* 2. Tools (Alat) */}
       <div className={styles.railSection}>
-        <div className={styles.railSectionTitle}>Alat</div>
+        <div className={styles.railSectionTitle}>{tr('Alat')}</div>
         <div className={styles.railActions}>
           <Button
             variant={isEditing ? 'ghost' : 'outline'}
@@ -80,7 +81,7 @@ export function ActionRail({
             onClick={onToggleEdit}
             fullWidth
           >
-            {isEditing ? 'Tutup editor' : 'Edit catatan'}
+            {isEditing ? tr('Tutup editor') : tr('Edit catatan')}
           </Button>
 
           {!isEditing && (
@@ -92,7 +93,7 @@ export function ActionRail({
                 onClick={onDownloadMd}
                 fullWidth
               >
-                Unduh .md
+                {tr('Unduh .md')}
               </Button>
 
               <Button
@@ -102,7 +103,7 @@ export function ActionRail({
                 onClick={onPrint}
                 fullWidth
               >
-                Cetak catatan
+                {tr('Cetak catatan')}
               </Button>
 
               <Button
@@ -112,7 +113,7 @@ export function ActionRail({
                 onClick={onOpenRename}
                 fullWidth
               >
-                Ganti judul
+                {tr('Ganti judul')}
               </Button>
 
               <Button
@@ -122,7 +123,7 @@ export function ActionRail({
                 onClick={onOpenDelete}
                 fullWidth
               >
-                Hapus materi
+                {tr('Hapus materi')}
               </Button>
             </>
           )}
@@ -131,7 +132,7 @@ export function ActionRail({
 
       {/* 3. Appearance Controls (Tampilan Baca) */}
       <div className={styles.railSection}>
-        <div className={styles.railSectionTitle}>Tampilan Baca</div>
+        <div className={styles.railSectionTitle}>{tr('Tampilan Baca')}</div>
 
         {/* Font Size */}
         <div className={styles.fontControls}>
@@ -140,7 +141,7 @@ export function ActionRail({
             className={styles.fontBtn}
             onClick={onDecreaseFont}
             disabled={fontSize <= 15}
-            aria-label="Kecilkan ukuran teks"
+            aria-label={tr('Kecilkan ukuran teks')}
           >
             A-
           </button>
@@ -150,21 +151,21 @@ export function ActionRail({
             className={styles.fontBtn}
             onClick={onIncreaseFont}
             disabled={fontSize >= 23}
-            aria-label="Besarkan ukuran teks"
+            aria-label={tr('Besarkan ukuran teks')}
           >
             A+
           </button>
         </div>
 
         {/* Font Family Segmented */}
-        <div className={styles.fontSegmented} role="group" aria-label="Jenis font baca">
+        <div className={styles.fontSegmented} role="group" aria-label={tr('Jenis font baca')}>
           <button
             type="button"
             className={`${styles.segmentBtn} ${fontFamily === 'soft' ? styles.segmentBtnActive : ''}`}
             onClick={() => onSetFontFamily('soft')}
             aria-pressed={fontFamily === 'soft'}
           >
-            Lembut
+            {tr('Lembut')}
           </button>
           <button
             type="button"
@@ -180,17 +181,17 @@ export function ActionRail({
       {/* 4. Regenerate Note (Buat Ulang Catatan) */}
       {!isEditing && (
         <div className={styles.railSection}>
-          <div className={styles.railSectionTitle}>Buat Ulang Catatan</div>
+          <div className={styles.railSectionTitle}>{tr('Buat Ulang Catatan')}</div>
           <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
             <Select
               value={regenStyle}
               onChange={(e) => setRegenStyle(e.target.value as NoteStyle)}
-              aria-label="Pilih gaya untuk membuat ulang catatan"
+              aria-label={tr('Pilih gaya untuk membuat ulang catatan')}
             >
-              <option value="ringkas">Ringkas</option>
-              <option value="cornell">Metode Cornell</option>
-              <option value="detail">Komprehensif & Detail</option>
-              <option value="sederhana">Bahasa Sederhana</option>
+              <option value="ringkas">{tr('Ringkas')}</option>
+              <option value="cornell">{tr('Metode Cornell')}</option>
+              <option value="detail">{tr('Komprehensif & Detail')}</option>
+              <option value="sederhana">{tr('Bahasa Sederhana')}</option>
             </Select>
             <Button
               variant="outline"
@@ -199,16 +200,16 @@ export function ActionRail({
               onClick={() => onRegenerate(regenStyle)}
               fullWidth
             >
-              Buat ulang
+              {tr('Buat ulang')}
             </Button>
           </div>
         </div>
       )}
 
       {/* 5. Active Study Clock */}
-      <div className={styles.studyClockBox} aria-label="Waktu belajar sesi ini">
+      <div className={styles.studyClockBox} aria-label={tr('Waktu belajar sesi ini')}>
         <Icon name="clock" size={16} />
-        <span>Waktu belajar: <b>{formattedStudyTime}</b></span>
+        <span>{tr('Waktu belajar:')}{' '}<b>{formattedStudyTime}</b></span>
       </div>
     </aside>
   );

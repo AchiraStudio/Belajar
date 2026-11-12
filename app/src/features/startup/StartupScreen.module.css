@@ -1,0 +1,94 @@
+/* Full-screen startup overlay. Flat cream (or dark) page, the panda, a bamboo progress bar, a checklist. */
+.screen {
+  position: fixed;
+  inset: 0;
+  z-index: 2000;
+  display: grid;
+  place-items: center;
+  padding: max(24px, env(safe-area-inset-top)) 24px max(24px, env(safe-area-inset-bottom));
+  background: var(--canvas);
+  color: var(--text-primary);
+  transition: opacity 420ms ease, transform 520ms var(--ease-out);
+}
+
+/* Leaving: the whole screen lifts and fades, revealing the app that mounted underneath. */
+.leaving { opacity: 0; transform: translateY(-14px) scale(1.02); pointer-events: none; }
+
+.stage {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  width: min(100%, 360px);
+  text-align: center;
+}
+
+.wordmark {
+  display: flex;
+  margin: 2px 0 0;
+  font-size: 2.4rem;
+  line-height: 1;
+  font-weight: 800;
+  letter-spacing: -0.05em;
+}
+.wordmark span { display: inline-block; animation: letter 420ms var(--ease-spring) both; }
+
+.status { min-height: 52px; display: flex; flex-direction: column; gap: 4px; align-items: center; }
+.headline { margin: 0; font-size: var(--text-lg); font-weight: 700; letter-spacing: -0.02em; }
+.headlineError { color: var(--danger); }
+.detail { margin: 0; max-width: 34ch; font-size: var(--text-sm); line-height: var(--leading-normal); color: var(--text-secondary); overflow-wrap: anywhere; }
+
+/* Bamboo progress: ink outline, green fill. */
+.bar {
+  width: 100%;
+  height: 14px;
+  margin-top: 2px;
+  border-radius: var(--radius-full);
+  border: 2px solid var(--text-primary);
+  background: var(--card);
+  overflow: hidden;
+}
+.bar i { display: block; height: 100%; border-radius: inherit; background: var(--fill); transition: width 500ms var(--ease-out); }
+
+.steps { list-style: none; margin: 6px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; width: 100%; text-align: left; }
+.step { display: flex; align-items: center; gap: 10px; font-size: var(--text-sm); font-weight: 600; color: var(--text-muted); transition: color 200ms ease; }
+.step_active { color: var(--text-primary); }
+.step_done { color: var(--text-secondary); }
+.step_error { color: var(--danger); }
+
+.mark {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  border: 2px solid var(--border);
+  color: #141816;
+}
+.step_done .mark { background: var(--fill); border-color: #141816; animation: tick 320ms var(--ease-spring) both; }
+.step_error .mark { background: var(--danger); border-color: var(--danger); color: #fff; }
+.step_active .mark { border-color: var(--text-primary); }
+
+.spin {
+  display: block;
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  border: 2px solid var(--text-primary);
+  border-right-color: transparent;
+  animation: spin 800ms linear infinite;
+}
+.dash { display: block; width: 8px; height: 2px; border-radius: 1px; background: var(--text-muted); }
+
+@keyframes letter { 0% { opacity: 0; transform: translateY(14px) scale(0.6); } 100% { opacity: 1; transform: none; } }
+@keyframes tick { 0% { transform: scale(0.4); } 100% { transform: scale(1); } }
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (prefers-reduced-motion: reduce) {
+  .screen { transition: opacity 160ms ease; }
+  .leaving { transform: none; }
+  .wordmark span, .step_done .mark { animation: none; }
+  .spin { animation-duration: 2.4s; }
+  .bar i { transition: none; }
+}

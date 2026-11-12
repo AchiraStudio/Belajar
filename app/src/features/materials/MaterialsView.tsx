@@ -2,12 +2,14 @@ import React, { useEffect, useState, useMemo, useCallback } from 'react';
 import { useNavigate, useSearchParams } from 'react-router';
 import {
   Button,
+  Dropdown,
   Icon,
   Input,
   Skeleton,
   EmptyState,
   ErrorState,
 } from '../../components/ui';
+import { useMediaQuery } from '../../hooks/useMediaQuery';
 import { rpcCall } from '../../services/api/rpc';
 import type { MaterialDoc, SubjectItem, ViewMode, SortMode } from './types';
 import { DocumentCard } from './DocumentCard';
@@ -15,6 +17,7 @@ import { DocumentRow } from './DocumentRow';
 import { UploadDialog } from './UploadDialog';
 import { SubjectManageDialog } from './SubjectManageDialog';
 import styles from './Materials.module.css';
+import { tr, currentLocale } from '../../services/i18n';
 
 export function MaterialsView() {
   const [documents, setDocuments] = useState<MaterialDoc[]>([]);
@@ -26,19 +29,20 @@ export function MaterialsView() {
   const navigate = useNavigate();
 
   // URL-synced subject filter
+  const compact = useMediaQuery('(max-width: 768px)');
   const currentSubjectId = searchParams.get('s') || '';
 
   // LocalStorage-synced view mode & sort mode
   const [viewMode, setViewMode] = useState<ViewMode>(() => {
     if (typeof window !== 'undefined') {
-      return (window.localStorage.getItem('belajar-view-mode') as ViewMode) || 'grid';
+      return (window.localStorage.getItem('stuby-view-mode') as ViewMode) || 'grid';
     }
     return 'grid';
   });
 
   const [sortMode, setSortMode] = useState<SortMode>(() => {
     if (typeof window !== 'undefined') {
-      return (window.localStorage.getItem('belajar-sort') as SortMode) || 'new';
+      return (window.localStorage.getItem('stuby-sort') as SortMode) || 'new';
     }
     return 'new';
   });
@@ -50,7 +54,7 @@ export function MaterialsView() {
   const handleViewModeChange = (mode: ViewMode) => {
     setViewMode(mode);
     try {
-      window.localStorage.setItem('belajar-view-mode', mode);
+      window.localStorage.setItem('stuby-view-mode', mode);
     } catch {
       /* ignore */
     }
@@ -59,7 +63,7 @@ export function MaterialsView() {
   const handleSortChange = (mode: SortMode) => {
     setSortMode(mode);
     try {
-      window.localStorage.setItem('belajar-sort', mode);
+      window.localStorage.setItem('stuby-sort', mode);
     } catch {
       /* ignore */
     }
@@ -80,7 +84,7 @@ export function MaterialsView() {
       setDocuments(docRes.documents || []);
     } catch (err: any) {
       if (!isSilent) {
-        setError(err?.message || 'Gagal memuat katalog materi.');
+        setError(err?.message || tr('Gagal memuat katalog materi.'));
       }
     } finally {
       if (!isSilent) setLoading(false);
@@ -133,7 +137,7 @@ export function MaterialsView() {
     // Sort
     list.sort((a, b) => {
       if (sortMode === 'az') {
-        return a.title.localeCompare(b.title, 'id-ID');
+        return a.title.localeCompare(b.title, currentLocale());
       }
       if (sortMode === 'quiz') {
         return (b.quiz_count || 0) - (a.quiz_count || 0);
@@ -160,7 +164,7 @@ export function MaterialsView() {
 
   if (loading) {
     return (
-      <div className={styles.container} aria-label="Memuat katalog materi">
+      <div className={styles.container} aria-label={tr('Memuat katalog materi')}>
         <header className={styles.header}>
           <Skeleton width="220px" height="36px" />
           <Skeleton width="140px" height="36px" />
@@ -186,9 +190,9 @@ export function MaterialsView() {
 
   if (error) {
     return (
-      <div className={styles.container} aria-label="Error materi">
+      <div className={styles.container} aria-label={tr('Error materi')}>
         <ErrorState
-          title="Gagal Memuat Materi"
+          title={tr('Gagal Memuat Materi')}
           message={error}
           onRetry={() => loadData(false)}
         />
@@ -205,13 +209,13 @@ export function MaterialsView() {
   const isSearchEmpty = filteredAndSortedDocs.length === 0 && Boolean(searchQuery.trim());
 
   return (
-    <div className={styles.container} aria-label="Materi">
+    <div className={styles.container} aria-label={tr('Materi')}>
       {/* Header */}
       <header className={styles.header}>
         <div className={styles.titleArea}>
-          <h1 className={styles.title}>Materi Belajar</h1>
+          <h1 className={styles.title}>{tr('Materi Belajar')}</h1>
           <span className={styles.countBadge}>
-            {filteredAndSortedDocs.length} materi
+            {filteredAndSortedDocs.length}{' '}{tr('materi')}
           </span>
         </div>
 
@@ -222,7 +226,7 @@ export function MaterialsView() {
             icon="plus"
             onClick={() => setIsUploadOpen(true)}
           >
-            Unggah materi
+            {tr('Unggah materi')}
           </Button>
 
           <Button
@@ -231,7 +235,7 @@ export function MaterialsView() {
             icon="folder"
             onClick={() => setIsSubjectManageOpen(true)}
           >
-            Kelola Mata Pelajaran
+            {tr('Kelola Mata Pelajaran')}
           </Button>
         </div>
       </header>
@@ -240,33 +244,35 @@ export function MaterialsView() {
       <div className={styles.toolbar}>
         <div className={styles.searchWrap}>
           <Input
-            placeholder="Cari materi berdasarkan judul…"
+            placeholder={tr('Cari materi berdasarkan judul…')}
             icon="search"
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             clearable
-            aria-label="Cari materi"
+            aria-label={tr('Cari materi')}
           />
         </div>
 
         <div className={styles.controlsWrap}>
-          <select
-            className={styles.sortSelect}
+          <Dropdown
+            size="sm"
+            fit="content"
+            aria-label={tr('Urutkan materi')}
             value={sortMode}
-            onChange={(e) => handleSortChange(e.target.value as SortMode)}
-            aria-label="Urutkan materi"
-          >
-            <option value="new">Terbaru</option>
-            <option value="az">Judul A–Z</option>
-            <option value="quiz">Paling banyak kuis</option>
-          </select>
+            onChange={(v) => handleSortChange(v as SortMode)}
+            options={[
+              { value: 'new', label: 'Terbaru' },
+              { value: 'az', label: 'Judul A–Z' },
+              { value: 'quiz', label: tr('Paling banyak kuis') },
+            ]}
+          />
 
-          <div className={styles.viewToggle} role="group" aria-label="Mode tampilan">
+          <div className={styles.viewToggle} role="group" aria-label={tr('Mode tampilan')}>
             <button
               type="button"
               className={`${styles.viewBtn} ${viewMode === 'grid' ? styles.viewBtnActive : ''}`}
               onClick={() => handleViewModeChange('grid')}
-              aria-label="Tampilan Grid"
+              aria-label={tr('Tampilan Grid')}
               aria-pressed={viewMode === 'grid'}
             >
               <Icon name="cards" size={16} />
@@ -275,7 +281,7 @@ export function MaterialsView() {
               type="button"
               className={`${styles.viewBtn} ${viewMode === 'list' ? styles.viewBtnActive : ''}`}
               onClick={() => handleViewModeChange('list')}
-              aria-label="Tampilan Daftar"
+              aria-label={tr('Tampilan Daftar')}
               aria-pressed={viewMode === 'list'}
             >
               <Icon name="menu" size={16} />
@@ -284,8 +290,23 @@ export function MaterialsView() {
         </div>
       </div>
 
-      {/* Subject Filter Chips */}
-      <div className={styles.chipsRow} role="tablist" aria-label="Filter Mata Pelajaran">
+      {/* Subject filter: chips on a wide screen, one dropdown on a phone (a long row of chips scrolls sideways and hides most subjects). */}
+      {compact && subjects.length > 0 ? (
+        <Dropdown
+          aria-label={tr('Filter Mata Pelajaran')}
+          value={currentSubjectId}
+          onChange={(v) => selectSubject(v === '' ? undefined : Number(v))}
+          options={[
+            { value: '', label: tr('Semua mata pelajaran'), icon: 'folder' },
+            ...subjects.map((subj) => ({
+              value: String(subj.id),
+              label: subj.doc_count != null ? `${subj.name} (${subj.doc_count})` : subj.name,
+              icon: 'folder' as const,
+            })),
+          ]}
+        />
+      ) : (
+      <div className={styles.chipsRow} role="tablist" aria-label={tr('Filter Mata Pelajaran')}>
         <button
           type="button"
           role="tab"
@@ -293,7 +314,7 @@ export function MaterialsView() {
           className={`${styles.chip} ${!currentSubjectId ? styles.chipActive : ''}`}
           onClick={() => selectSubject(undefined)}
         >
-          Semua
+          {tr('Semua')}
         </button>
 
         {subjects.map((subj) => {
@@ -319,37 +340,38 @@ export function MaterialsView() {
           );
         })}
       </div>
+      )}
 
       {/* Content State */}
       {isOverallEmpty ? (
         <EmptyState
           icon="folder"
-          title="Belum ada materi"
-          description="Kamu belum memiliki berkas materi belajar. Unggah berkas dokumen atau materi pertama untuk mulai belajar."
-          actionLabel="Unggah Materi"
+          title={tr('Belum ada materi')}
+          description={tr('Kamu belum memiliki berkas materi belajar. Unggah berkas dokumen atau materi pertama untuk mulai belajar.')}
+          actionLabel={tr('Unggah Materi')}
           onAction={() => setIsUploadOpen(true)}
         />
       ) : isSubjectEmpty ? (
         <EmptyState
           icon="folder"
-          title="Belum ada materi di mata pelajaran ini"
-          description="Belum ada berkas materi yang diasosiasikan dengan mata pelajaran yang dipilih."
-          actionLabel="Unggah Materi ke Sini"
+          title={tr('Belum ada materi di mata pelajaran ini')}
+          description={tr('Belum ada berkas materi yang diasosiasikan dengan mata pelajaran yang dipilih.')}
+          actionLabel={tr('Unggah Materi ke Sini')}
           onAction={() => setIsUploadOpen(true)}
         />
       ) : isSearchEmpty ? (
         <EmptyState
           icon="search"
-          title="Tidak ada materi yang cocok"
-          description={`Tidak ditemukan materi dengan kata kunci "${searchQuery}".`}
-          actionLabel="Hapus pencarian"
+          title={tr('Tidak ada materi yang cocok')}
+          description={tr('Tidak ditemukan materi dengan kata kunci "{a}".', { a: searchQuery })}
+          actionLabel={tr('Hapus pencarian')}
           onAction={() => setSearchQuery('')}
         />
       ) : (
         <div
           className={viewMode === 'grid' ? styles.gridCatalog : styles.listCatalog}
           role="list"
-          aria-label="Katalog Materi"
+          aria-label={tr('Katalog Materi')}
         >
           {filteredAndSortedDocs.map((doc) =>
             viewMode === 'grid' ? (

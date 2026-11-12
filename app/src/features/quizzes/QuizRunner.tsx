@@ -13,8 +13,9 @@ import { dropCache, rpcCall } from '../../services/api/rpc';
 import type { AttemptQuestion, AttemptResponse } from './types';
 import { formatClock, useActiveClock } from './useActiveClock';
 import styles from './Quizzes.module.css';
+import { tr } from '../../services/i18n';
 
-const examKey = (id: number) => `belajar-exam-${id}`;
+const examKey = (id: number) => `stuby-exam-${id}`;
 
 function loadExamAnswers(id: number): Record<string, string> {
   try {
@@ -53,11 +54,11 @@ export function QuizRunner() {
   }, [data, id, navigate]);
 
   if (!Number.isFinite(id)) {
-    return <ErrorState title="Kuis tidak ditemukan" message="Alamat kuis tidak valid." onRetry={() => navigate('/kuis')} retryLabel="Ke daftar kuis" />;
+    return <ErrorState title={tr('Kuis tidak ditemukan')} message={tr('Alamat kuis tidak valid.')} onRetry={() => navigate('/kuis')} retryLabel={tr('Ke daftar kuis')} />;
   }
   if (loading && !data) {
     return (
-      <div className={styles.runner} aria-busy="true" aria-label="Memuat soal">
+      <div className={styles.runner} aria-busy="true" aria-label={tr('Memuat soal')}>
         <Skeleton height="14px" borderRadius="8px" />
         <Skeleton height="120px" borderRadius="16px" />
         <Skeleton height="220px" borderRadius="16px" />
@@ -65,7 +66,7 @@ export function QuizRunner() {
     );
   }
   if (error || !data) {
-    return <ErrorState message={error ?? 'Kuis tidak ditemukan.'} onRetry={reload} />;
+    return <ErrorState message={error ?? tr('Kuis tidak ditemukan.')} onRetry={reload} />;
   }
   if (data.attempt.finished_at) return null;
 
@@ -122,12 +123,12 @@ function RunnerBody({ attemptId, initial }: { attemptId: number; initial: Attemp
         });
         clearExamAnswers(attemptId);
         dropCache();
-        if (auto) toast.info('Waktu habis. Jawaban dikumpulkan otomatis.');
+        if (auto) toast.info(tr('Waktu habis. Jawaban dikumpulkan otomatis.'));
         navigate(`/hasil/${attemptId}`, { replace: true });
       } catch (err) {
         finishRef.current = false;
         setFinishing(false);
-        toast.error(errorMessage(err, 'Gagal mengumpulkan jawaban.'));
+        toast.error(errorMessage(err, tr('Gagal mengumpulkan jawaban.')));
       }
     },
     [attemptId, exam, answers, getActiveSeconds, navigate, toast],
@@ -164,7 +165,7 @@ function RunnerBody({ attemptId, initial }: { attemptId: number; initial: Attemp
       });
       setQuestions((prev) => prev.map((q) => (q.id === question.id ? { ...q, ...res, given: value, revealed: true } : q)));
     } catch (err) {
-      toast.error(errorMessage(err, 'Gagal memeriksa jawaban.'));
+      toast.error(errorMessage(err, tr('Gagal memeriksa jawaban.')));
     } finally {
       setChecking(false);
     }
@@ -217,20 +218,20 @@ function RunnerBody({ attemptId, initial }: { attemptId: number; initial: Attemp
     <div className={styles.runner}>
       <div className={styles.runnerTop}>
         <Button size="sm" variant="ghost" icon="x" onClick={leave}>
-          Keluar
+          {tr('Keluar')}
         </Button>
         <span className={styles.runnerTitle}>{attempt.title}</span>
         {exam && left !== null ? (
-          <span className={`${styles.clock} ${left <= 60 ? styles.clockLow : ''}`} role="timer" aria-label={`Sisa waktu ${formatClock(left)}`}>
+          <span className={`${styles.clock} ${left <= 60 ? styles.clockLow : ''}`} role="timer" aria-label={tr('Sisa waktu {a}', { a: formatClock(left) })}>
             <Icon name="clock" size={16} />
             {formatClock(left)}
           </span>
         ) : (
-          <span className={styles.modeTag}>{attempt.mode === 'review' ? 'Ulangi soal lemah' : exam ? 'Ujian' : 'Latihan'}</span>
+          <span className={styles.modeTag}>{attempt.mode === 'review' ? tr('Ulangi soal lemah') : exam ? tr('Ujian') : tr('Latihan')}</span>
         )}
       </div>
 
-      <div className={styles.segs} role={exam ? 'group' : 'img'} aria-label={exam ? 'Loncat ke soal' : `Soal ${index + 1} dari ${total}`}>
+      <div className={styles.segs} role={exam ? 'group' : 'img'} aria-label={exam ? tr('Loncat ke soal') : tr('Soal {a} dari {b}', { a: index + 1, b: total })}>
         {questions.map((q, i) => {
           const state =
             i === index
@@ -249,7 +250,7 @@ function RunnerBody({ attemptId, initial }: { attemptId: number; initial: Attemp
               key={q.id}
               type="button"
               className={`${styles.seg} ${state}`}
-              aria-label={`Soal ${i + 1}${isAnswered(q) ? ', sudah dijawab' : ''}`}
+              aria-label={tr('Soal {a}{b}', { a: i + 1, b: isAnswered(q) ? tr(', sudah dijawab') : '' })}
               aria-current={i === index}
               onClick={() => setIndex(i)}
             />
@@ -262,7 +263,7 @@ function RunnerBody({ attemptId, initial }: { attemptId: number; initial: Attemp
       <section className={styles.questionCard} aria-labelledby="q-text">
         <div className={styles.qMeta}>
           <span>
-            Soal {index + 1} dari {total}
+            {tr('Soal {a} dari {b}', { a: index + 1, b: total })}
           </span>
           {question.topic && <span className={styles.topicTag}>{question.topic}</span>}
         </div>
@@ -271,7 +272,7 @@ function RunnerBody({ attemptId, initial }: { attemptId: number; initial: Attemp
         </h1>
 
         {options.length > 0 ? (
-          <div className={styles.options} role="group" aria-label="Pilihan jawaban">
+          <div className={styles.options} role="group" aria-label={tr('Pilihan jawaban')}>
             {options.map((opt, i) => {
               const isChosen = current === opt.value;
               const ok = revealed && question.answer === opt.value;
@@ -289,8 +290,8 @@ function RunnerBody({ attemptId, initial }: { attemptId: number; initial: Attemp
                     {ok ? <Icon name="check" size={16} /> : no ? <Icon name="x" size={16} /> : String.fromCharCode(65 + i)}
                   </span>
                   <span className={styles.optionLabel}>{opt.label}</span>
-                  {ok && <span className={`${styles.optionNote} ${styles.noteOk}`}>Jawaban benar</span>}
-                  {no && <span className={`${styles.optionNote} ${styles.noteNo}`}>Jawabanmu</span>}
+                  {ok && <span className={`${styles.optionNote} ${styles.noteOk}`}>{tr('Jawaban benar')}</span>}
+                  {no && <span className={`${styles.optionNote} ${styles.noteNo}`}>{tr('Jawabanmu')}</span>}
                 </button>
               );
             })}
@@ -308,8 +309,8 @@ function RunnerBody({ attemptId, initial }: { attemptId: number; initial: Attemp
             <input
               className={styles.shortInput}
               type="text"
-              aria-label="Jawabanmu"
-              placeholder="Ketik jawabanmu"
+              aria-label={tr('Jawabanmu')}
+              placeholder={tr('Ketik jawabanmu')}
               autoComplete="off"
               maxLength={300}
               disabled={revealed}
@@ -326,7 +327,7 @@ function RunnerBody({ attemptId, initial }: { attemptId: number; initial: Attemp
             />
             {!exam && !revealed && (
               <Button type="submit" loading={checking} disabled={!shortValue.trim()}>
-                Periksa
+                {tr('Periksa')}
               </Button>
             )}
           </form>
@@ -340,15 +341,15 @@ function RunnerBody({ attemptId, initial }: { attemptId: number; initial: Attemp
             <div className={styles.verdict}>
               {question.correct === true && <Icon name="check-circle" size={20} />}
               {question.correct === false && <Icon name="alert-circle" size={20} />}
-              {question.correct === true ? 'Benar' : question.correct === false ? 'Belum tepat' : 'Jawabanmu akan dinilai di akhir'}
+              {question.correct === true ? tr('Benar') : question.correct === false ? tr('Belum tepat') : tr('Jawabanmu akan dinilai di akhir')}
             </div>
             {question.qtype === 'short' && (
               <p>
-                Kunci jawaban: <strong>{question.answer_text}</strong>
+                {tr('Kunci jawaban:')}{' '}<strong>{question.answer_text}</strong>
               </p>
             )}
             {question.explanation && <p className={styles.why}>{question.explanation}</p>}
-            {question.source && <p className={styles.source}>Sumber: {question.source}</p>}
+            {question.source && <p className={styles.source}>{tr('Sumber:')}{' '}{question.source}</p>}
           </div>
         )}
       </section>
@@ -356,33 +357,33 @@ function RunnerBody({ attemptId, initial }: { attemptId: number; initial: Attemp
       <div className={styles.runnerFoot}>
         {exam && index > 0 && (
           <Button variant="outline" icon="arrow-left" onClick={() => setIndex((i) => i - 1)}>
-            Sebelumnya
+            {tr('Sebelumnya')}
           </Button>
         )}
         {exam && !isLast && (
           <Button variant="secondary" icon="arrow-right" iconPosition="right" onClick={() => setIndex((i) => i + 1)}>
-            Berikutnya
+            {tr('Berikutnya')}
           </Button>
         )}
         <span className={styles.spacer} />
         {exam && (
           <Button variant={isLast ? 'primary' : 'outline'} loading={finishing} onClick={() => setConfirmFinish(true)}>
-            Kumpulkan
+            {tr('Kumpulkan')}
           </Button>
         )}
         {!exam && revealed && !isLast && (
           <Button size="lg" icon="arrow-right" iconPosition="right" onClick={() => setIndex((i) => i + 1)} autoFocus>
-            Soal berikutnya
+            {tr('Soal berikutnya')}
           </Button>
         )}
         {!exam && revealed && isLast && (
           <Button size="lg" loading={finishing} onClick={() => void finish()} autoFocus>
-            Selesai dan lihat hasil
+            {tr('Selesai dan lihat hasil')}
           </Button>
         )}
         {!exam && !revealed && options.length > 0 && (
           <span className={styles.keyHint}>
-            Tekan <kbd>A</kbd>–<kbd>{question.qtype === 'mcq' ? 'D' : 'B'}</kbd> untuk memilih
+            {tr('Tekan')}{' '}<kbd>A</kbd>–<kbd>{question.qtype === 'mcq' ? 'D' : 'B'}</kbd>{' '}{tr('untuk memilih')}
           </span>
         )}
       </div>
@@ -390,14 +391,14 @@ function RunnerBody({ attemptId, initial }: { attemptId: number; initial: Attemp
       <Dialog
         open={confirmFinish}
         onClose={() => setConfirmFinish(false)}
-        title="Kumpulkan jawaban?"
-        description={blank ? `${blank} soal belum dijawab.` : 'Semua soal sudah dijawab.'}
+        title={tr('Kumpulkan jawaban?')}
+        description={blank ? tr('{a} soal belum dijawab.', { a: blank }) : tr('Semua soal sudah dijawab.')}
         size="sm"
         dismissible={!finishing}
         footer={
           <>
             <Button variant="ghost" onClick={() => setConfirmFinish(false)} disabled={finishing}>
-              Lanjut mengerjakan
+              {tr('Lanjut mengerjakan')}
             </Button>
             <Button
               loading={finishing}
@@ -406,36 +407,36 @@ function RunnerBody({ attemptId, initial }: { attemptId: number; initial: Attemp
                 void finish();
               }}
             >
-              Kumpulkan
+              {tr('Kumpulkan')}
             </Button>
           </>
         }
       >
-        <p className={styles.dialogText}>Setelah dikumpulkan, jawaban dinilai dan tidak bisa diubah.</p>
+        <p className={styles.dialogText}>{tr('Setelah dikumpulkan, jawaban dinilai dan tidak bisa diubah.')}</p>
       </Dialog>
 
       <Dialog
         open={confirmLeave}
         onClose={() => setConfirmLeave(false)}
-        title="Keluar dari kuis?"
+        title={tr('Keluar dari kuis?')}
         description={
           exam
-            ? 'Jawabanmu tersimpan di perangkat ini dan waktu tetap berjalan.'
-            : 'Jawaban yang sudah diperiksa tersimpan. Kamu bisa melanjutkan nanti.'
+            ? tr('Jawabanmu tersimpan di perangkat ini dan waktu tetap berjalan.')
+            : tr('Jawaban yang sudah diperiksa tersimpan. Kamu bisa melanjutkan nanti.')
         }
         size="sm"
         footer={
           <>
             <Button variant="ghost" onClick={() => setConfirmLeave(false)}>
-              Tetap di sini
+              {tr('Tetap di sini')}
             </Button>
             <Button variant="danger" onClick={() => navigate('/kuis')}>
-              Keluar
+              {tr('Keluar')}
             </Button>
           </>
         }
       >
-        <p className={styles.dialogText}>Kamu bisa kembali kapan saja lewat daftar kuis.</p>
+        <p className={styles.dialogText}>{tr('Kamu bisa kembali kapan saja lewat daftar kuis.')}</p>
       </Dialog>
     </div>
   );

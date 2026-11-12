@@ -17,7 +17,7 @@ function QuizExamRunner({ attemptId = 502 }: { attemptId?: number }) {
   const [currentIdx, setCurrentIdx] = useState(0);
   const [answers, setAnswers] = useState<Record<number, string>>(() => {
     try {
-      const saved = window.localStorage.getItem(`belajar-exam-${attemptId}`);
+      const saved = window.localStorage.getItem(`stuby-exam-${attemptId}`);
       return saved ? JSON.parse(saved) : {};
     } catch {
       return {};
@@ -61,7 +61,7 @@ function QuizExamRunner({ attemptId = 502 }: { attemptId?: number }) {
     const updated = { ...answers, [qId]: val };
     setAnswers(updated);
     try {
-      window.localStorage.setItem(`belajar-exam-${attemptId}`, JSON.stringify(updated));
+      window.localStorage.setItem(`stuby-exam-${attemptId}`, JSON.stringify(updated));
     } catch {
       // ignore
     }
@@ -70,7 +70,7 @@ function QuizExamRunner({ attemptId = 502 }: { attemptId?: number }) {
   const handleAutoSubmit = async () => {
     await rpcCall('finish_attempt', { attempt_id: attemptId, answers });
     try {
-      window.localStorage.removeItem(`belajar-exam-${attemptId}`);
+      window.localStorage.removeItem(`stuby-exam-${attemptId}`);
     } catch {}
     setIsSubmitted(true);
   };
@@ -78,7 +78,7 @@ function QuizExamRunner({ attemptId = 502 }: { attemptId?: number }) {
   const handleManualSubmit = async () => {
     await rpcCall('finish_attempt', { attempt_id: attemptId, answers });
     try {
-      window.localStorage.removeItem(`belajar-exam-${attemptId}`);
+      window.localStorage.removeItem(`stuby-exam-${attemptId}`);
     } catch {}
     setShowConfirmModal(false);
     setIsSubmitted(true);
@@ -222,7 +222,7 @@ describe('Feature 17: Quiz Runner (Exam Mode)', () => {
     const optionBtn = await screen.findByRole('button', { name: 'Pilih: Network Layer' });
     fireEvent.click(optionBtn);
 
-    const saved = window.localStorage.getItem('belajar-exam-502');
+    const saved = window.localStorage.getItem('stuby-exam-502');
     expect(saved).toBeTruthy();
     expect(JSON.parse(saved || '{}')).toEqual({ 1: 'Network Layer' });
 
@@ -260,7 +260,7 @@ describe('Feature 17: Quiz Runner (Exam Mode)', () => {
       const call = mockRpc.getLastCall('finish_attempt');
       expect(call).toBeTruthy();
       expect(call?.payload.attempt_id).toBe(502);
-      expect(window.localStorage.getItem('belajar-exam-502')).toBeNull();
+      expect(window.localStorage.getItem('stuby-exam-502')).toBeNull();
       expect(screen.getByRole('status').textContent).toContain('/hasil/502');
     });
   });

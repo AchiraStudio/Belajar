@@ -1,0 +1,6 @@
+.foot { padding-block: 34px; background: var(--canvas); }
+.in { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 14px 28px; }
+.foot p { color: var(--text-3); font-size: 0.9375rem; }
+.foot nav { display: flex; gap: 6px; }
+.foot nav a { padding: 10px 12px; font-weight: 650; text-decoration: none; border-radius: var(--r-sm); transition: background-color 160ms ease; }
+.foot nav a:hover { background: var(--accent-soft); }

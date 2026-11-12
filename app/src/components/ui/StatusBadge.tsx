@@ -1,4 +1,5 @@
 import React from 'react';
+import { tr } from '../../services/i18n';
 import styles from './ui.module.css';
 
 export type StatusType =
@@ -33,7 +34,7 @@ export function StatusBadge({
   pulse,
   className = '',
 }: StatusBadgeProps) {
-  const displayLabel = label ?? DEFAULT_LABELS[status];
+  const displayLabel = label ?? tr(DEFAULT_LABELS[status]);
 
   return (
     <span

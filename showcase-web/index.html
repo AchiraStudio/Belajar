@@ -1,0 +1,24 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Stuby: study from your own material</title>
+<meta name="description" content="Upload a PDF, slide deck or document. Stuby turns it into notes, a mind map, quizzes, flashcards and games, and tracks what you actually know.">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" type="image/svg+xml" href="./favicon.svg">
+<script>
+  /* Runs before first paint so the page never flashes the wrong theme. The app then owns data-theme. */
+  (function () {
+    var d = document.documentElement, t = null;
+    try { t = localStorage.getItem('stuby-showcase-theme'); } catch (e) {}
+    if (t !== 'light' && t !== 'dark') t = window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light';
+    d.setAttribute('data-theme', t);
+  })();
+</script>
+</head>
+<body>
+<div id="root"></div>
+<script type="module" src="/src/main.tsx"></script>
+</body>
+</html>

@@ -1,64 +1,110 @@
 /* ==========================================================================
-   Belajar Frost UI — Semantic Design Tokens
-   Section 3, 4, 5 of design.md
+   Stuby design tokens: the colours come from the panda logo.
+
+   Identity (why these choices):
+   - INK (#141816): the logo's outline. Text, borders on the primary element, the dock.
+   - BAMBOO (#8DC63F): the logo's green. Fills and the one action colour. It is too light to be text on
+     white (1.9:1), so text and links use BAMBOO-DEEP (#2F7A1F, 5.4:1) and filled controls carry INK text.
+   - CREAM / WHITE: the panda's face. Page = cream, cards = white.
+   - SUN (#F2B705): the single accent, for streaks and highlights only.
+   - Outlines: the logo is drawn with a heavy outline, so primary things (the dock, the main action, the
+     hero) get an ink outline; everything else gets a hairline.
+   - Glass: ONE element only, the floating dock. Everything else is flat: cards, dialogs, menus, toasts,
+     the top bar. `--blur-*` are `none` on purpose, so legacy rules that read them stay flat.
+   - Text colours are contrast-checked (>= 4.5:1) on white, cream and every tint, in both themes.
    ========================================================================== */
 
 :root {
-  /* Surface & Canvas Hierarchy */
-  --canvas: #F3F6FC;
-  --canvas-tint: #EAF0FC;
-  --surface: rgba(255, 255, 255, 0.78);
+  --ink: #141816;
+  --bamboo: #8DC63F;
+  --bamboo-deep: #2F7A1F;
+  --sun: #F2B705;
+  --fill: #8DC63F;
+  --on-fill: #141816;
+  --canvas: #F6F4EC;
+  --canvas-tint: rgba(20, 24, 22, 0.06);
+  --wallpaper: none;
+  --surface: rgba(255, 255, 255, 0.72);
   --surface-solid: #FFFFFF;
-  --surface-raised: rgba(255, 255, 255, 0.92);
-  --border: rgba(108, 128, 166, 0.18);
-  --border-subtle: rgba(108, 128, 166, 0.10);
+  --surface-raised: #FFFFFF;
+  --surface-opaque: #FFFFFF;
+  --glass-fill: #FFFFFF;
+  --glass-fill-strong: #FFFFFF;
+  --rim: rgba(20, 24, 22, 0.14);
+  --rim-soft: rgba(20, 24, 22, 0.08);
+  --rim-shade: rgba(20, 24, 22, 0.10);
+  --border: rgba(20, 24, 22, 0.24);
+  --border-subtle: rgba(20, 24, 22, 0.12);
+  --card: #FFFFFF;
+  --card-border: rgba(20, 24, 22, 0.14);
+  --card-shadow: 0 1px 0 rgba(20, 24, 22, 0.05);
+  --card-shadow-hover: 0 3px 0 rgba(20, 24, 22, 0.14);
+  --tint-leaf: #E4F2CC;
+  --tint-sun: #FCEFC0;
+  --tint-cream: #EDEADD;
+  --tint-ink: #141816;
+  --text-primary: #141816;
+  --text-secondary: #3A443D;
+  --text-muted: #55605A;
+  --accent: #2F7A1F;
+  --accent-hover: #245F17;
+  --accent-soft: rgba(141, 198, 63, 0.28);
+  --on-accent: #FFFFFF;
+  --ice: #8DC63F;
+  --ice-ink: #2F7A1F;
+  --ice-soft: rgba(141, 198, 63, 0.26);
+  --apricot: #F2B705;
+  --apricot-ink: #7A5400;
+  --apricot-soft: rgba(242, 183, 5, 0.26);
+  --success: #1F6B2A;
+  --success-soft: rgba(47, 122, 31, 0.16);
+  --warning: #8A5A00;
+  --warning-soft: rgba(242, 183, 5, 0.24);
+  --danger: #B0281F;
+  --danger-soft: rgba(176, 40, 31, 0.12);
+  --shadow-glass: 0 1px 0 rgba(20, 24, 22, 0.06);
+  --shadow-ambient: 0 1px 0 rgba(20, 24, 22, 0.06);
+  --shadow-sm: 0 1px 0 rgba(20, 24, 22, 0.08);
+  --shadow-md: 0 2px 6px -2px rgba(20, 24, 22, 0.22);
+  --shadow-lg: 0 14px 30px -14px rgba(20, 24, 22, 0.45);
+  --shadow-pop: 3px 3px 0 #141816;
+  --inset-top: inset 0 0 0 0 transparent;
+  --inset-bottom: inset 0 0 0 0 transparent;
+  --dock-fill: rgba(20, 24, 22, 0.88);
+  --dock-edge: rgba(255, 255, 255, 0.14);
+  --dock-ink: #F4F6EE;
+  --dock-muted: #B9C2B3;
+  --dock-blur: blur(14px) saturate(120%);
+  --blur-panel: none;
+  --blur-overlay: none;
+  --blur-subtle: none;
+  --blur-nav: none;
+  --on-brand: #FFFFFF;
+  --ink-read: color-mix(in srgb, var(--ink) 92%, var(--bg));
+  --logo-rim: transparent;
 
-  /* Typography / Text Colors */
-  --text-primary: #17213B;
-  --text-secondary: #64718C;
-  --text-muted: #8C98AE;
+  /* Motion */
+  --dur-fast: 140ms;
+  --dur-med: 240ms;
+  --dur-slow: 460ms;
+  --ease-out: cubic-bezier(0.22, 1, 0.36, 1);
+  --ease-spring: cubic-bezier(0.34, 1.4, 0.64, 1);
 
-  /* Brand, Accents & Highlights */
-  --accent: #6558E8;
-  --accent-hover: #5144D5;
-  --accent-soft: #EEECFF;
-  --ice: #78BFEF;
-  --ice-soft: #E6F4FD;
-
-  /* Status Colors */
-  --success: #218B68;
-  --success-soft: #DCF4E7;
-  --warning: #B7792E;
-  --warning-soft: #FEF3E2;
-  --danger: #C94F62;
-  --danger-soft: #FCE3E4;
-
-  /* Shadows */
-  --shadow-ambient: 0 8px 32px 0 rgba(108, 128, 166, 0.12);
-  --shadow-sm: 0 1px 3px rgba(23, 33, 59, 0.05), 0 1px 2px rgba(23, 33, 59, 0.08);
-  --shadow-md: 0 4px 12px -2px rgba(23, 33, 59, 0.08), 0 2px 6px -1px rgba(23, 33, 59, 0.05);
-  --shadow-lg: 0 12px 28px -4px rgba(23, 33, 59, 0.14), 0 4px 10px -2px rgba(23, 33, 59, 0.06);
-
-  /* Material Depth & Blur */
-  --blur-panel: blur(18px) saturate(145%);
-  --blur-overlay: blur(24px) saturate(160%);
-  --blur-subtle: blur(10px) saturate(130%);
-
-  /* Font Stacks */
+  /* Font stacks */
   --font-sans: 'Bricolage', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   --font-serif: 'Literata', Georgia, Cambria, 'Times New Roman', serif;
   --font-mono: ui-monospace, 'SFMono-Regular', Menlo, Monaco, Consolas, monospace;
 
-  /* Font Scale & Line Heights */
-  --text-xs: 0.75rem;     /* 12px */
-  --text-sm: 0.8125rem;   /* 13px */
-  --text-base: 0.9375rem; /* 15px */
-  --text-md: 1rem;        /* 16px */
-  --text-lg: 1.125rem;    /* 18px */
-  --text-xl: 1.25rem;     /* 20px */
-  --text-2xl: 1.5rem;     /* 24px */
-  --text-3xl: 1.875rem;   /* 30px */
-  --text-4xl: 2.25rem;    /* 36px */
+  /* Type scale */
+  --text-xs: 0.75rem;
+  --text-sm: 0.8125rem;
+  --text-base: 0.9375rem;
+  --text-md: 1rem;
+  --text-lg: 1.125rem;
+  --text-xl: 1.25rem;
+  --text-2xl: 1.5rem;
+  --text-3xl: 1.875rem;
+  --text-4xl: 2.25rem;
 
   --tracking-tight: -0.03em;
   --tracking-normal: 0;
@@ -70,34 +116,33 @@
   --leading-normal: 1.55;
   --leading-relaxed: 1.7;
 
-  /* Corner Radii */
-  --radius-xs: 4px;
-  --radius-sm: 8px;
-  --radius-md: 12px;
+  /* Radii: controls 12, cards 16, sheets 24; capsules only for the dock, chips and the carousel pill */
+  --radius-xs: 6px;
+  --radius-sm: 10px;
+  --radius-md: 14px;
   --radius-lg: 16px;
-  --radius-xl: 20px;
+  --radius-xl: 24px;
   --radius-full: 9999px;
 
-  /* Shell Layout Dimensions */
-  --sidebar-width: 240px;
-  --sidebar-collapsed-width: 72px;
+  /* Shell */
   --topbar-height: 56px;
   --titlebar-height: 32px;
-  --mobilenav-height: 64px;
+  --dock-height: 64px;
+  --dock-gap: 14px;
+  --shell-gap: 0px;
+  --mobilenav-height: 92px;
 
-  /* Backward Compatibility Aliases for Legacy Code */
+  /* Backward-compatible aliases for older feature CSS */
   --bg: var(--canvas);
   --surface-2: var(--canvas-tint);
-  --ink: var(--text-primary);
   --ink-2: var(--text-secondary);
   --line: var(--border);
   --brand: var(--accent);
   --brand-deep: var(--accent-hover);
   --brand-soft: var(--accent-soft);
-  --on-brand: #FFFFFF;
-  --flame: #ff6a2b;
-  --flame-soft: #ffe8dc;
-  --flame-ink: #b8400f;
+  --flame: var(--apricot);
+  --flame-soft: var(--apricot-soft);
+  --flame-ink: var(--apricot-ink);
   --good: var(--success);
   --good-soft: var(--success-soft);
   --bad: var(--danger);
@@ -106,123 +151,168 @@
   --ui: var(--font-sans);
   --read: var(--font-sans);
   --serif: var(--font-serif);
-  --ink-read: color-mix(in srgb, var(--ink) 86%, var(--bg));
   --fs: 16px;
-  --side: var(--sidebar-width);
   --mtop: var(--topbar-height);
   --tabbar: var(--mobilenav-height);
+  /* older names for the soft panel tints */
+  --tint-lilac: var(--tint-leaf);
+  --tint-sky: var(--tint-cream);
+  --tint-peach: var(--tint-sun);
+  --tint-mint: var(--tint-leaf);
 
   color-scheme: light;
 }
 
+/* Spring easing with real overshoot where the engine supports linear(); the cubic-bezier above
+   is the fallback (an unsupported linear() would otherwise drop the whole transition). */
+@supports (transition-timing-function: linear(0, 1)) {
+  :root {
+    --ease-spring: linear(0, 0.18 5%, 0.58 12%, 0.88 20%, 1.04 30%, 1.07 38%, 1.04 48%, 1.01 62%, 0.995 76%, 1);
+  }
+}
+
+
+/* --- Dark ------------------------------------------------------------------------------------ */
 :root[data-theme='dark'] {
-  /* Dark Theme Surfaces (Deep Blue-Slate) */
-  --canvas: #0C1222;
-  --canvas-tint: #111B31;
-  --surface: rgba(21, 31, 52, 0.75);
-  --surface-solid: #151F34;
-  --surface-raised: #1B2942;
-  --border: rgba(173, 196, 230, 0.14);
-  --border-subtle: rgba(173, 196, 230, 0.08);
-
-  /* Dark Theme Text Colors */
-  --text-primary: #EDF3FF;
-  --text-secondary: #A7B5CC;
-  --text-muted: #6D7D99;
-
-  /* Dark Theme Brand & Accents */
-  --accent: #948BFF;
-  --accent-hover: #A59DFF;
-  --accent-soft: #29284D;
-  --ice: #83C9F2;
-  --ice-soft: #182F48;
-
-  /* Dark Theme Status */
-  --success: #4FD08B;
-  --success-soft: #14352A;
-  --warning: #E5A144;
-  --warning-soft: #3D2E14;
-  --danger: #FF7C82;
-  --danger-soft: #3B1C26;
-
-  /* Dark Theme Shadows */
-  --shadow-ambient: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
-  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25);
-  --shadow-md: 0 4px 14px -2px rgba(0, 0, 0, 0.35);
-  --shadow-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.5);
-
-  /* Backward Compatibility Aliases in Dark Mode */
-  --bg: var(--canvas);
-  --surface-2: var(--canvas-tint);
-  --ink: var(--text-primary);
-  --ink-2: var(--text-secondary);
-  --line: var(--border);
-  --brand: var(--accent);
-  --brand-deep: var(--accent-hover);
-  --brand-soft: var(--accent-soft);
-  --on-brand: #FFFFFF;
-  --flame: #ff7b3f;
-  --flame-soft: #3d2418;
-  --flame-ink: #ffa877;
-  --good: var(--success);
-  --good-soft: var(--success-soft);
-  --bad: var(--danger);
-  --bad-soft: var(--danger-soft);
-  --shadow: var(--shadow-md);
-
+  --ink: #F1F4EC;
+  --bamboo: #9AD44B;
+  --bamboo-deep: #9AD44B;
+  --sun: #F5C73A;
+  --fill: #8DC63F;
+  --on-fill: #141816;
+  --canvas: #0E1210;
+  --canvas-tint: rgba(255, 255, 255, 0.07);
+  --wallpaper: none;
+  --surface: rgba(255, 255, 255, 0.06);
+  --surface-solid: #1A201C;
+  --surface-raised: #1F2622;
+  --surface-opaque: #171C19;
+  --glass-fill: #171C19;
+  --glass-fill-strong: #1D231F;
+  --rim: rgba(255, 255, 255, 0.12);
+  --rim-soft: rgba(255, 255, 255, 0.07);
+  --rim-shade: rgba(0, 0, 0, 0.4);
+  --border: rgba(255, 255, 255, 0.22);
+  --border-subtle: rgba(255, 255, 255, 0.11);
+  --card: #171C19;
+  --card-border: rgba(255, 255, 255, 0.12);
+  --card-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+  --card-shadow-hover: 0 3px 0 rgba(0, 0, 0, 0.5);
+  --tint-leaf: #22301A;
+  --tint-sun: #3A3014;
+  --tint-cream: #1F2520;
+  --tint-ink: #0A0D0B;
+  --text-primary: #F1F4EC;
+  --text-secondary: #BFC8BA;
+  --text-muted: #98A494;
+  --accent: #9AD44B;
+  --accent-hover: #B1E26A;
+  --accent-soft: rgba(154, 212, 75, 0.2);
+  --on-accent: #141816;
+  --ice: #9AD44B;
+  --ice-ink: #B6E56F;
+  --ice-soft: rgba(154, 212, 75, 0.18);
+  --apricot: #F5C73A;
+  --apricot-ink: #F7D876;
+  --apricot-soft: rgba(245, 199, 58, 0.2);
+  --success: #7FD08A;
+  --success-soft: rgba(127, 208, 138, 0.18);
+  --warning: #F0B94A;
+  --warning-soft: rgba(240, 185, 74, 0.2);
+  --danger: #FF8F85;
+  --danger-soft: rgba(255, 143, 133, 0.18);
+  --shadow-glass: 0 1px 0 rgba(0, 0, 0, 0.4);
+  --shadow-ambient: 0 1px 0 rgba(0, 0, 0, 0.4);
+  --shadow-sm: 0 1px 0 rgba(0, 0, 0, 0.45);
+  --shadow-md: 0 2px 8px -2px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 16px 34px -14px rgba(0, 0, 0, 0.75);
+  --shadow-pop: 3px 3px 0 #9AD44B;
+  --inset-top: inset 0 0 0 0 transparent;
+  --inset-bottom: inset 0 0 0 0 transparent;
+  --dock-fill: rgba(32, 39, 35, 0.9);
+  --dock-edge: rgba(255, 255, 255, 0.16);
+  --dock-ink: #F4F6EE;
+  --dock-muted: #B9C2B3;
+  --dock-blur: blur(14px) saturate(120%);
+  --blur-panel: none;
+  --blur-overlay: none;
+  --blur-subtle: none;
+  --blur-nav: none;
+  --on-brand: #141816;
+  --ink-read: color-mix(in srgb, var(--ink) 92%, var(--bg));
+  --logo-rim: #F1F4EC;
   color-scheme: dark;
 }
 
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --canvas: #0C1222;
-    --canvas-tint: #111B31;
-    --surface: rgba(21, 31, 52, 0.75);
-    --surface-solid: #151F34;
-    --surface-raised: #1B2942;
-    --border: rgba(173, 196, 230, 0.14);
-    --border-subtle: rgba(173, 196, 230, 0.08);
-
-    --text-primary: #EDF3FF;
-    --text-secondary: #A7B5CC;
-    --text-muted: #6D7D99;
-
-    --accent: #948BFF;
-    --accent-hover: #A59DFF;
-    --accent-soft: #29284D;
-    --ice: #83C9F2;
-    --ice-soft: #182F48;
-
-    --success: #4FD08B;
-    --success-soft: #14352A;
-    --warning: #E5A144;
-    --warning-soft: #3D2E14;
-    --danger: #FF7C82;
-    --danger-soft: #3B1C26;
-
-    --shadow-ambient: 0 8px 32px 0 rgba(0, 0, 0, 0.45);
-    --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.25);
-    --shadow-md: 0 4px 14px -2px rgba(0, 0, 0, 0.35);
-    --shadow-lg: 0 12px 32px -4px rgba(0, 0, 0, 0.5);
-
-    --bg: var(--canvas);
-    --surface-2: var(--canvas-tint);
-    --ink: var(--text-primary);
-    --ink-2: var(--text-secondary);
-    --line: var(--border);
-    --brand: var(--accent);
-    --brand-deep: var(--accent-hover);
-    --brand-soft: var(--accent-soft);
-    --on-brand: #FFFFFF;
-    --flame: #ff7b3f;
-    --flame-soft: #3d2418;
-    --flame-ink: #ffa877;
-    --good: var(--success);
-    --good-soft: var(--success-soft);
-    --bad: var(--danger);
-    --bad-soft: var(--danger-soft);
-    --shadow: var(--shadow-md);
-
+    --ink: #F1F4EC;
+    --bamboo: #9AD44B;
+    --bamboo-deep: #9AD44B;
+    --sun: #F5C73A;
+    --fill: #8DC63F;
+    --on-fill: #141816;
+    --canvas: #0E1210;
+    --canvas-tint: rgba(255, 255, 255, 0.07);
+    --wallpaper: none;
+    --surface: rgba(255, 255, 255, 0.06);
+    --surface-solid: #1A201C;
+    --surface-raised: #1F2622;
+    --surface-opaque: #171C19;
+    --glass-fill: #171C19;
+    --glass-fill-strong: #1D231F;
+    --rim: rgba(255, 255, 255, 0.12);
+    --rim-soft: rgba(255, 255, 255, 0.07);
+    --rim-shade: rgba(0, 0, 0, 0.4);
+    --border: rgba(255, 255, 255, 0.22);
+    --border-subtle: rgba(255, 255, 255, 0.11);
+    --card: #171C19;
+    --card-border: rgba(255, 255, 255, 0.12);
+    --card-shadow: 0 1px 0 rgba(0, 0, 0, 0.4);
+    --card-shadow-hover: 0 3px 0 rgba(0, 0, 0, 0.5);
+    --tint-leaf: #22301A;
+    --tint-sun: #3A3014;
+    --tint-cream: #1F2520;
+    --tint-ink: #0A0D0B;
+    --text-primary: #F1F4EC;
+    --text-secondary: #BFC8BA;
+    --text-muted: #98A494;
+    --accent: #9AD44B;
+    --accent-hover: #B1E26A;
+    --accent-soft: rgba(154, 212, 75, 0.2);
+    --on-accent: #141816;
+    --ice: #9AD44B;
+    --ice-ink: #B6E56F;
+    --ice-soft: rgba(154, 212, 75, 0.18);
+    --apricot: #F5C73A;
+    --apricot-ink: #F7D876;
+    --apricot-soft: rgba(245, 199, 58, 0.2);
+    --success: #7FD08A;
+    --success-soft: rgba(127, 208, 138, 0.18);
+    --warning: #F0B94A;
+    --warning-soft: rgba(240, 185, 74, 0.2);
+    --danger: #FF8F85;
+    --danger-soft: rgba(255, 143, 133, 0.18);
+    --shadow-glass: 0 1px 0 rgba(0, 0, 0, 0.4);
+    --shadow-ambient: 0 1px 0 rgba(0, 0, 0, 0.4);
+    --shadow-sm: 0 1px 0 rgba(0, 0, 0, 0.45);
+    --shadow-md: 0 2px 8px -2px rgba(0, 0, 0, 0.6);
+    --shadow-lg: 0 16px 34px -14px rgba(0, 0, 0, 0.75);
+    --shadow-pop: 3px 3px 0 #9AD44B;
+    --inset-top: inset 0 0 0 0 transparent;
+    --inset-bottom: inset 0 0 0 0 transparent;
+    --dock-fill: rgba(32, 39, 35, 0.9);
+    --dock-edge: rgba(255, 255, 255, 0.16);
+    --dock-ink: #F4F6EE;
+    --dock-muted: #B9C2B3;
+    --dock-blur: blur(14px) saturate(120%);
+    --blur-panel: none;
+    --blur-overlay: none;
+    --blur-subtle: none;
+    --blur-nav: none;
+    --on-brand: #141816;
+    --ink-read: color-mix(in srgb, var(--ink) 92%, var(--bg));
+    --logo-rim: #F1F4EC;
     color-scheme: dark;
   }
 }

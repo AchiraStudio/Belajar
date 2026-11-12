@@ -1,5 +1,6 @@
 import React, { useEffect, useId, useRef } from 'react';
 import { createPortal } from 'react-dom';
+import { tr } from '../../services/i18n';
 import { IconButton } from './IconButton';
 import styles from './ui.module.css';
 
@@ -105,7 +106,7 @@ export function Dialog({
               </p>
             )}
           </div>
-          <IconButton label="Tutup dialog" icon="x" size="sm" variant="ghost" onClick={onClose} disabled={!dismissible} />
+          <IconButton label={tr('Tutup dialog')} icon="x" size="sm" variant="ghost" onClick={onClose} disabled={!dismissible} />
         </div>
         <div className={styles.dialogBody}>{children}</div>
         {footer && <div className={styles.dialogFooter}>{footer}</div>}

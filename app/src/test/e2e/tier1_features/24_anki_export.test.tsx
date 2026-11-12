@@ -36,7 +36,7 @@ function AnkiExportView() {
       const url = URL.createObjectURL(blob);
       const anchor = document.createElement('a');
       anchor.href = url;
-      anchor.download = res.filename || 'belajar_flashcards_export.tsv';
+      anchor.download = res.filename || 'stuby_flashcards_export.tsv';
       document.body.appendChild(anchor);
       anchor.click();
       document.body.removeChild(anchor);

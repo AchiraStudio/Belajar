@@ -1,4 +1,5 @@
 import React from 'react';
+import { tr } from '../../services/i18n';
 import { Link } from 'react-router';
 import { Icon, type IconName } from './Icon';
 import { StatusBadge } from './StatusBadge';
@@ -24,7 +25,7 @@ export function UnavailableState({
   description,
   requirements,
   action,
-  badge = 'Belum tersedia',
+  badge = tr('Belum tersedia'),
 }: UnavailableStateProps) {
   return (
     <section className={styles.unavailable} aria-labelledby="unavailable-title">
@@ -33,22 +34,22 @@ export function UnavailableState({
       </span>
       <StatusBadge status="neutral" label={badge} />
       <h2 id="unavailable-title" className={styles.unavailableTitle}>
-        {title}
+        {tr(title)}
       </h2>
-      <p className={styles.unavailableText}>{description}</p>
+      <p className={styles.unavailableText}>{tr(description)}</p>
       {requirements && requirements.length > 0 && (
         <div className={styles.unavailableReq}>
-          <div className={styles.unavailableReqTitle}>Yang dibutuhkan sebelum fitur ini aktif</div>
+          <div className={styles.unavailableReqTitle}>{tr('Yang dibutuhkan sebelum fitur ini aktif')}</div>
           <ul>
             {requirements.map((r) => (
-              <li key={r}>{r}</li>
+              <li key={r}>{tr(r)}</li>
             ))}
           </ul>
         </div>
       )}
       {action && (
         <Link to={action.to} className={styles.unavailableLink}>
-          {action.label}
+          {tr(action.label)}
           <Icon name="arrow-right" size={16} />
         </Link>
       )}

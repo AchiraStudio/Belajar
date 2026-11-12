@@ -58,12 +58,10 @@ describe('Feature 7: Top Application Bar', () => {
     expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
   });
 
-  it('07.5 - Embedded Health Probe Status Badge', async () => {
+  it('07.5 - No server-connection pill (the app works offline)', () => {
     renderWithProviders(<TopBar />);
 
-    // Health badge is embedded with role="status"
-    const healthBadge = await screen.findByRole('status');
-    expect(healthBadge).toBeTruthy();
-    expect(healthBadge.textContent).toMatch(/server terhubung/i);
+    expect(screen.queryByRole('status')).toBeNull();
+    expect(screen.queryByText(/server terhubung/i)).toBeNull();
   });
 });

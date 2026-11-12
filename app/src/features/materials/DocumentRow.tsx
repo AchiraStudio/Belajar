@@ -3,6 +3,7 @@ import { SurfaceCard, StatusBadge, Icon } from '../../components/ui';
 import { fileKind, relDay } from '../dashboard/utils';
 import type { MaterialDoc } from './types';
 import styles from './Materials.module.css';
+import { tr } from '../../services/i18n';
 
 interface DocumentRowProps {
   document: MaterialDoc;
@@ -47,12 +48,12 @@ export function DocumentRow({ document: doc, onClick }: DocumentRowProps) {
                 {doc.subject_name}
               </span>
             )}
-            {doc.page_count ? <span>{doc.page_count} hal</span> : null}
+            {doc.page_count ? <span>{doc.page_count}{' '}{tr('hal')}</span> : null}
             <span>{relDay(doc.updated_at || doc.created_at)}</span>
             {doc.quiz_count ? (
               <span style={{ display: 'inline-flex', alignItems: 'center', gap: '4px' }}>
                 <Icon name="quiz" size={14} />
-                <span>{doc.quiz_count} kuis</span>
+                <span>{doc.quiz_count}{' '}{tr('kuis')}</span>
               </span>
             ) : null}
           </div>
@@ -61,7 +62,7 @@ export function DocumentRow({ document: doc, onClick }: DocumentRowProps) {
             <div className={styles.jobProgressBox} style={{ maxWidth: '300px' }}>
               <div className={styles.jobMessage}>
                 <Icon name="refresh" size={12} className="spin" />
-                <span>{doc.job_message || 'Sedang memproses…'} ({progressPct}%)</span>
+                <span>{doc.job_message || tr('Sedang memproses…')} ({progressPct}%)</span>
               </div>
               <div
                 className={styles.jobProgressBar}

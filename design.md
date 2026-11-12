@@ -1,6 +1,46 @@
-# Belajar — Frontend Design System & Redesign Specification
+# Stuby: current design direction
 
-> **Purpose:** This is the implementation brief for a complete visual and interaction redesign of the Belajar client. Treat it as the product-level source of truth for the frontend overhaul. The goal is a cohesive, premium **Frost UI** experience—not a superficial coat of glass effects.
+> This section is the direction the UI is built to. The "Frost" brief below it is **superseded** wherever
+> they disagree (it asked for glass everywhere; the owner asked for less glass and the logo's colours).
+> Source: the owner's requests of 2026-11-12 (use the panda logo's identity, reduce the liquid-glass look,
+> floating bottom bar that auto-hides, a reworked phone UI, an animated startup screen).
+
+**Design Read:** a personal study platform for students on desktop and phone, in a sticker-outline style drawn
+from the panda logo, dial **ENERGY 2 / RHYTHM 3 / MOTION 2**.
+
+## Identity (from `app/public/brand/stuby-logo.svg`, traced from the supplied logo)
+
+| Token | Value | Use | Why |
+|---|---|---|---|
+| ink | `#141816` | text, outlines, the dock | the logo's heavy outline |
+| bamboo | `#8DC63F` | fills, the one action colour | the logo's green; ink text on it is 8.8:1 |
+| bamboo-deep | `#2F7A1F` | text and links on light | bamboo itself is 1.9:1 on white, so it can never carry text |
+| cream / white | `#F6F4EC` / `#FFFFFF` | page / cards | the panda's face |
+| sun | `#F2B705` | the single accent (streak, "soon" dots) | one warm note, used sparingly |
+
+Dark theme keeps the same roles on `#0E1210` / `#171C19` with `#9AD44B` as the accent.
+
+## Decisions (one line of reason each)
+
+- **Outline motif:** primary things (the dock, the main button, the streak tile, the banners, the phone's "today" card) get a 2px ink outline and a hard 3 to 4px ink shadow; everything else gets a hairline. The logo is drawn with a heavy outline, so this is the one repeated gesture that makes the app look like it belongs to the panda.
+- **Glass:** exactly one element, the floating dock (dark ink, 14px blur). It floats over scrolling content, which is the only place blur earns its cost. Cards, dialogs, menus, toasts and the top bar are flat. `--blur-*` tokens are `none`; a test guards this.
+- **Dock instead of sidebar:** one navigation for every screen size. Desktop shows every destination (complete, no "more"); a phone shows five tabs and a hold menu per tab. It hides when idle and returns on scroll, touch, the bottom edge or the keyboard, because it covers content; it stays in the tab order so keyboard users are never locked out.
+- **No phone top bar:** the page owns the whole screen; search, profile and settings live in the dock's "more" sheet.
+- **Phone home is its own composition:** one focal "today" card, then a sideways scroller, an inline stat strip, a column chart and chips. A grid of equal cards read as a template (RHYTHM 3).
+- **Desktop stat tiles use four materials** (bamboo + outline, white, ink, sun tint) so the row has a focal point (the streak) instead of four equal boxes.
+- **Banners:** four themes in the logo palette; paid placements say "Iklan"/"Promo" (never disguised).
+- **Startup screen:** the panda is redrawn from shapes so it can move, and ends on the traced logo's geometry. The checklist shows only steps the app really performs (server, session, data); nothing is faked, and a failure shows the reason and a retry.
+- **Typeface:** Bricolage (variable, up to weight 800): its chunky heavy weights echo the logo's wordmark.
+
+## Dock behaviour (same on desktop and phone)
+
+Hides after ~3.2s without activity. Returns on: scrolling anywhere, a touch/pen press, the mouse near the bottom edge, any key press, focus inside it, or the peek handle. Never hides while the pointer is over it, focus is inside it, or a menu is open. Reduced motion: a short plain slide, no overshoot.
+
+---
+
+# (Superseded) Stuby — Frontend Design System & Redesign Specification
+
+> **Purpose:** This is the implementation brief for a complete visual and interaction redesign of the Stuby client. Treat it as the product-level source of truth for the frontend overhaul. The goal is a cohesive, premium **Frost UI** experience—not a superficial coat of glass effects.
 >
 > **Scope:** React frontend in `app/src/`, shared by the web client and the Tauri 2 desktop/mobile shell. This document describes the target experience and implementation constraints; it does not authorize changes to the Python agent, Node server, API contracts, database, AI prompts, or learning/scoring logic.
 
@@ -8,7 +48,7 @@
 
 ## 1. Product understanding
 
-Belajar is a personal AI-powered learning workspace. A learner imports their own study materials, turns them into structured notes and mind maps, chats with AI about the material, practices quizzes, plays AI-guided learning games, reviews spaced-repetition cards, and tracks learning progress.
+Stuby is a personal AI-powered learning workspace. A learner imports their own study materials, turns them into structured notes and mind maps, chats with AI about the material, practices quizzes, plays AI-guided learning games, reviews spaced-repetition cards, and tracks learning progress.
 
 The redesign must make this breadth feel like **one connected learning product**. It should not look like a generic admin dashboard, a marketing website, or a collection of unrelated feature pages.
 
@@ -1099,6 +1139,31 @@ The product should differentiate through the **connection between learning and r
 - A profile can represent projects, skills, learning milestones, and academic contributions—not just social popularity.
 - The AI assistant can help users move between discovery, study, practice, and portfolio creation with transparent context and sources.
 
-Do not claim Belajar is better than a competitor through marketing copy alone. Build measurable advantages: reliable scholarship data, excellent learning workflows, safe and useful community tools, meaningful personalization, accessibility, and a fast, cohesive cross-platform experience.
+Do not claim Stuby is better than a competitor through marketing copy alone. Build measurable advantages: reliable scholarship data, excellent learning workflows, safe and useful community tools, meaningful personalization, accessibility, and a fast, cohesive cross-platform experience.
 
 **Product north star:** help every learner discover what they can achieve, learn what they need, connect with people who help them grow, and demonstrate what they have accomplished.
+
+
+---
+
+## 31. Revision: liquid-glass material (supersedes the starting values in §3 and §4)
+
+The palette in §3 was explicitly a *starting* palette. Building the real screens led to a **liquid-glass**
+direction (reference: translucent capsules over a soft sky-to-apricot backdrop). `app/src/styles/tokens.css`
+is the source of truth; the notes below explain the decisions so they are not undone by accident.
+
+- **One backdrop, `--wallpaper`** (sky blue, lilac, apricot; deep navy, violet, ember in dark). Glass needs
+  something chromatic behind it; on a flat canvas it reads as grey paper. It is fixed (`body::before`).
+- **Cards are tint + rim + inner highlight, with no blur.** Over a smooth backdrop a blur changes nothing and
+  costs GPU on every tile. `backdrop-filter` is only for layers content passes underneath: top bar, floating
+  mobile nav, dialogs, toasts. (This is also how §2's "blur only where it communicates layering" is kept.)
+- **Text colours are contrast-checked** (>= 4.5:1) against the lightest and darkest glass/backdrop pairs in both
+  themes; the accent and status colours are text colours too, so the light-theme values are darker than §3's.
+  Re-check before lightening anything. `--on-accent` is the label colour on accent/danger fills (dark ink in
+  dark mode, where the accent is light).
+- **Radii:** controls 14, cards 20, sheets 28. Capsules are reserved for the floating nav, its lens, search and chips.
+- **Floating mobile nav:** five equal columns, so the active "lens" is positioned with pure CSS (`--idx`);
+  it slides on a spring and stretches toward its destination. Reduced motion keeps a short plain slide.
+- **Do not hand-write `-webkit-backdrop-filter`** next to `backdrop-filter`: the CSS minifier then drops the
+  standard property, and Chrome/WebView2 lose the blur in production builds. The build adds the prefix itself.
+- **Reduced motion** is honoured, and note that Windows with "Show animations in Windows" off reports it too.

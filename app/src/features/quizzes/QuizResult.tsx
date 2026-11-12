@@ -8,9 +8,10 @@ import type { AttemptQuestion, AttemptResponse } from './types';
 import { formatDuration } from './useActiveClock';
 import { scoreTone } from './QuizzesView';
 import styles from './Quizzes.module.css';
+import { tr } from '../../services/i18n';
 
 function givenLabel(q: AttemptQuestion): string {
-  if (q.given == null || q.given === '') return '(tidak dijawab)';
+  if (q.given == null || q.given === '') return tr('(tidak dijawab)');
   if (q.qtype === 'mcq') return q.given_text || q.given;
   if (q.qtype === 'tf') return q.given === 'true' ? 'Benar' : 'Salah';
   return q.given;
@@ -77,16 +78,16 @@ export function QuizResult() {
     return [...map.values()].map((t) => ({ ...t, acc: Math.round((100 * t.ok) / t.n) })).sort((a, b) => a.acc - b.acc);
   }, [data]);
 
-  if (!Number.isFinite(id)) return <ErrorState message="Alamat hasil tidak valid." onRetry={() => navigate('/kuis')} retryLabel="Ke daftar kuis" />;
+  if (!Number.isFinite(id)) return <ErrorState message={tr('Alamat hasil tidak valid.')} onRetry={() => navigate('/kuis')} retryLabel={tr('Ke daftar kuis')} />;
   if (loading && !data) {
     return (
-      <div className={styles.page} aria-busy="true" aria-label="Memuat hasil">
+      <div className={styles.page} aria-busy="true" aria-label={tr('Memuat hasil')}>
         <Skeleton height="180px" borderRadius="20px" />
         <Skeleton height="260px" borderRadius="20px" />
       </div>
     );
   }
-  if (error || !data) return <ErrorState message={error ?? 'Hasil tidak ditemukan.'} onRetry={reload} />;
+  if (error || !data) return <ErrorState message={error ?? tr('Hasil tidak ditemukan.')} onRetry={reload} />;
 
   const { attempt, questions } = data;
   const total = attempt.total ?? questions.length;
@@ -95,7 +96,7 @@ export function QuizResult() {
   const wrong = questions.filter((q) => q.correct === false).length;
   const shown = questions.map((q, i) => ({ q, i })).filter(({ q }) => !wrongOnly || q.correct === false);
   const message =
-    pct >= 80 ? 'Hasil yang bagus.' : pct >= 60 ? 'Sudah cukup baik, masih bisa lebih kuat.' : 'Perlu diulang. Mulai dari soal yang salah di bawah.';
+    pct >= 80 ? tr('Hasil yang bagus.') : pct >= 60 ? tr('Sudah cukup baik, masih bisa lebih kuat.') : tr('Perlu diulang. Mulai dari soal yang salah di bawah.');
 
   const retry = async () => {
     if (!attempt.quiz_id || starting) return;
@@ -140,24 +141,24 @@ export function QuizResult() {
       if (!res.cached && res.job_id != null) {
         const job = await pollJob<{ text?: string }>(res.job_id, { signal: aborter.current.signal });
         if (!job) return;
-        if (job.status === 'failed') throw new Error(job.error || 'Gagal membuat penjelasan.');
+        if (job.status === 'failed') throw new Error(job.error || tr('Gagal membuat penjelasan.'));
         text = job.result?.text ?? text;
       }
       setDeep((prev) => ({ ...prev, [q.id]: text }));
     } catch (err) {
-      toast.error(errorMessage(err, 'Gagal membuat penjelasan.'));
+      toast.error(errorMessage(err, tr('Gagal membuat penjelasan.')));
     } finally {
       setDeepBusy(null);
     }
   };
 
-  const modeLabel = attempt.mode === 'exam' ? 'Ujian' : attempt.mode === 'review' ? 'Ulangi soal lemah' : 'Latihan';
+  const modeLabel = attempt.mode === 'exam' ? 'Ujian' : attempt.mode === 'review' ? tr('Ulangi soal lemah') : 'Latihan';
 
   return (
     <div className={styles.page}>
       <Link to="/kuis" className={styles.back}>
         <Icon name="arrow-left" size={16} />
-        Semua kuis
+        {tr('Semua kuis')}
       </Link>
       <p className={styles.resultTitle}>{attempt.title}</p>
 
@@ -165,12 +166,12 @@ export function QuizResult() {
         <ScoreRing pct={pct} />
         <div className={styles.resultBody}>
           <h1 className={styles.resultScore}>
-            {score} dari {total} benar
+            {tr('{a} dari {b} benar', { a: score, b: total })}
           </h1>
-          <p className={styles.resultLead}>{pending ? 'Jawaban isianmu sedang dinilai AI. Skor ini sementara.' : message}</p>
+          <p className={styles.resultLead}>{pending ? tr('Jawaban isianmu sedang dinilai AI. Skor ini sementara.') : message}</p>
           <div className={styles.tagRow}>
-            <StatusBadge status="success" label={`${score} benar`} />
-            <StatusBadge status="error" label={`${total - score} salah`} />
+            <StatusBadge status="success" label={tr('{a} benar', { a: score })} />
+            <StatusBadge status="error" label={tr('{a} salah', { a: total - score })} />
             <span className={styles.modeTag}>
               <Icon name="clock" size={13} /> {formatDuration(attempt.duration)}
             </span>
@@ -178,22 +179,22 @@ export function QuizResult() {
           </div>
           {pending && (
             <p className={styles.pendingNote} role="status">
-              <Icon name="refresh" size={14} className="spin" /> Menilai jawaban isian…
+              <Icon name="refresh" size={14} className="spin" />{' '}{tr('Menilai jawaban isian…')}
             </p>
           )}
           <div className={styles.resultActions}>
             {attempt.quiz_id != null && (
               <Button icon="refresh" loading={starting} onClick={retry}>
-                Kerjakan lagi
+                {tr('Kerjakan lagi')}
               </Button>
             )}
             {wrong > 0 && (
               <Button variant="outline" onClick={reviewWeak} disabled={starting}>
-                Ulangi soal lemah
+                {tr('Ulangi soal lemah')}
               </Button>
             )}
             <Button variant="ghost" onClick={() => navigate('/progres')}>
-              Lihat progres
+              {tr('Lihat progres')}
             </Button>
           </div>
         </div>
@@ -202,7 +203,7 @@ export function QuizResult() {
       {topics.length > 1 && (
         <section aria-labelledby="by-topic">
           <h2 id="by-topic" className={styles.sectionTitle}>
-            Hasil per topik
+            {tr('Hasil per topik')}
           </h2>
           <ul className={styles.topicList}>
             {topics.map((t) => (
@@ -223,15 +224,15 @@ export function QuizResult() {
       <section aria-labelledby="review">
         <div className={styles.sectionHead}>
           <h2 id="review" className={styles.sectionTitle}>
-            Pembahasan
+            {tr('Pembahasan')}
           </h2>
           {wrong > 0 && (
-            <div className={styles.chips} role="group" aria-label="Filter pembahasan">
+            <div className={styles.chips} role="group" aria-label={tr('Filter pembahasan')}>
               <button type="button" className={styles.chip} aria-pressed={!wrongOnly} onClick={() => setWrongOnly(false)}>
-                Semua
+                {tr('Semua')}
               </button>
               <button type="button" className={styles.chip} aria-pressed={wrongOnly} onClick={() => setWrongOnly(true)}>
-                Salah ({wrong})
+                {tr('Salah ({n})', { n: wrong })}
               </button>
             </div>
           )}
@@ -246,26 +247,26 @@ export function QuizResult() {
                   <span className={styles.reviewNum}>{i + 1}</span>
                   <StatusBadge
                     status={kind === 'ok' ? 'success' : kind === 'no' ? 'error' : 'neutral'}
-                    label={kind === 'ok' ? 'Benar' : kind === 'no' ? 'Salah' : 'Dinilai…'}
+                    label={kind === 'ok' ? tr('Benar') : kind === 'no' ? tr('Salah') : tr('Dinilai…')}
                   />
                   {q.topic && <span className={styles.topicTag}>{q.topic}</span>}
                 </div>
                 <p className={styles.reviewQ}>{q.question}</p>
                 <p className={styles.reviewA}>
-                  Jawabanmu: <strong>{givenLabel(q)}</strong>
+                  {tr('Jawabanmu:')}{' '}<strong>{givenLabel(q)}</strong>
                 </p>
                 {q.correct === false && (
                   <p className={styles.reviewA}>
-                    Jawaban benar: <strong>{q.answer_text}</strong>
+                    {tr('Jawaban benar:')}{' '}<strong>{q.answer_text}</strong>
                   </p>
                 )}
                 {q.feedback && <p className={styles.reviewNote}>{q.feedback}</p>}
                 {q.explanation && <p className={styles.reviewNote}>{q.explanation}</p>}
-                {q.source && <p className={styles.source}>Sumber: {q.source}</p>}
+                {q.source && <p className={styles.source}>{tr('Sumber:')}{' '}{q.source}</p>}
                 {deepText && <div className={styles.deep}>{deepText}</div>}
                 {!deepText && q.correct === false && (
                   <Button size="sm" variant="outline" icon="sparkles" loading={deepBusy === q.id} onClick={() => void explainDeeper(q)}>
-                    Jelaskan lebih dalam
+                    {tr('Jelaskan lebih dalam')}
                   </Button>
                 )}
               </li>

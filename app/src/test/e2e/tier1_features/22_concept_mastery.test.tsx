@@ -5,6 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { Select } from '../../../components/ui/Select';
 import { SurfaceCard } from '../../../components/ui/SurfaceCard';
 import { rpcCall } from '../../../services/api/rpc';
+import { chooseOption } from '../harness/select';
 import {
   defaultDocumentsFixture,
   defaultPlayMapFixture,
@@ -212,7 +213,7 @@ describe('Feature 22: Concept Mastery Map', () => {
     await screen.findByRole('combobox', { name: 'Filter Mata Pelajaran' });
 
     const select = screen.getByRole('combobox', { name: 'Filter Mata Pelajaran' });
-    fireEvent.change(select, { target: { value: '1' } });
+    chooseOption(select, /Ilmu Komputer/);
 
     await waitFor(() => {
       const call = mockRpc.getLastCall('play_map');

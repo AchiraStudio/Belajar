@@ -4,6 +4,7 @@ import { useFocusTrap } from '../../hooks/useFocusTrap';
 import { rpcCall, dropCache } from '../../services/api/rpc';
 import { SUBJ_COLORS, type SubjectItem } from './types';
 import styles from './Materials.module.css';
+import { tr } from '../../services/i18n';
 
 interface SubjectManageDialogProps {
   isOpen: boolean;
@@ -32,7 +33,7 @@ export function SubjectManageDialog({
   const handleCreate = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!name.trim()) {
-      toast.error('Nama mata pelajaran wajib diisi.');
+      toast.error(tr('Nama mata pelajaran wajib diisi.'));
       return;
     }
 
@@ -44,10 +45,10 @@ export function SubjectManageDialog({
       });
       dropCache();
       setName('');
-      toast.success('Mata pelajaran berhasil ditambahkan.');
+      toast.success(tr('Mata pelajaran berhasil ditambahkan.'));
       onSubjectsChange();
     } catch (err: any) {
-      toast.error(err?.message || 'Gagal menambahkan mata pelajaran.');
+      toast.error(err?.message || tr('Gagal menambahkan mata pelajaran.'));
     } finally {
       setIsSubmitting(false);
     }
@@ -58,10 +59,10 @@ export function SubjectManageDialog({
       await rpcCall('delete_subject', { id });
       dropCache();
       setDeletingId(null);
-      toast.success('Mata pelajaran dihapus.');
+      toast.success(tr('Mata pelajaran dihapus.'));
       onSubjectsChange();
     } catch (err: any) {
-      toast.error(err?.message || 'Gagal menghapus mata pelajaran.');
+      toast.error(err?.message || tr('Gagal menghapus mata pelajaran.'));
     }
   };
 
@@ -74,12 +75,12 @@ export function SubjectManageDialog({
       onClick={onClose}
       role="dialog"
       aria-modal="true"
-      aria-label="Kelola Mata Pelajaran"
+      aria-label={tr('Kelola Mata Pelajaran')}
     >
       <div className={styles.modalDialog} onClick={(e) => e.stopPropagation()}>
         <div className={styles.modalHeader}>
-          <h2 className={styles.modalTitle}>Kelola Mata Pelajaran</h2>
-          <IconButton label="Tutup dialog" onClick={onClose} icon="x" size="sm" variant="ghost" />
+          <h2 className={styles.modalTitle}>{tr('Kelola Mata Pelajaran')}</h2>
+          <IconButton label={tr('Tutup dialog')} onClick={onClose} icon="x" size="sm" variant="ghost" />
         </div>
 
         {/* Delete Confirmation Step */}
@@ -93,10 +94,10 @@ export function SubjectManageDialog({
             </p>
             <div style={{ display: 'flex', justifyContent: 'flex-end', gap: '8px', marginTop: '8px' }}>
               <Button variant="ghost" size="sm" onClick={() => setDeletingId(null)}>
-                Batal
+                {tr('Batal')}
               </Button>
               <Button variant="danger" size="sm" onClick={() => handleDelete(deletingId)}>
-                Ya, Hapus
+                {tr('Ya, Hapus')}
               </Button>
             </div>
           </div>
@@ -105,15 +106,15 @@ export function SubjectManageDialog({
             {/* Create Section */}
             <form onSubmit={handleCreate} style={{ display: 'flex', flexDirection: 'column', gap: '12px' }}>
               <Input
-                label="Tambah Mata Pelajaran Baru"
-                placeholder="Contoh: Biologi Molekuler"
+                label={tr('Tambah Mata Pelajaran Baru')}
+                placeholder={tr('Contoh: Biologi Molekuler')}
                 value={name}
                 onChange={(e) => setName(e.target.value)}
                 maxLength={60}
               />
               <div>
                 <label style={{ display: 'block', fontSize: '0.82rem', color: 'var(--text-secondary)' }}>
-                  Pilih Warna Label:
+                  {tr('Pilih Warna Label:')}
                 </label>
                 <div className={styles.swatches}>
                   {SUBJ_COLORS.map((col) => (
@@ -137,7 +138,7 @@ export function SubjectManageDialog({
                 icon="plus"
                 style={{ alignSelf: 'flex-start' }}
               >
-                Tambah
+                {tr('Tambah')}
               </Button>
             </form>
 
@@ -146,11 +147,11 @@ export function SubjectManageDialog({
             {/* List Section */}
             <div style={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
               <h3 style={{ fontSize: '0.95rem', fontWeight: 600, margin: 0 }}>
-                Daftar Mata Pelajaran ({subjects.length})
+                {tr('Daftar Mata Pelajaran ({n})', { n: subjects.length })}
               </h3>
               {subjects.length === 0 ? (
                 <p style={{ fontSize: '0.85rem', color: 'var(--text-muted)' }}>
-                  Belum ada mata pelajaran.
+                  {tr('Belum ada mata pelajaran.')}
                 </p>
               ) : (
                 <div style={{ display: 'flex', flexDirection: 'column', gap: '8px', maxHeight: '220px', overflowY: 'auto' }}>
@@ -178,11 +179,11 @@ export function SubjectManageDialog({
                         />
                         <span style={{ fontWeight: 600, fontSize: '0.9rem' }}>{subj.name}</span>
                         <span style={{ fontSize: '0.78rem', color: 'var(--text-muted)' }}>
-                          ({subj.doc_count ?? 0} materi)
+                          {tr('({n} materi)', { n: subj.doc_count ?? 0 })}
                         </span>
                       </div>
                       <IconButton
-                        label={`Hapus mata pelajaran ${subj.name}`}
+                        label={tr('Hapus mata pelajaran {a}', { a: subj.name })}
                         icon="trash"
                         size="sm"
                         variant="ghost"
@@ -196,7 +197,7 @@ export function SubjectManageDialog({
 
             <div style={{ display: 'flex', justifyContent: 'flex-end', marginTop: '10px' }}>
               <Button variant="ghost" size="sm" onClick={onClose}>
-                Selesai
+                {tr('Selesai')}
               </Button>
             </div>
           </>

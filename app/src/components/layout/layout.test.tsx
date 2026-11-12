@@ -5,10 +5,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { ToastProvider } from '../ui/Toast';
 import { ThemeProvider } from '../../services/theme/ThemeContext';
 import { AppShell } from './AppShell';
-import { MobileNav } from './MobileNav';
 import { PageContainer } from './PageContainer';
-import { Sidebar } from './Sidebar';
-import { TitleBar } from './TitleBar';
 import { TopBar } from './TopBar';
 
 function renderWithShell(ui: React.ReactElement, initialPath: string = '/') {
@@ -33,80 +30,72 @@ afterEach(() => {
 });
 
 describe('Shell & Layout Components', () => {
-  describe('TitleBar', () => {
-    it('renders null in a standard web browser without Tauri', () => {
-      const { container } = render(<TitleBar />);
-      expect(container.firstChild).toBeNull();
-    });
-
-    it('renders Tauri titlebar and handles window controls when __TAURI__ is present', () => {
-      const minimize = vi.fn().mockResolvedValue(undefined);
-      const toggleMaximize = vi.fn().mockResolvedValue(undefined);
-      const close = vi.fn().mockResolvedValue(undefined);
-      const isMaximized = vi.fn().mockResolvedValue(false);
-      const startDragging = vi.fn().mockResolvedValue(undefined);
-
-      (window as any).__TAURI__ = {
-        window: {
-          getCurrentWindow: () => ({
-            minimize,
-            toggleMaximize,
-            close,
-            isMaximized,
-            startDragging,
-            listen: vi.fn(),
-          }),
-        },
+  describe('TopBar as the window title bar', () => {
+    const tauriWindow = () => {
+      const win = {
+        minimize: vi.fn().mockResolvedValue(undefined),
+        toggleMaximize: vi.fn().mockResolvedValue(undefined),
+        close: vi.fn().mockResolvedValue(undefined),
+        isMaximized: vi.fn().mockResolvedValue(false),
+        startDragging: vi.fn().mockResolvedValue(undefined),
+        listen: vi.fn(),
       };
+      (window as any).__TAURI__ = { window: { getCurrentWindow: () => win } };
+      return win;
+    };
 
-      render(<TitleBar />);
-      expect(screen.getByRole('banner', { name: 'Bilah judul aplikasi' })).toBeTruthy();
-      expect(screen.getByText('Belajar')).toBeTruthy();
-
-      const minBtn = screen.getByRole('button', { name: 'Perkecil' });
-      const maxBtn = screen.getByRole('button', { name: 'Perbesar' });
-      const closeBtn = screen.getByRole('button', { name: 'Tutup' });
-
-      fireEvent.click(minBtn);
-      expect(minimize).toHaveBeenCalledTimes(1);
-
-      fireEvent.click(maxBtn);
-      expect(toggleMaximize).toHaveBeenCalledTimes(1);
-
-      fireEvent.click(closeBtn);
-      expect(close).toHaveBeenCalledTimes(1);
-
-      // Verify drag region starts dragging on mousedown
-      const banner = screen.getByRole('banner', { name: 'Bilah judul aplikasi' });
-      fireEvent.mouseDown(banner, { button: 0 });
-      expect(startDragging).toHaveBeenCalledTimes(1);
-    });
-  });
-
-  describe('Sidebar', () => {
-    it('renders Indonesian grouped navigation items and active state', () => {
-      renderWithShell(<Sidebar />, '/materi');
-
-      expect(screen.getByText('Belajar')).toBeTruthy();
-      expect(screen.getByText('Jelajahi')).toBeTruthy();
-      // Destinations without a working service are marked, never hidden or faked.
-      expect(screen.getByText('Segera')).toBeTruthy();
-
-      const berandaLink = screen.getByRole('link', { name: /beranda/i });
-      const materiLink = screen.getByRole('link', { name: /materi/i });
-
-      expect(berandaLink.getAttribute('aria-current')).toBeNull();
-      expect(materiLink.getAttribute('aria-current')).toBe('page');
+    it('has no window buttons in a standard web browser', () => {
+      renderWithShell(<TopBar />);
+      expect(screen.queryByRole('button', { name: 'Perkecil' })).toBeNull();
+      expect(screen.queryByRole('button', { name: 'Tutup' })).toBeNull();
     });
 
-    it('toggles collapse mode and stores preference in localStorage', () => {
-      renderWithShell(<Sidebar />, '/');
+    it('carries the window controls and drags from empty space when running in Tauri', () => {
+      const win = tauriWindow();
+      renderWithShell(<TopBar />);
 
-      const toggleBtn = screen.getByRole('button', { name: /ciutkan bilah navigasi/i });
-      fireEvent.click(toggleBtn);
+      const bar = screen.getByRole('banner', { name: 'Bilah judul aplikasi' });
+      fireEvent.click(screen.getByRole('button', { name: 'Perkecil' }));
+      expect(win.minimize).toHaveBeenCalledTimes(1);
+      fireEvent.click(screen.getByRole('button', { name: 'Perbesar' }));
+      expect(win.toggleMaximize).toHaveBeenCalledTimes(1);
+      fireEvent.click(screen.getByRole('button', { name: 'Tutup' }));
+      expect(win.close).toHaveBeenCalledTimes(1);
 
-      expect(window.localStorage.getItem('belajar-sidebar-collapsed')).toBe('true');
-      expect(screen.getByRole('button', { name: /perluas bilah navigasi/i })).toBeTruthy();
+      fireEvent.mouseDown(bar, { button: 0 });
+      expect(win.startDragging).toHaveBeenCalledTimes(1);
+      // A double click on the bar maximises, like any title bar.
+      fireEvent.mouseDown(bar, { button: 0, detail: 2 });
+      expect(win.toggleMaximize).toHaveBeenCalledTimes(2);
+    });
+
+    it('never drags from a button, and ignores right and middle clicks', () => {
+      const win = tauriWindow();
+      renderWithShell(<TopBar />);
+      fireEvent.mouseDown(screen.getByRole('button', { name: /cari materi atau topik/i }), { button: 0 });
+      fireEvent.mouseDown(screen.getByRole('banner', { name: 'Bilah judul aplikasi' }), { button: 2 });
+      fireEvent.mouseDown(screen.getByRole('banner', { name: 'Bilah judul aplikasi' }), { button: 1 });
+      expect(win.startDragging).not.toHaveBeenCalled();
+    });
+
+    it('keeps a slim bar with the window buttons when the desktop window is narrow', () => {
+      tauriWindow();
+      renderWithShell(<TopBar compact />);
+      expect(screen.getByRole('button', { name: 'Tutup' })).toBeTruthy();
+      expect(screen.queryByRole('button', { name: /cari materi atau topik/i })).toBeNull();
+    });
+
+    it('shows no window chrome on Android even though Tauri is present', () => {
+      tauriWindow();
+      const ua = vi.spyOn(window.navigator, 'userAgent', 'get').mockReturnValue('Mozilla/5.0 (Linux; Android 14) Chrome/120 Mobile');
+      renderWithShell(<TopBar />);
+      expect(screen.queryByRole('button', { name: 'Tutup' })).toBeNull();
+      ua.mockRestore();
+    });
+
+    it('does not show a server-connection pill', () => {
+      renderWithShell(<TopBar />);
+      expect(screen.queryByRole('status')).toBeNull();
     });
   });
 
@@ -126,18 +115,6 @@ describe('Shell & Layout Components', () => {
     });
   });
 
-  describe('MobileNav', () => {
-    it('renders bottom navigation items', () => {
-      renderWithShell(<MobileNav />, '/');
-      const nav = screen.getByRole('navigation', { name: 'Navigasi Bawah Seluler' });
-      expect(nav).toBeTruthy();
-
-      expect(screen.getByRole('link', { name: /beranda/i })).toBeTruthy();
-      expect(screen.getByRole('link', { name: /kuis/i })).toBeTruthy();
-      expect(screen.getByRole('link', { name: /game/i })).toBeTruthy();
-    });
-  });
-
   describe('PageContainer', () => {
     it('renders children with designated width options', () => {
       const { container } = render(
@@ -151,18 +128,18 @@ describe('Shell & Layout Components', () => {
   });
 
   describe('AppShell', () => {
-    it('renders responsive shell container with skip link, sidebar, topbar, and mobile nav', () => {
+    it('renders the shell: skip link, top bar, page area and the floating dock', () => {
       vi.stubGlobal(
         'fetch',
-        vi.fn(() => Promise.resolve(Response.json({ status: 'ok', service: 'belajar', version: '0.1.0' }))),
+        vi.fn(() => Promise.resolve(Response.json({ status: 'ok', service: 'stuby', version: '0.1.0' }))),
       );
 
       renderWithShell(<AppShell />, '/');
 
       expect(screen.getByRole('link', { name: 'Langsung ke isi halaman' })).toBeTruthy();
-      expect(screen.getByRole('complementary', { name: 'Navigasi Utama' })).toBeTruthy();
       expect(screen.getByRole('main').getAttribute('tabindex')).toBe('-1');
-      expect(screen.getByRole('navigation', { name: 'Navigasi Bawah Seluler' })).toBeTruthy();
+      expect(screen.getByRole('navigation', { name: 'Navigasi Utama' })).toBeTruthy();
+      expect(screen.getByRole('banner')).toBeTruthy();
     });
   });
 });

@@ -1,0 +1,16 @@
+# Salin ke /etc/caddy/Caddyfile dan ganti stuby.contoh.com dengan domain Anda
+# (A/AAAA record harus sudah mengarah ke server ini). Caddy mengurus sertifikat HTTPS sendiri.
+stuby.contoh.com {
+	encode zstd gzip
+
+	reverse_proxy 127.0.0.1:8080 {
+		# Timpa, bukan tambah: server memakai nilai ini sebagai alamat klien untuk pembatas login
+		# (TRUST_PROXY=1), jadi klien tidak boleh bisa memalsukannya.
+		header_up X-Forwarded-For {remote_host}
+	}
+
+	# Unggahan materi sampai MAX_UPLOAD_MB (40) ditambah sedikit ruang untuk bentuk multipart.
+	request_body {
+		max_size 45MB
+	}
+}

@@ -2,6 +2,7 @@ import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import {
   Button,
   Dialog,
+  Dropdown,
   EmptyState,
   ErrorState,
   Icon,
@@ -19,6 +20,7 @@ import { fetchOpportunities, fetchTracked, trackOpportunity, untrack } from './a
 import type { Opportunity, TrackedOpportunity } from './types';
 import { categoryLabel, deadlineState, formatDeadline, safeUrl } from './utils';
 import styles from './Opportunities.module.css';
+import { tr } from '../../services/i18n';
 
 type CategoryTab = 'all' | 'scholarship' | 'competition' | 'saved';
 type StatusFilter = 'all' | 'open' | 'soon' | 'closed';
@@ -59,7 +61,7 @@ export function OpportunitiesView() {
       })
       .catch((err: unknown) => {
         if (controller.signal.aborted) return;
-        setError(err instanceof Error ? err.message : 'Gagal memuat peluang.');
+        setError(err instanceof Error ? err.message : tr('Gagal memuat peluang.'));
       })
       .finally(() => {
         if (!controller.signal.aborted) setLoading(false);
@@ -105,14 +107,14 @@ export function OpportunitiesView() {
         if (existing) {
           await untrack(existing.id);
           setTracked((prev) => prev.filter((t) => t.id !== existing.id));
-          toast.success('Dihapus dari tersimpan');
+          toast.success(tr('Dihapus dari tersimpan'));
         } else {
           const created = await trackOpportunity(opp.id);
           setTracked((prev) => [...prev, created]);
-          toast.success('Disimpan ke daftarmu');
+          toast.success(tr('Disimpan ke daftarmu'));
         }
       } catch (err) {
-        toast.error(err instanceof Error ? err.message : 'Gagal menyimpan peluang.');
+        toast.error(err instanceof Error ? err.message : tr('Gagal menyimpan peluang.'));
       } finally {
         setBusyId(null);
       }
@@ -125,18 +127,17 @@ export function OpportunitiesView() {
   return (
     <div className={styles.page}>
       <PageHeader
-        eyebrow="Beasiswa & Peluang"
-        title="Beasiswa & Peluang"
-        description="Beasiswa dan kompetisi yang tercatat di server. Selalu periksa syarat dan tanggal di situs resmi penyelenggara sebelum mendaftar."
+        eyebrow={tr('Beasiswa & Peluang')}
+        title={tr('Beasiswa & Peluang')}
+        description={tr('Beasiswa dan kompetisi yang tercatat di server. Selalu periksa syarat dan tanggal di situs resmi penyelenggara sebelum mendaftar.')}
       />
 
       <div className={styles.trust} role="note">
         <Icon name="shield" size={18} />
         <div>
-          <strong>Cara membaca daftar ini</strong>
+          <strong>{tr('Cara membaca daftar ini')}</strong>
           <p>
-            Status “Dibuka / Ditutup” dihitung dari tanggal batas yang tercatat. Data ini belum memiliki status verifikasi sumber, jadi
-            anggap sebagai petunjuk awal dan konfirmasi ke situs resmi. Belajar tidak menjamin kelayakan, pendanaan, atau penerimaan.
+            {tr('Status “Dibuka / Ditutup” dihitung dari tanggal batas yang tercatat. Data ini belum memiliki status verifikasi sumber, jadi anggap sebagai petunjuk awal dan konfirmasi ke situs resmi. Stuby tidak menjamin kelayakan, pendanaan, atau penerimaan.')}
           </p>
         </div>
       </div>
@@ -155,26 +156,31 @@ export function OpportunitiesView() {
         />
         <div className={styles.filters}>
           <Input
-            label="Cari"
+            label={tr('Cari')}
             icon="search"
             type="search"
-            placeholder="Nama, penyelenggara, kata kunci"
+            placeholder={tr('Nama, penyelenggara, kata kunci')}
             value={search}
             onChange={(e) => setSearch(e.target.value)}
             clearable
             onClear={() => setSearch('')}
           />
-          <Input label="Bidang / jurusan" placeholder="mis. Teknik, Kedokteran" value={major} onChange={(e) => setMajor(e.target.value)} />
+          <Input label={tr('Bidang / jurusan')} placeholder={tr('mis. Teknik, Kedokteran')} value={major} onChange={(e) => setMajor(e.target.value)} />
           <div className={styles.statusField}>
             <label htmlFor="opp-status" className={styles.fieldLabel}>
-              Status batas waktu
+              {tr('Status batas waktu')}
             </label>
-            <select id="opp-status" className={styles.select} value={status} onChange={(e) => setStatus(e.target.value as StatusFilter)}>
-              <option value="all">Semua</option>
-              <option value="open">Dibuka</option>
-              <option value="soon">Segera ditutup (≤ 14 hari)</option>
-              <option value="closed">Sudah ditutup</option>
-            </select>
+            <Dropdown
+              id="opp-status"
+              value={status}
+              onChange={(v) => setStatus(v as StatusFilter)}
+              options={[
+                { value: 'all', label: 'Semua' },
+                { value: 'open', label: 'Dibuka' },
+                { value: 'soon', label: tr('Segera ditutup (≤ 14 hari)') },
+                { value: 'closed', label: tr('Sudah ditutup') },
+              ]}
+            />
           </div>
         </div>
       </div>
@@ -182,12 +188,12 @@ export function OpportunitiesView() {
       {trackedUnavailable && tab === 'saved' && (
         <div className={styles.note} role="status">
           <Icon name="info" size={16} />
-          Menyimpan peluang membutuhkan sesi masuk yang dikenali API v1. Sesi ini belum bisa menyimpan.
+          {tr('Menyimpan peluang membutuhkan sesi masuk yang dikenali API v1. Sesi ini belum bisa menyimpan.')}
         </div>
       )}
 
       {loading && !items && (
-        <div className={styles.grid} aria-busy="true" aria-label="Memuat peluang">
+        <div className={styles.grid} aria-busy="true" aria-label={tr('Memuat peluang')}>
           {[0, 1, 2, 3].map((i) => (
             <Skeleton key={i} height="190px" borderRadius="20px" />
           ))}
@@ -198,13 +204,13 @@ export function OpportunitiesView() {
       {items && visible.length === 0 && (
         <EmptyState
           icon="graduation"
-          title={tab === 'saved' ? 'Belum ada peluang tersimpan' : 'Tidak ada peluang yang cocok'}
+          title={tab === 'saved' ? tr('Belum ada peluang tersimpan') : tr('Tidak ada peluang yang cocok')}
           description={
             tab === 'saved'
-              ? 'Simpan beasiswa atau kompetisi yang menarik supaya tenggatnya mudah dipantau.'
+              ? tr('Simpan beasiswa atau kompetisi yang menarik supaya tenggatnya mudah dipantau.')
               : items.length === 0
-                ? 'Belum ada peluang yang dipublikasikan di server ini.'
-                : 'Coba ubah kata kunci atau filter.'
+                ? tr('Belum ada peluang yang dipublikasikan di server ini.')
+                : tr('Coba ubah kata kunci atau filter.')
           }
         />
       )}
@@ -229,21 +235,21 @@ export function OpportunitiesView() {
                       {o.title}
                     </button>
                   </h2>
-                  <p className={styles.org}>{o.organizer || 'Penyelenggara tidak dicantumkan'}</p>
+                  <p className={styles.org}>{o.organizer || tr('Penyelenggara tidak dicantumkan')}</p>
                   <dl className={styles.facts}>
                     <div>
-                      <dt>Batas waktu</dt>
+                      <dt>{tr('Batas waktu')}</dt>
                       <dd>{formatDeadline(o.deadline)}</dd>
                     </div>
                     {o.reward && (
                       <div>
-                        <dt>Manfaat</dt>
+                        <dt>{tr('Manfaat')}</dt>
                         <dd>{o.reward}</dd>
                       </div>
                     )}
                   </dl>
                   {o.target_majors.length > 0 && (
-                    <ul className={styles.chips} aria-label="Bidang sasaran">
+                    <ul className={styles.chips} aria-label={tr('Bidang sasaran')}>
                       {o.target_majors.slice(0, 4).map((m) => (
                         <li key={m}>{m}</li>
                       ))}
@@ -252,7 +258,7 @@ export function OpportunitiesView() {
                   )}
                   <div className={styles.cardFoot}>
                     <Button size="sm" variant="outline" onClick={() => setOpenId(o.id)}>
-                      Lihat detail
+                      {tr('Lihat detail')}
                     </Button>
                     <Button
                       size="sm"
@@ -262,7 +268,7 @@ export function OpportunitiesView() {
                       aria-pressed={saved}
                       onClick={() => void toggleSave(o)}
                     >
-                      {saved ? 'Tersimpan' : 'Simpan'}
+                      {saved ? tr('Tersimpan') : tr('Simpan')}
                     </Button>
                   </div>
                 </SurfaceCard>
@@ -275,12 +281,11 @@ export function OpportunitiesView() {
       <SurfaceCard className={styles.soon}>
         <div className={styles.soonHead}>
           <Icon name="globe" size={18} />
-          <h2>Berita pendidikan, magang, dan acara</h2>
-          <StatusBadge status="neutral" label="Belum tersedia" />
+          <h2>{tr('Berita pendidikan, magang, dan acara')}</h2>
+          <StatusBadge status="neutral" label={tr('Belum tersedia')} />
         </div>
         <p>
-          Berita, magang, dan acara membutuhkan pengumpulan sumber, penyuntingan, dan verifikasi yang belum ada di server ini. Hanya beasiswa
-          dan kompetisi yang tampil di atas, dan datanya apa adanya dari server.
+          {tr('Berita, magang, dan acara membutuhkan pengumpulan sumber, penyuntingan, dan verifikasi yang belum ada di server ini. Hanya beasiswa dan kompetisi yang tampil di atas, dan datanya apa adanya dari server.')}
         </p>
       </SurfaceCard>
 
@@ -314,7 +319,7 @@ function OpportunityDialog({
   const dl = opp ? deadlineState(opp.deadline) : null;
 
   const copy = async (url: string) => {
-    (await copyText(url)) ? toast.success('Tautan disalin') : toast.error('Tidak bisa menyalin tautan.');
+    (await copyText(url)) ? toast.success(tr('Tautan disalin')) : toast.error(tr('Tidak bisa menyalin tautan.'));
   };
 
   return (
@@ -323,15 +328,15 @@ function OpportunityDialog({
       onClose={onClose}
       size="lg"
       title={opp?.title ?? ''}
-      description={opp ? `${categoryLabel(opp.category)} · ${opp.organizer || 'Penyelenggara tidak dicantumkan'}` : undefined}
+      description={opp ? `${categoryLabel(opp.category)} · ${opp.organizer || tr('Penyelenggara tidak dicantumkan')}` : undefined}
       footer={
         opp && (
           <>
             <Button variant="ghost" onClick={onClose}>
-              Tutup
+              {tr('Tutup')}
             </Button>
             <Button variant={saved ? 'secondary' : 'outline'} icon="bookmark" loading={busy} onClick={onToggleSave}>
-              {saved ? 'Tersimpan' : 'Simpan'}
+              {saved ? tr('Tersimpan') : tr('Simpan')}
             </Button>
           </>
         )
@@ -341,34 +346,34 @@ function OpportunityDialog({
         <div className={styles.detail}>
           <div className={styles.detailHead}>
             <StatusBadge status={STATUS_BADGE[dl.kind]} label={dl.label} />
-            <span>Batas waktu: {formatDeadline(opp.deadline)}</span>
+            <span>{tr('Batas waktu:')}{' '}{formatDeadline(opp.deadline)}</span>
           </div>
           {dl.kind === 'closed' && (
             <div className={styles.note} role="status">
-              <Icon name="info" size={16} /> Batas waktu sudah lewat menurut data ini. Periksa situs resmi apakah ada perpanjangan.
+              <Icon name="info" size={16} />{' '}{tr('Batas waktu sudah lewat menurut data ini. Periksa situs resmi apakah ada perpanjangan.')}
             </div>
           )}
           {opp.description && (
             <section>
-              <h3>Ringkasan</h3>
+              <h3>{tr('Ringkasan')}</h3>
               <p>{opp.description}</p>
             </section>
           )}
           {opp.reward && (
             <section>
-              <h3>Manfaat</h3>
+              <h3>{tr('Manfaat')}</h3>
               <p>{opp.reward}</p>
             </section>
           )}
           {opp.eligibility && (
             <section>
-              <h3>Persyaratan</h3>
+              <h3>{tr('Persyaratan')}</h3>
               <p>{opp.eligibility}</p>
             </section>
           )}
           {opp.target_majors.length > 0 && (
             <section>
-              <h3>Bidang sasaran</h3>
+              <h3>{tr('Bidang sasaran')}</h3>
               <ul className={styles.chips}>
                 {opp.target_majors.map((m) => (
                   <li key={m}>{m}</li>
@@ -378,39 +383,39 @@ function OpportunityDialog({
           )}
           {opp.guideline_text && (
             <section>
-              <h3>Panduan</h3>
+              <h3>{tr('Panduan')}</h3>
               <p className={styles.pre}>{opp.guideline_text}</p>
             </section>
           )}
           <section>
-            <h3>Tautan resmi</h3>
+            <h3>{tr('Tautan resmi')}</h3>
             {site || guide ? (
               <ul className={styles.links}>
                 {site && (
                   <li>
                     <a href={site} target="_blank" rel="noopener noreferrer">
-                      Situs penyelenggara <Icon name="external-link" size={14} />
+                      {tr('Situs penyelenggara')}{' '}<Icon name="external-link" size={14} />
                     </a>
-                    <button type="button" onClick={() => void copy(site)} aria-label="Salin tautan situs penyelenggara">
-                      <Icon name="copy" size={14} /> Salin
+                    <button type="button" onClick={() => void copy(site)} aria-label={tr('Salin tautan situs penyelenggara')}>
+                      <Icon name="copy" size={14} />{' '}{tr('Salin')}
                     </button>
                   </li>
                 )}
                 {guide && (
                   <li>
                     <a href={guide} target="_blank" rel="noopener noreferrer">
-                      Dokumen panduan <Icon name="external-link" size={14} />
+                      {tr('Dokumen panduan')}{' '}<Icon name="external-link" size={14} />
                     </a>
-                    <button type="button" onClick={() => void copy(guide)} aria-label="Salin tautan dokumen panduan">
-                      <Icon name="copy" size={14} /> Salin
+                    <button type="button" onClick={() => void copy(guide)} aria-label={tr('Salin tautan dokumen panduan')}>
+                      <Icon name="copy" size={14} />{' '}{tr('Salin')}
                     </button>
                   </li>
                 )}
               </ul>
             ) : (
-              <p className={styles.muted}>Server tidak mencantumkan tautan resmi untuk peluang ini. Cari langsung di situs penyelenggara.</p>
+              <p className={styles.muted}>{tr('Server tidak mencantumkan tautan resmi untuk peluang ini. Cari langsung di situs penyelenggara.')}</p>
             )}
-            <p className={styles.muted}>Tautan ditampilkan apa adanya dari data server. Pastikan domainnya milik penyelenggara resmi sebelum mengisi data pribadi.</p>
+            <p className={styles.muted}>{tr('Tautan ditampilkan apa adanya dari data server. Pastikan domainnya milik penyelenggara resmi sebelum mengisi data pribadi.')}</p>
           </section>
         </div>
       )}

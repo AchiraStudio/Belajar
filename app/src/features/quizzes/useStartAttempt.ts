@@ -4,6 +4,7 @@ import { useToast } from '../../components/ui';
 import { errorMessage } from '../../hooks/useRpcQuery';
 import { rpcCall } from '../../services/api/rpc';
 import type { AttemptResponse } from './types';
+import { tr } from '../../services/i18n';
 
 /**
  * Starts a quiz attempt and opens the runner. `busy` holds the quiz id being started, so a
@@ -27,7 +28,7 @@ export function useStartAttempt() {
         });
         navigate(`/latihan/${res.attempt.id}`);
       } catch (err) {
-        toast.error(errorMessage(err, 'Gagal memulai kuis.'));
+        toast.error(errorMessage(err, tr('Gagal memulai kuis.')));
       } finally {
         setBusy(null);
       }

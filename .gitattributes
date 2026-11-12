@@ -1,2 +1,6 @@
 # Auto detect text files and perform LF normalization
 * text=auto
+
+# These run on Linux: a CRLF checkout on Windows would break them ("bad interpreter: /bin/bash^M").
+*.sh text eol=lf
+deploy/linux/** text eol=lf

@@ -1,0 +1,21 @@
+.demo { position: relative; margin-top: 10px; padding: 18px 14px; border: 1px solid var(--line); border-radius: var(--r-xl); background: var(--tint-cream); display: grid; gap: 12px; justify-items: center; min-height: 350px; align-content: space-between; overflow: hidden; }
+.status { font-weight: 650; font-size: 0.9375rem; color: var(--text-2); text-align: center; min-height: 1.6em; align-self: start; }
+
+/* Glass: the dock and its menu float over the tinted stage. Only the standard property is written; the
+   build's CSS minifier adds the -webkit- prefix itself where needed. */
+.dock { display: flex; gap: 2px; width: min(100%, 392px); padding: 6px; height: 68px; border-radius: 22px; background: var(--dock-fill); backdrop-filter: blur(14px) saturate(120%); border: 1px solid var(--dock-edge); box-shadow: 0 18px 36px -16px rgba(0, 0, 0, 0.55), 0 2px 6px rgba(0, 0, 0, 0.18); color: var(--dock-ink); }
+@supports not (backdrop-filter: blur(1px)) { .dock, .menu { background: #1b201d; } }
+
+.tab { position: relative; flex: 1 1 0; min-width: 0; border: 0; border-radius: 16px; background: transparent; color: var(--dock-muted); font-size: 0.75rem; font-weight: 650; padding: 0 2px; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none; transition: background-color 160ms ease, color 160ms ease, transform 260ms var(--ease-out); }
+.tabIn { position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 3px; height: 100%; }
+.tab:hover { background: rgba(255, 255, 255, 0.1); color: var(--dock-ink); }
+.tab:active, .holding { transform: scale(0.93); }
+.tab[aria-selected='true'] { background: transparent; color: #141816; }
+.pill { position: absolute; inset: 0; border-radius: 16px; background: var(--bamboo); }
+.tab:focus-visible { outline: 2px solid #9ad44b; outline-offset: 1px; }
+
+.menu { position: absolute; z-index: 5; bottom: 96px; width: min(260px, 86%); padding: 8px; border-radius: 20px; background: var(--dock-fill); backdrop-filter: blur(14px) saturate(120%); border: 1px solid var(--dock-edge); box-shadow: 0 18px 36px -16px rgba(0, 0, 0, 0.6); display: grid; gap: 2px; transform-origin: 50% 100%; }
+.item { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 46px; padding: 0 14px; border: 0; border-radius: 14px; background: transparent; color: var(--dock-ink); font-weight: 650; text-align: left; }
+.item:hover, .item:focus-visible { background: rgba(255, 255, 255, 0.12); outline: none; }
+.item:focus-visible { box-shadow: 0 0 0 2px #9ad44b inset; }
+.soon { width: 7px; height: 7px; border-radius: 50%; background: var(--sun); flex: none; }

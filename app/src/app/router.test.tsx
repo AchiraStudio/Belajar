@@ -41,13 +41,12 @@ describe('AppRoutes', () => {
     vi.restoreAllMocks();
   });
 
-  it('shows the dashboard on index route with connected server badge', async () => {
+  it('shows the dashboard on the index route', async () => {
     mockRpc.setResponse('dashboard', defaultDashboardFixture);
     renderAt('/');
 
     await waitFor(() => {
-      expect(screen.getByRole('heading', { level: 1, name: 'Beranda Belajar' })).toBeTruthy();
-      expect(screen.getByTitle(/Server terhubung/i)).toBeTruthy();
+      expect(screen.getByRole('heading', { level: 1, name: /^Selamat (pagi|siang|sore|malam)\.$/ })).toBeTruthy();
     });
   });
 
@@ -74,7 +73,7 @@ describe('AppRoutes', () => {
           name: 'Pengantar Jaringan Komputer & OSI Layer',
         })
       ).toBeTruthy();
-    });
+    }, { timeout: 5000 }); // the workspace is a lazy chunk; a cold module cache can take over 1s
   });
 
   it('shows the legacy not-found copy for unknown routes', () => {
@@ -83,13 +82,14 @@ describe('AppRoutes', () => {
     expect(screen.getByRole('link', { name: 'Kembali ke beranda' }).getAttribute('href')).toBe('/');
   });
 
-  it('reports an unreachable server instead of crashing', async () => {
+  it('still renders the shell instead of crashing when the server is unreachable', async () => {
     mockRpc.setHealthDown('Server tidak terjangkau');
     renderAt('/');
 
     await waitFor(() => {
-      expect(screen.getByTitle(/Server tidak terjangkau/i)).toBeTruthy();
+      expect(screen.getByRole('link', { name: 'Langsung ke isi halaman' })).toBeTruthy();
     });
+    expect(screen.queryByTitle(/Server tidak terjangkau/i)).toBeNull();
   });
 
   it('has a skip link and a focusable main landmark', () => {

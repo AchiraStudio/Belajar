@@ -5,6 +5,25 @@ Format penulisan mengikuti pedoman [Keep a Changelog](https://keepachangelog.com
 
 ---
 
+## [Belum dirilis]
+
+### Berubah
+- **Proyek diganti nama menjadi Stuby.** Crate `belajar-*` menjadi `stuby-*`, aplikasi `Stuby` (identifier `app.stuby.client`), berkas pengaturan `stuby.env`, variabel `STUBY_*`, layanan systemd `stuby`. Peran database `belajar_app` dan berkas migrasi SQL sengaja tidak diubah (sudah diterapkan di database). Folder pengaturan desktop berpindah dari `app.belajar.client` ke `app.stuby.client`, jadi salin `belajar.env` lama sebagai `stuby.env`.
+- **Tampilan**: kartu, bilah samping, dan ubin statistik kini solid; kaca hanya dipakai di lapisan mengambang (bilah atas, navigasi seluler, dialog).
+- **Beranda**: ubin statistik pastel dan slot banner/iklan (carousel utama, kartu samping, strip, bilah samping) yang diatur di `app/src/features/banners/banners.ts`.
+- **Navigasi seluler**: tahan sebuah tab untuk melihat halaman terkait, geser lalu lepas untuk membuka.
+- **Bahasa**: pengaturan bahasa tampilan (English bawaan, Bahasa Indonesia, Español, 中文). Kerangka aplikasi, beranda, Pengaturan, dan masuk sudah diterjemahkan; halaman lain menyusul. Halaman Pengaturan juga mendapat atur ulang preferensi tampilan.
+- **Perbaikan**: aplikasi desktop tidak lagi macet di "Menyiapkan aplikasi…" bila pengaturan belum diisi; pesan galatnya kini tampil.
+- **Pengembangan**: `npm run dev:mock` menjalankan UI dengan data tiruan tanpa database; `npm run dev` kini memakai proksi yang sama asal sehingga masuk bisa berfungsi.
+- **Logo & identitas**: logo panda dilacak menjadi SVG portabel (`app/public/brand/`), ikon aplikasi (Windows dan Android) dibuat dari logo itu, dan seluruh warna aplikasi kini berasal dari logo (tinta, hijau bambu, krem; kuning sebagai satu-satunya aksen). Kaca (blur) tinggal satu: dock mengambang.
+- **Navigasi**: bilah samping dan bilah bawah ponsel diganti dock mengambang yang sama di desktop dan ponsel. Di desktop semua tujuan tampil sekaligus; di ponsel lima tab dengan menu tahan. Dock menghilang saat tidak aktif dan muncul lagi saat digulir, disentuh, atau lewat papan ketik. Bilah atas dihapus di ponsel.
+- **Beranda ponsel** disusun ulang (kartu fokus "hari ini", pemutar samping, strip statistik, grafik kolom, chip) alih-alih grid yang sama rata.
+- **Layar pembuka beranimasi** (panda mengunyah bambu) yang benar-benar menjalankan langkah awal: menghubungi server, memeriksa sesi, memuat data pertama. Versi native (desktop) juga menampilkan langkah database/server dan kegagalannya dengan tombol coba lagi.
+- **Tanpa edit `.env` manual**: layar pembuka desktop punya formulir penyiapan (alamat database + kata sandi) yang menulis `stuby.env` sendiri.
+- README ditulis ulang.
+
+---
+
 ## [2.3.1] — 2026-11-07
 
 ### Ringkasan Pembaruan

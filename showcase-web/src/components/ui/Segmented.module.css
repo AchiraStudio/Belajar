@@ -1,0 +1,11 @@
+.seg { display: inline-flex; flex-wrap: wrap; gap: 4px; padding: 4px; border: 1px solid var(--line-strong); border-radius: var(--r-md); background: var(--card); }
+.opt { position: relative; min-height: 40px; padding: 0 14px; border: 0; border-radius: 10px; background: transparent; font-weight: 650; font-size: 0.9375rem; color: var(--text-2); transition: background-color 160ms ease, color 160ms ease; }
+.opt:hover { background: var(--accent-soft); color: var(--text); }
+.opt[aria-checked='true'] { color: #141816; background: transparent; }
+.opt[aria-checked='true']:hover { background: transparent; }
+.pill { position: absolute; inset: 0; border-radius: 10px; background: var(--bamboo); box-shadow: 0 0 0 2px #141816 inset; }
+.text { position: relative; }
+.lg .opt { min-height: 46px; padding: 0 18px; }
+@media (max-width: 560px) {
+  .opt { padding: 0 10px; font-size: 0.875rem; }
+}

@@ -139,7 +139,7 @@
 
 .chatLink:hover {
   background: var(--accent);
-  color: #ffffff;
+  color: var(--on-accent);
 }
 
 /* Tabs Bar */
@@ -246,7 +246,7 @@
 .railSectionTitle {
   font-size: 0.78rem;
   font-weight: 700;
-  text-transform: uppercase;
+  
   color: var(--text-muted);
   letter-spacing: 0.05em;
 }
@@ -473,7 +473,7 @@
   position: fixed;
   inset: 0;
   background: rgba(0, 0, 0, 0.45);
-  backdrop-filter: blur(4px);
+  backdrop-filter: none;
   z-index: 1000;
   display: flex;
   align-items: center;

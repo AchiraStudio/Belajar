@@ -168,110 +168,6 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "2af50177e190e07a26ab74f8b1efbfe2ef87da2116221318cb1c2e82baf7de06"
 
 [[package]]
-name = "belajar-ai"
-version = "0.1.0"
-dependencies = [
- "axum",
- "belajar-core",
- "futures-util",
- "regex",
- "reqwest",
- "serde_json",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "belajar-api"
-version = "0.1.0"
-dependencies = [
- "argon2",
- "axum",
- "belajar-application",
- "belajar-storage",
- "http-body-util",
- "serde",
- "serde_json",
- "sha2 0.10.9",
- "tokio",
- "tower",
- "tower-http",
- "tracing",
- "uuid",
-]
-
-[[package]]
-name = "belajar-application"
-version = "0.1.0"
-dependencies = [
- "belajar-ai",
- "belajar-core",
- "belajar-storage",
- "chrono",
- "chrono-tz",
- "futures-util",
- "serde_json",
- "sqlx",
- "thiserror",
- "tokio",
- "tracing",
-]
-
-[[package]]
-name = "belajar-core"
-version = "0.1.0"
-dependencies = [
- "chrono",
- "chrono-tz",
- "serde",
- "serde_json",
- "sha2 0.10.9",
- "unicode-normalization",
-]
-
-[[package]]
-name = "belajar-devdb"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "belajar-storage",
- "postgresql_embedded",
- "sqlx",
- "tokio",
-]
-
-[[package]]
-name = "belajar-server"
-version = "0.1.0"
-dependencies = [
- "anyhow",
- "axum",
- "belajar-api",
- "belajar-application",
- "belajar-storage",
- "chrono-tz",
- "dotenvy",
- "thiserror",
- "tokio",
- "tracing",
- "tracing-subscriber",
-]
-
-[[package]]
-name = "belajar-storage"
-version = "0.1.0"
-dependencies = [
- "belajar-storage",
- "serde",
- "serde_json",
- "sqlx",
- "thiserror",
- "tokio",
- "tracing",
- "uuid",
-]
-
-[[package]]
 name = "bitflags"
 version = "2.13.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
@@ -1239,6 +1135,7 @@ version = "0.37.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "b1f111c8c41e7c61a49cd34e44c7619462967221a6443b0ec299e0ac30cfb9b1"
 dependencies = [
+ "cc",
  "pkg-config",
  "vcpkg",
 ]
@@ -2365,6 +2262,114 @@ dependencies = [
  "unicode-bidi",
  "unicode-normalization",
  "unicode-properties",
+]
+
+[[package]]
+name = "stuby-ai"
+version = "0.1.0"
+dependencies = [
+ "axum",
+ "futures-util",
+ "regex",
+ "reqwest",
+ "serde_json",
+ "stuby-core",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stuby-api"
+version = "0.1.0"
+dependencies = [
+ "argon2",
+ "axum",
+ "http-body-util",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "stuby-application",
+ "stuby-storage",
+ "tokio",
+ "tower",
+ "tower-http",
+ "tracing",
+ "uuid",
+]
+
+[[package]]
+name = "stuby-application"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "chrono-tz",
+ "futures-util",
+ "serde_json",
+ "sqlx",
+ "stuby-ai",
+ "stuby-core",
+ "stuby-storage",
+ "thiserror",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
+name = "stuby-core"
+version = "0.1.0"
+dependencies = [
+ "chrono",
+ "chrono-tz",
+ "serde",
+ "serde_json",
+ "sha2 0.10.9",
+ "unicode-normalization",
+]
+
+[[package]]
+name = "stuby-devdb"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "postgresql_embedded",
+ "sqlx",
+ "stuby-storage",
+ "tokio",
+]
+
+[[package]]
+name = "stuby-server"
+version = "0.1.0"
+dependencies = [
+ "anyhow",
+ "axum",
+ "chrono-tz",
+ "dotenvy",
+ "reqwest",
+ "serde_json",
+ "stuby-api",
+ "stuby-application",
+ "stuby-storage",
+ "thiserror",
+ "tokio",
+ "tracing",
+ "tracing-subscriber",
+ "uuid",
+]
+
+[[package]]
+name = "stuby-storage"
+version = "0.1.0"
+dependencies = [
+ "regex",
+ "serde",
+ "serde_json",
+ "sqlx",
+ "stuby-storage",
+ "thiserror",
+ "tokio",
+ "tracing",
+ "uuid",
 ]
 
 [[package]]

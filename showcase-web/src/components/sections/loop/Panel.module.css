@@ -1,0 +1,7 @@
+/* Layout shared by every loop panel: a sample on top, a short explanation under it. */
+.panel { display: grid; gap: 28px; }
+.copy { display: grid; gap: 12px; max-width: 62ch; }
+.copy p { color: var(--text-2); }
+.barPad { padding: 12px 14px; border-bottom: 1px solid var(--line); background: var(--tint-cream); }
+.barRow { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 10px; }
+.capInline { font-size: 0.8125rem; color: var(--text-3); padding-right: 6px; }

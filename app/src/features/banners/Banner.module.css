@@ -1,0 +1,299 @@
+/* ==========================================================================
+   Banners and advertisement slots (see banners.ts for sizes and how to add one).
+   Solid colour banners with the logo's heavy ink outline. No glass anywhere here.
+   ========================================================================== */
+
+.banner {
+  /* default = ink: dark outline-colour panel, bamboo action */
+  --b-from: #141816;
+  --b-to: #1F2622;
+  --b-ink: #F6F4EC;
+  --b-ink-2: #D5DCCF;
+  --b-cta-bg: #8DC63F;
+  --b-cta-ink: #141816;
+  --b-tag-bg: rgba(255, 255, 255, 0.14);
+  --b-tag-ink: #F6F4EC;
+  --b-disc: rgba(141, 198, 63, 0.2);
+  --b-bookA: #F6F4EC;
+  --b-bookB: #8DC63F;
+  --b-bookC: #5E9A2A;
+  --b-line: rgba(20, 24, 22, 0.5);
+  --b-star: #F2B705;
+
+  position: relative;
+  display: flex;
+  align-items: stretch;
+  overflow: hidden;
+  min-width: 0;
+  border-radius: var(--radius-lg);
+  background: linear-gradient(120deg, var(--b-from), var(--b-to));
+  color: var(--b-ink);
+  border: 2px solid #141816;
+  box-shadow: 4px 4px 0 #141816;
+}
+
+.theme_bamboo {
+  --b-from: #8DC63F;
+  --b-to: #7DB82F;
+  --b-ink: #141816;
+  --b-ink-2: #1F2A14;
+  --b-cta-bg: #141816;
+  --b-cta-ink: #F6F4EC;
+  --b-tag-bg: rgba(20, 24, 22, 0.14);
+  --b-tag-ink: #141816;
+  --b-disc: rgba(255, 255, 255, 0.35);
+  --b-bookA: #141816;
+  --b-bookB: #F6F4EC;
+  --b-bookC: #FFFFFF;
+  --b-line: rgba(20, 24, 22, 0.4);
+}
+
+.theme_deep {
+  --b-from: #1F5A12;
+  --b-to: #2F7A1F;
+  --b-ink: #FFFFFF;
+  --b-ink-2: #E4F2CC;
+  --b-cta-bg: #F6F4EC;
+  --b-cta-ink: #141816;
+  --b-tag-bg: rgba(0, 0, 0, 0.28);
+  --b-tag-ink: #FFFFFF;
+  --b-disc: rgba(255, 255, 255, 0.14);
+  --b-bookA: #F6F4EC;
+  --b-bookB: #CFE8A8;
+  --b-bookC: #8DC63F;
+  --b-line: rgba(31, 90, 18, 0.55);
+}
+
+/* The light one: sun yellow with ink text, so the set is not four dark rectangles. */
+.theme_sun {
+  --b-from: #FCEFC0;
+  --b-to: #F6DC85;
+  --b-ink: #141816;
+  --b-ink-2: #3F3410;
+  --b-cta-bg: #141816;
+  --b-cta-ink: #F6F4EC;
+  --b-tag-bg: rgba(20, 24, 22, 0.12);
+  --b-tag-ink: #141816;
+  --b-disc: rgba(255, 255, 255, 0.55);
+  --b-bookA: #141816;
+  --b-bookB: #FFFFFF;
+  --b-bookC: #8DC63F;
+  --b-line: rgba(20, 24, 22, 0.4);
+  --b-star: #E08A00;
+}
+
+/* Photo artwork: a dark scrim on the text side keeps the copy readable whatever the picture is. */
+.hasImage {
+  background-image: linear-gradient(90deg, rgba(8, 10, 8, 0.74) 0%, rgba(8, 10, 8, 0.36) 55%, rgba(8, 10, 8, 0.08) 100%),
+    var(--banner-image);
+  background-size: cover;
+  background-position: center;
+  --b-ink: #FFFFFF;
+  --b-ink-2: rgba(255, 255, 255, 0.94);
+  --b-cta-bg: #8DC63F;
+  --b-cta-ink: #141816;
+  --b-tag-bg: rgba(8, 10, 8, 0.6);
+  --b-tag-ink: #FFFFFF;
+}
+.hasImage .art { display: none; }
+
+.copy {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  justify-content: center;
+  gap: 8px;
+  max-width: min(60%, 520px);
+  padding: 28px 32px 28px;
+}
+
+.title {
+  margin: 0;
+  font-size: clamp(1.15rem, 0.85rem + 1.2vw, 1.9rem);
+  line-height: var(--leading-tight);
+  font-weight: 760;
+  letter-spacing: var(--tracking-tight);
+  color: var(--b-ink);
+  text-wrap: balance;
+}
+
+.body {
+  margin: 0;
+  font-size: var(--text-base);
+  line-height: var(--leading-snug);
+  color: var(--b-ink-2);
+}
+
+.cta {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  min-height: 44px;
+  margin-top: 6px;
+  padding: 0 18px;
+  border-radius: var(--radius-full);
+  background: var(--b-cta-bg);
+  color: var(--b-cta-ink);
+  font-size: var(--text-sm);
+  font-weight: 700;
+  text-decoration: none;
+  box-shadow: 0 6px 16px -8px rgba(0, 0, 0, 0.45);
+  transition: transform var(--dur-fast) var(--ease-out), box-shadow var(--dur-fast) ease;
+}
+.cta:hover { transform: translateY(-1px); box-shadow: 0 10px 20px -8px rgba(0, 0, 0, 0.5); }
+.cta:active { transform: scale(0.98); }
+.cta:focus-visible { outline: 2px solid var(--b-ink); outline-offset: 3px; box-shadow: none; }
+
+/* "Iklan" / "Promo": always visible, never hidden by the artwork. */
+.tag {
+  position: absolute;
+  z-index: 2;
+  top: 12px;
+  right: 12px;
+  padding: 2px 10px;
+  border-radius: var(--radius-full);
+  background: var(--b-tag-bg);
+  color: var(--b-tag-ink);
+  font-size: 0.6875rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+/* ---- Artwork ---------------------------------------------------------------------------- */
+.art {
+  position: absolute;
+  right: clamp(8px, 3%, 40px);
+  bottom: 0;
+  z-index: 0;
+  height: 100%;
+  max-height: 300px;
+  width: auto;
+  aspect-ratio: 220 / 160;
+  pointer-events: none;
+}
+.artDisc { fill: var(--b-disc); }
+.artBookA { fill: var(--b-bookA); }
+.artBookB { fill: var(--b-bookB); }
+.artBookC { fill: var(--b-bookC); }
+.artLine { fill: var(--b-line); }
+.artStar { fill: var(--b-star); }
+.artDot { fill: var(--b-ink); opacity: 0.55; }
+
+/* ---- Slots ------------------------------------------------------------------------------ */
+.slot_hero { min-height: clamp(210px, 20vw, 270px); }
+.slot_hero .copy { padding-bottom: 60px; }
+
+.slot_side { min-height: 220px; height: 100%; }
+.slot_side .copy { max-width: 100%; padding: 24px 22px; justify-content: flex-end; }
+.slot_side .art { height: 40%; right: 10px; top: 46px; bottom: auto; opacity: 0.95; }
+.slot_side .title { font-size: var(--text-xl); }
+.slot_side .body { max-width: 34ch; }
+
+.slot_strip { min-height: 96px; align-items: center; }
+.slot_strip .copy { max-width: none; flex-direction: row; flex-wrap: wrap; align-items: center; gap: 4px 20px; padding: 14px 22px; padding-right: 96px; }
+.slot_strip .title { font-size: var(--text-lg); }
+.slot_strip .body { flex: 1 1 240px; font-size: var(--text-sm); }
+.slot_strip .cta { margin-top: 0; min-height: 40px; }
+.slot_strip .art { display: none; }
+
+
+/* ---- Carousel --------------------------------------------------------------------------- */
+.carousel { position: relative; border-radius: var(--radius-lg); }
+
+.track {
+  display: flex;
+  overflow-x: auto;
+  overflow-y: hidden;
+  scroll-snap-type: x mandatory;
+  overscroll-behavior-x: contain;
+  scrollbar-width: none;
+  border-radius: var(--radius-lg);
+  border: 2px solid #141816;
+  box-shadow: 4px 4px 0 #141816;
+}
+.track::-webkit-scrollbar { display: none; }
+
+.slide { flex: 0 0 100%; min-width: 0; scroll-snap-align: start; display: flex; }
+.fill { flex: 1; box-shadow: none; border: 0; border-radius: 0; }
+
+/* Controls float over the artwork: a solid ink pill (no glass). */
+.controls {
+  position: absolute;
+  right: 14px;
+  bottom: 12px;
+  z-index: 3;
+  display: flex;
+  align-items: center;
+  gap: 2px;
+  padding: 3px;
+  border-radius: var(--radius-full);
+  background: #141816;
+  color: #F6F4EC;
+}
+
+.ctl {
+  display: grid;
+  place-items: center;
+  width: 36px;
+  height: 36px;
+  border: 0;
+  border-radius: var(--radius-full);
+  background: transparent;
+  color: inherit;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: background-color var(--dur-fast) ease;
+}
+.ctl:hover { background: rgba(255, 255, 255, 0.18); }
+.ctl:focus-visible { outline: 2px solid #FFFFFF; outline-offset: -2px; box-shadow: none; }
+
+.dots { list-style: none; margin: 0; padding: 0; display: flex; align-items: center; }
+.dot {
+  display: grid;
+  place-items: center;
+  width: 24px;
+  height: 36px;
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  touch-action: manipulation;
+}
+.dot::before {
+  content: '';
+  width: 7px;
+  height: 7px;
+  border-radius: var(--radius-full);
+  background: rgba(255, 255, 255, 0.6);
+  transition: width var(--dur-med) var(--ease-out), background-color var(--dur-fast) ease;
+}
+.dotOn::before { width: 20px; background: #FFFFFF; }
+.dot:focus-visible { outline: 2px solid #FFFFFF; outline-offset: -2px; box-shadow: none; border-radius: var(--radius-full); }
+
+@media (prefers-reduced-motion: no-preference) {
+  .track { scroll-behavior: smooth; }
+}
+
+/* ---- Responsive ------------------------------------------------------------------------- */
+@media (max-width: 720px) {
+  .copy { max-width: 78%; padding: 20px 20px 20px; }
+  .slot_hero { min-height: 214px; }
+  .slot_hero .copy { padding-bottom: 58px; }
+  .art { opacity: 0.55; right: -14px; height: 78%; }
+  .body { font-size: var(--text-sm); }
+  .slot_side { min-height: 190px; }
+  .slot_side .copy { max-width: 100%; }
+  .slot_strip .copy { padding-right: 76px; }
+}
+
+@media (max-width: 420px) {
+  .copy { max-width: 86%; }
+  .controls { right: 8px; bottom: 8px; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .cta, .dot::before { transition: none; }
+  .cta:hover { transform: none; }
+}

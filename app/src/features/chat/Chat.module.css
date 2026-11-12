@@ -31,7 +31,7 @@
 .time { font-weight: 400; color: var(--text-muted); font-variant-numeric: tabular-nums; }
 .userText {
   padding: 10px 14px; border-radius: var(--radius-lg) var(--radius-sm) var(--radius-lg) var(--radius-lg);
-  background: var(--accent); color: #fff; font-size: var(--text-base); line-height: var(--leading-normal);
+  background: var(--accent); color: var(--on-accent); font-size: var(--text-base); line-height: var(--leading-normal);
   white-space: pre-wrap; overflow-wrap: anywhere;
 }
 .md { font-size: var(--text-base); line-height: var(--leading-relaxed); color: var(--text-primary); overflow-wrap: anywhere; }

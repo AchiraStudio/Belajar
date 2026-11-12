@@ -17,6 +17,7 @@ import { copyText } from '../../services/files';
 import { renderMarkdown } from '../notes/markdown/parser';
 import type { ChatMessage, ChatSession, ChatStartResponse } from './types';
 import styles from './Chat.module.css';
+import { tr, currentLocale } from '../../services/i18n';
 
 interface Props {
   documentId: number;
@@ -28,7 +29,7 @@ const SEND_TIMEOUT_MS = 120_000;
 
 function timeLabel(ts?: number): string {
   if (!ts) return '';
-  return new Date(ts * 1000).toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' });
+  return new Date(ts * 1000).toLocaleTimeString(currentLocale(), { hour: '2-digit', minute: '2-digit' });
 }
 
 type Phase =
@@ -72,7 +73,7 @@ export function ChatView({ documentId, onDeleted }: Props) {
       setPhase({ kind: 'ready' });
     } catch (err) {
       if (!alive.current) return;
-      const message = errorMessage(err, 'Gagal memulai chat.');
+      const message = errorMessage(err, tr('Gagal memulai chat.'));
       setPhase({ kind: 'error', message, unavailable: isUnavailableMessage(message) });
     }
   }, [documentId]);
@@ -95,7 +96,7 @@ export function ChatView({ documentId, onDeleted }: Props) {
         if (stop || !alive.current) return;
         setSession(res.session);
         setMessages(res.messages ?? []);
-        if (res.session.status === 'ready') toast.success('Konteks materi siap. Kamu bisa mulai bertanya.');
+        if (res.session.status === 'ready') toast.success(tr('Konteks materi siap. Kamu bisa mulai bertanya.'));
       } catch {
         /* retry on the next round */
       }
@@ -162,7 +163,7 @@ export function ChatView({ documentId, onDeleted }: Props) {
               } else if (ev.type === 'done' && ev.data && typeof ev.data === 'object') {
                 final = ev.data as typeof final;
               } else if (ev.type === 'error') {
-                streamError = typeof ev.error === 'string' ? ev.error : 'Terjadi kesalahan pada respons AI.';
+                streamError = typeof ev.error === 'string' ? ev.error : tr('Terjadi kesalahan pada respons AI.');
               }
             },
           },
@@ -199,9 +200,9 @@ export function ChatView({ documentId, onDeleted }: Props) {
         setMessages((prev) =>
           prev.map((m) => (m.id === botId ? { ...m, pending: false, interrupted: true, content: m.content || '' } : m)),
         );
-        toast.info('Jawaban dihentikan.');
+        toast.info(tr('Jawaban dihentikan.'));
       } else {
-        rollback(err instanceof ApiError || err instanceof Error ? err.message : 'Gagal mengirim pesan.');
+        rollback(err instanceof ApiError || err instanceof Error ? err.message : tr('Gagal mengirim pesan.'));
       }
     } finally {
       abortRef.current = null;
@@ -218,10 +219,10 @@ export function ChatView({ documentId, onDeleted }: Props) {
       await rpcCall('chat_delete', { session_id: session.id });
       dropCache();
       setConfirmDelete(false);
-      toast.success('Sesi chat dihapus');
+      toast.success(tr('Sesi chat dihapus'));
       onDeleted();
     } catch (err) {
-      toast.error(errorMessage(err, 'Gagal menghapus sesi chat.'));
+      toast.error(errorMessage(err, tr('Gagal menghapus sesi chat.')));
     } finally {
       setDeleting(false);
     }
@@ -238,13 +239,13 @@ export function ChatView({ documentId, onDeleted }: Props) {
   };
 
   const copy = async (text: string) => {
-    (await copyText(text)) ? toast.success('Jawaban disalin') : toast.error('Tidak bisa menyalin ke papan klip.');
+    (await copyText(text)) ? toast.success(tr('Jawaban disalin')) : toast.error(tr('Tidak bisa menyalin ke papan klip.'));
   };
 
   // ------------------------------------------------------------------ render
   if (phase.kind === 'loading') {
     return (
-      <div className={styles.shell} aria-busy="true" aria-label="Memuat chat">
+      <div className={styles.shell} aria-busy="true" aria-label={tr('Memuat chat')}>
         <Skeleton height="56px" borderRadius="16px" />
         <Skeleton height="280px" borderRadius="16px" />
       </div>
@@ -255,9 +256,9 @@ export function ChatView({ documentId, onDeleted }: Props) {
       return (
         <UnavailableState
           icon="message"
-          title="Chat AI belum tersedia di server ini"
-          description={`${phase.message} Chat dijawab oleh model AI berdasarkan isi materimu, jadi tidak disimulasikan.`}
-          requirements={['Layanan AI dikonfigurasi di server', 'Aksi chat_start, chat_get, dan chat_send tersedia']}
+          title={tr('Chat AI belum tersedia di server ini')}
+          description={tr('{a} Chat dijawab oleh model AI berdasarkan isi materimu, jadi tidak disimulasikan.', { a: phase.message })}
+          requirements={[tr('Layanan AI dikonfigurasi di server'), tr('Aksi chat_start, chat_get, dan chat_send tersedia')]}
         />
       );
     }
@@ -273,64 +274,64 @@ export function ChatView({ documentId, onDeleted }: Props) {
       <header className={styles.head}>
         <div className={styles.headText}>
           <span className={styles.grounded}>
-            <Icon name="book" size={14} /> Berdasarkan materi
+            <Icon name="book" size={14} />{' '}{tr('Berdasarkan materi')}
           </span>
-          <h2 className={styles.title}>{title || 'Materi'}</h2>
+          <h2 className={styles.title}>{title || tr('Materi')}</h2>
         </div>
         <div className={styles.headMeta}>
           <StatusBadge
             status={status === 'ready' ? 'success' : status === 'preparing' ? 'processing' : 'error'}
-            label={status === 'ready' ? 'Siap' : status === 'preparing' ? 'Menyiapkan konteks' : 'Konteks gagal'}
+            label={status === 'ready' ? tr('Siap') : status === 'preparing' ? tr('Menyiapkan konteks') : tr('Konteks gagal')}
             pulse={status === 'preparing'}
           />
-          <span className={styles.mode}>{mode === 'continue' ? 'Melanjutkan obrolan' : 'Obrolan baru'}</span>
-          <IconButton label="Hapus sesi chat" icon="trash" size="sm" variant="ghost" onClick={() => setConfirmDelete(true)} />
+          <span className={styles.mode}>{mode === 'continue' ? tr('Melanjutkan obrolan') : tr('Obrolan baru')}</span>
+          <IconButton label={tr('Hapus sesi chat')} icon="trash" size="sm" variant="ghost" onClick={() => setConfirmDelete(true)} />
         </div>
       </header>
 
       {status === 'error' && (
         <div className={styles.notice} role="alert">
           <Icon name="alert-circle" size={16} />
-          <span>Konteks materi gagal disiapkan.</span>
+          <span>{tr('Konteks materi gagal disiapkan.')}</span>
           <Button size="sm" variant="outline" onClick={retryContext}>
-            Coba lagi
+            {tr('Coba lagi')}
           </Button>
         </div>
       )}
       {status === 'preparing' && (
         <div className={styles.notice} role="status">
           <Icon name="refresh" size={16} className="spin" />
-          <span>Menyiapkan konteks materi… pertanyaan bisa diajukan setelah siap.</span>
+          <span>{tr('Menyiapkan konteks materi… pertanyaan bisa diajukan setelah siap.')}</span>
         </div>
       )}
 
-      <div ref={threadRef} className={styles.thread} onScroll={onScroll} role="log" aria-label="Riwayat percakapan" aria-live="off" tabIndex={0}>
+      <div ref={threadRef} className={styles.thread} onScroll={onScroll} role="log" aria-label={tr('Riwayat percakapan')} aria-live="off" tabIndex={0}>
         {messages.length === 0 && (
           <div className={styles.hello}>
             <Icon name="sparkles" size={22} />
-            <p>Tanyakan apa saja tentang materi ini. Jawaban disusun dari isinya, dan bisa salah, jadi periksa kembali hal penting.</p>
+            <p>{tr('Tanyakan apa saja tentang materi ini. Jawaban disusun dari isinya, dan bisa salah, jadi periksa kembali hal penting.')}</p>
           </div>
         )}
         {messages.map((m) => (
           <article key={m.id} className={`${styles.msg} ${m.role === 'user' ? styles.user : styles.ai}`}>
             <div className={styles.who}>
-              {m.role === 'user' ? 'Kamu' : 'Asisten'}
+              {m.role === 'user' ? tr('Kamu') : tr('Asisten')}
               {m.ts ? <span className={styles.time}>{timeLabel(m.ts)}</span> : null}
             </div>
             {m.role === 'user' ? (
               <div className={styles.userText}>{m.content}</div>
             ) : m.pending && !m.content ? (
-              <div className={styles.typing} role="status" aria-label="Asisten sedang menjawab">
+              <div className={styles.typing} role="status" aria-label={tr('Asisten sedang menjawab')}>
                 <i /><i /><i />
               </div>
             ) : (
               <>
                 <div className={styles.md} dangerouslySetInnerHTML={{ __html: renderMarkdown(m.content) }} />
                 {m.pending && <span className={styles.cursor} aria-hidden="true" />}
-                {m.interrupted && <div className={styles.interrupted}>Jawaban dihentikan.</div>}
+                {m.interrupted && <div className={styles.interrupted}>{tr('Jawaban dihentikan.')}</div>}
                 {!m.pending && m.content && (
                   <div className={styles.msgActions}>
-                    <IconButton label="Salin jawaban" icon="copy" size="sm" variant="ghost" onClick={() => void copy(m.content)} />
+                    <IconButton label={tr('Salin jawaban')} icon="copy" size="sm" variant="ghost" onClick={() => void copy(m.content)} />
                   </div>
                 )}
               </>
@@ -340,7 +341,7 @@ export function ChatView({ documentId, onDeleted }: Props) {
       </div>
 
       <p className={styles.srOnly} role="status" aria-live="polite">
-        {sending ? 'Asisten sedang menjawab.' : lastAssistant && !lastAssistant.pending ? 'Jawaban asisten selesai.' : ''}
+        {sending ? tr('Asisten sedang menjawab.') : lastAssistant && !lastAssistant.pending ? tr('Jawaban asisten selesai.') : ''}
       </p>
 
       <form
@@ -351,14 +352,14 @@ export function ChatView({ documentId, onDeleted }: Props) {
         }}
       >
         <label className={styles.srOnly} htmlFor="chat-input">
-          Pertanyaan tentang materi
+          {tr('Pertanyaan tentang materi')}
         </label>
         <textarea
           id="chat-input"
           className={styles.input}
           rows={1}
           maxLength={4000}
-          placeholder={ready ? 'Tanyakan sesuatu tentang materi…' : 'Menunggu konteks materi…'}
+          placeholder={ready ? tr('Tanyakan sesuatu tentang materi…') : tr('Menunggu konteks materi…')}
           value={draft}
           disabled={!ready}
           onChange={(e) => setDraft(e.target.value)}
@@ -371,35 +372,35 @@ export function ChatView({ documentId, onDeleted }: Props) {
         />
         {sending ? (
           <Button type="button" variant="outline" icon="x" onClick={stop}>
-            Berhenti
+            {tr('Berhenti')}
           </Button>
         ) : (
-          <Button type="submit" icon="send" disabled={!ready || !draft.trim()} aria-label="Kirim pertanyaan">
-            Kirim
+          <Button type="submit" icon="send" disabled={!ready || !draft.trim()} aria-label={tr('Kirim pertanyaan')}>
+            {tr('Kirim')}
           </Button>
         )}
       </form>
-      <p className={styles.fine}>Enter untuk kirim · Shift+Enter baris baru</p>
+      <p className={styles.fine}>{tr('Enter untuk kirim · Shift+Enter baris baru')}</p>
 
       <Dialog
         open={confirmDelete}
         onClose={() => setConfirmDelete(false)}
-        title="Hapus sesi chat?"
-        description="Seluruh riwayat obrolan untuk materi ini dihapus permanen, termasuk konteks yang sudah disiapkan."
+        title={tr('Hapus sesi chat?')}
+        description={tr('Seluruh riwayat obrolan untuk materi ini dihapus permanen, termasuk konteks yang sudah disiapkan.')}
         size="sm"
         dismissible={!deleting}
         footer={
           <>
             <Button variant="ghost" onClick={() => setConfirmDelete(false)} disabled={deleting}>
-              Batal
+              {tr('Batal')}
             </Button>
             <Button variant="danger" loading={deleting} onClick={resetSession}>
-              Hapus sesi
+              {tr('Hapus sesi')}
             </Button>
           </>
         }
       >
-        <p className={styles.fine}>Kamu bisa memulai obrolan baru kapan saja.</p>
+        <p className={styles.fine}>{tr('Kamu bisa memulai obrolan baru kapan saja.')}</p>
       </Dialog>
     </section>
   );

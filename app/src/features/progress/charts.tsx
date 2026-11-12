@@ -1,5 +1,6 @@
 import React from 'react';
 import styles from './Progress.module.css';
+import { tr } from '../../services/i18n';
 
 export interface ChartPoint {
   label: string;
@@ -46,7 +47,7 @@ export function TrendChart({ points, title }: { points: ChartPoint[]; title: str
         </text>
       </svg>
       <details className={styles.textAlt}>
-        <summary>Lihat sebagai daftar</summary>
+        <summary>{tr('Lihat sebagai daftar')}</summary>
         <ol>
           {points.map((p, i) => (
             <li key={i}>
@@ -83,7 +84,7 @@ export function MinutesChart({ days, title }: { days: { label: string; minutes: 
           return (
             <g key={i}>
               <rect x={cx - bw / 2} y={PAD.top + ih - h} width={bw} height={h} rx={4} className={d.minutes > 0 ? styles.bar : styles.barEmpty}>
-                <title>{`${d.label}: ${Math.round(d.minutes)} menit`}</title>
+                <title>{tr('{a}: {b} menit', { a: d.label, b: Math.round(d.minutes) })}</title>
               </rect>
               {(i === 0 || i === days.length - 1 || i % 3 === 0) && (
                 <text x={cx} y={H - 6} textAnchor="middle" className={styles.axis}>
@@ -95,11 +96,11 @@ export function MinutesChart({ days, title }: { days: { label: string; minutes: 
         })}
       </svg>
       <details className={styles.textAlt}>
-        <summary>Lihat sebagai daftar</summary>
+        <summary>{tr('Lihat sebagai daftar')}</summary>
         <ol>
           {days.map((d, i) => (
             <li key={i}>
-              {d.label}: {Math.round(d.minutes)} menit
+              {d.label}: {Math.round(d.minutes)}{' '}{tr('menit')}
             </li>
           ))}
         </ol>

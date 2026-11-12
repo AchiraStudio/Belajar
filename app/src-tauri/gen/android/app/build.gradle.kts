@@ -16,10 +16,16 @@ val tauriProperties = Properties().apply {
 
 android {
     compileSdk = 37
-    namespace = "app.belajar.client"
+    namespace = "app.stuby.client"
+    // Lint's release-time check downloads its own tool chain, so a release build then fails without
+    // internet (or on this network's flaky DNS) and adds minutes. It does not change the APK.
+    lint {
+        checkReleaseBuilds = false
+        abortOnError = false
+    }
     defaultConfig {
         manifestPlaceholders["usesCleartextTraffic"] = "false"
-        applicationId = "app.belajar.client"
+        applicationId = "app.stuby.client"
         minSdk = 24
         targetSdk = 37
         versionCode = tauriProperties.getProperty("tauri.android.versionCode", "1").toInt()

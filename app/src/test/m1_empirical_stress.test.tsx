@@ -63,7 +63,7 @@ describe('Milestone 1 Empirical Stress Tests — Challenger 1', () => {
       ];
 
       for (const val of adversarialValues) {
-        window.localStorage.setItem('belajar-theme', val);
+        window.localStorage.setItem('stuby-theme', val);
         const { result, unmount } = renderHook(() => useTheme(), {
           wrapper: ({ children }) => <ThemeProvider>{children}</ThemeProvider>,
         });
@@ -252,7 +252,7 @@ describe('Milestone 1 Empirical Stress Tests — Challenger 1', () => {
       const handler = (e: Event) => {
         events.push((e as CustomEvent).detail);
       };
-      document.addEventListener('belajar:theme', handler);
+      document.addEventListener('stuby:theme', handler);
 
       const { result } = renderHook(() => useTheme(), {
         wrapper: ({ children }) => <ThemeProvider defaultTheme="light">{children}</ThemeProvider>,
@@ -268,7 +268,7 @@ describe('Milestone 1 Empirical Stress Tests — Challenger 1', () => {
         result.current.setTheme('light');
       });
 
-      document.removeEventListener('belajar:theme', handler);
+      document.removeEventListener('stuby:theme', handler);
 
       // Should have recorded mount and 3 theme changes
       expect(events.length).toBeGreaterThanOrEqual(3);

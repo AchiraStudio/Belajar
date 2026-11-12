@@ -233,7 +233,7 @@ function TestProviders({
 }
 
 /**
- * Custom opaque-box renderer for Belajar components and full routes.
+ * Custom opaque-box renderer for Stuby components and full routes.
  * Automatically wraps components in ThemeProvider, ToastProvider, Router (MemoryRouter or HashRouter),
  * and TestThemeContext (with data-theme DOM synchronization and matchMedia reactive listening).
  */
@@ -278,14 +278,14 @@ export function mount(
   }
 
   const activeStorageKey =
-    themeStorageKey ?? `__belajar_test_theme_${++mountSessionCounter}`;
+    themeStorageKey ?? `__stuby_test_theme_${++mountSessionCounter}`;
 
   let initialTheme: ThemeMode = explicitTheme ?? 'light';
   if (!explicitTheme && typeof window !== 'undefined' && window.localStorage) {
     try {
       const stored =
-        window.localStorage.getItem('belajar-theme') ||
-        window.localStorage.getItem('belajar_theme');
+        window.localStorage.getItem('stuby-theme') ||
+        window.localStorage.getItem('stuby_theme');
       if (stored === 'light' || stored === 'dark' || stored === 'system') {
         initialTheme = stored;
       }

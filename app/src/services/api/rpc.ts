@@ -1,4 +1,5 @@
 import { apiFetch, ApiError, type RequestOptions } from './client';
+import { tr } from '../i18n';
 
 export interface RpcOptions extends RequestOptions {
   bypassCache?: boolean;
@@ -116,14 +117,14 @@ export async function rpcCall<TResult = unknown>(
           }
           const errDetail = response.error;
           throw new ApiError(
-            errDetail.message ?? 'Terjadi kesalahan pada server.',
+            errDetail.message ?? tr('Terjadi kesalahan pada server.'),
             errDetail.code ?? 'rpc_error',
             400,
             Boolean(errDetail.retryable),
           );
         }
         if (response.ok === false) {
-          throw new ApiError('Operasi gagal.', 'rpc_error', 400, false);
+          throw new ApiError(tr('Operasi gagal.'), 'rpc_error', 400, false);
         }
       }
 

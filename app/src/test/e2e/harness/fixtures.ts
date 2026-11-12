@@ -182,12 +182,12 @@ export function getSampleProfile(index: number): Partial<PeerProfile> {
 }
 
 // ============================================================================
-// Belajar Frost UI Realistic Fixtures
+// Stuby Frost UI Realistic Fixtures
 // ============================================================================
 
 export const defaultHealthFixture: HealthResponse = {
   status: 'ok',
-  service: 'belajar-server',
+  service: 'stuby-server',
   version: '0.1.0',
 };
 
@@ -569,7 +569,7 @@ export const defaultCardsStatsFixture: CardsStatsResponse = {
 
 export const defaultCardsExportFixture: CardsExportResponse = {
   tsv: "Sebutkan 7 lapisan dalam model OSI!\tPhysical, Data Link, Network, Transport, Session, Presentation, Application\tJaringan\nApa perbedaan TCP dan UDP?\tTCP connection-oriented; UDP connectionless\tJaringan\n",
-  filename: 'belajar_flashcards_export.tsv',
+  filename: 'stuby_flashcards_export.tsv',
 };
 
 export const defaultPlayHubFixture: PlayHubResponse = {

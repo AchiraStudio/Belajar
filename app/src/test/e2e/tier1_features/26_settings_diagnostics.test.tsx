@@ -234,10 +234,10 @@ describe('Feature 26: Settings & Diagnostics', () => {
       expect((weeklyInput as HTMLInputElement).value).toBe('150');
 
       const notesSelect = screen.getByRole('combobox', { name: 'Gaya Catatan' });
-      expect((notesSelect as HTMLSelectElement).value).toBe('cornell');
+      expect(notesSelect.textContent).toContain('Cornell');
 
       const langSelect = screen.getByRole('combobox', { name: 'Bahasa Hasil AI' });
-      expect((langSelect as HTMLSelectElement).value).toBe('id');
+      expect(langSelect.textContent).toContain('Bahasa Indonesia');
     });
   });
 
@@ -262,14 +262,14 @@ describe('Feature 26: Settings & Diagnostics', () => {
 
   it('26.3 - switches application theme mode with persistence', async () => {
     renderWithProviders(<SettingsDiagnosticsView />, {
-      themeStorageKey: 'belajar-theme',
+      themeStorageKey: 'stuby-theme',
     });
 
     const darkBtn = await screen.findByRole('button', { name: 'Gelap' });
     fireEvent.click(darkBtn);
 
     await waitFor(() => {
-      expect(window.localStorage.getItem('belajar-theme')).toBe('dark');
+      expect(window.localStorage.getItem('stuby-theme')).toBe('dark');
       expect(document.documentElement.getAttribute('data-theme')).toBe('dark');
     });
   });

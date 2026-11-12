@@ -31,7 +31,7 @@
 button.card:hover { border-color: color-mix(in srgb, var(--accent) 45%, var(--border)); }
 button.card:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 .cardBack { cursor: default; background: linear-gradient(180deg, var(--surface-solid), color-mix(in srgb, var(--accent-soft) 55%, var(--surface-solid))); }
-.cardSource { font-size: var(--text-xs); color: var(--text-muted); letter-spacing: var(--tracking-wide); text-transform: uppercase; overflow-wrap: anywhere; }
+.cardSource { font-size: var(--text-xs); color: var(--text-muted); letter-spacing: var(--tracking-wide);  overflow-wrap: anywhere; }
 .cardText { font-size: var(--text-2xl); font-weight: 600; line-height: var(--leading-snug); letter-spacing: -0.01em; overflow-wrap: anywhere; }
 .cardDef { font-family: var(--font-serif); font-size: var(--text-xl); font-weight: 450; line-height: var(--leading-relaxed); }
 .cardHint { font-size: var(--text-sm); color: var(--text-muted); }

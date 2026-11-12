@@ -10,8 +10,8 @@ export interface ThemeContextValue {
   toggleTheme: () => void;
 }
 
-const STORAGE_KEY = 'belajar-theme';
-const LEGACY_STORAGE_KEY = 'belajar_theme';
+const STORAGE_KEY = 'stuby-theme';
+const LEGACY_STORAGE_KEY = 'stuby_theme';
 
 const ThemeContext = createContext<ThemeContextValue | null>(null);
 
@@ -162,7 +162,7 @@ export function ThemeProvider({
     // Dispatch custom event for non-React listeners
     try {
       document.dispatchEvent(
-        new CustomEvent('belajar:theme', {
+        new CustomEvent('stuby:theme', {
           detail: { theme, resolvedTheme, dark: resolvedTheme === 'dark' },
         }),
       );

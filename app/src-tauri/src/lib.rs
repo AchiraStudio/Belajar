@@ -1,13 +1,34 @@
-//! Belajar native shell.
+//! Stuby native shell.
 //!
-//! This crate is deliberately thin (docs/MIGRATION_PLAN.md §8): it hosts the shared React app in a
-//! webview and, later, exposes a handful of native capabilities (file picker, OS credential store,
-//! notifications, save-file, lifecycle). It contains no business logic, no database and no AI
-//! credentials. No Tauri commands are registered yet; each one is added only with a verified feature.
+//! One app for desktop and Android, fully offline: [`embedded`] starts the Stuby server inside
+//! this process on a loopback port (data in an on-device SQLite file, UI compiled into the app)
+//! and points the window at it. The UI and the API share one origin, which the session cookie
+//! (`SameSite=Strict`) requires. The shell contains no business logic of its own.
+
+mod embedded;
 
 #[cfg_attr(mobile, tauri::mobile_entry_point)]
 pub fn run() {
-    tauri::Builder::default()
-        .run(tauri::generate_context!())
-        .expect("error while running the Belajar application");
+    let builder = tauri::Builder::default();
+    // The splash page's "Try again" button.
+    let builder = builder.invoke_handler(tauri::generate_handler![embedded::retry_boot]);
+    let app = builder
+        .setup(|app| {
+            // The window is declared in tauri.conf.json with `create: false` so it can be opened
+            // here, after we know which address it should show.
+            let window = app
+                .config()
+                .app
+                .windows
+                .first()
+                .cloned()
+                .ok_or("tauri.conf.json declares no window")?;
+
+            embedded::open_main_window(app, window)?;
+            Ok(())
+        })
+        .build(tauri::generate_context!())
+        .expect("error while building the Stuby application");
+
+    app.run(|handle, event| embedded::on_run_event(handle, &event));
 }

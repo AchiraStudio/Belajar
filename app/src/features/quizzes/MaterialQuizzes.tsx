@@ -16,6 +16,7 @@ import { dropCache, rpcCall } from '../../services/api/rpc';
 import { scoreTone } from './QuizzesView';
 import { useStartAttempt } from './useStartAttempt';
 import styles from './Quizzes.module.css';
+import { tr } from '../../services/i18n';
 
 export interface MaterialQuiz {
   id: number;
@@ -49,18 +50,18 @@ export function MaterialQuizzes({ documentId, quizzes, canGenerate, onChanged }:
   return (
     <div className={styles.materialTab}>
       <div className={styles.materialHead}>
-        <h2 className={styles.sectionTitle}>Kuis materi ({quizzes.length})</h2>
+        <h2 className={styles.sectionTitle}>{tr('Kuis materi ({n})', { n: quizzes.length })}</h2>
         <Button icon="sparkles" disabled={!canGenerate} onClick={() => setGenOpen(true)}>
-          Buat kuis
+          {tr('Buat kuis')}
         </Button>
       </div>
-      {!canGenerate && <p className={styles.dialogText}>Tunggu pemrosesan materi selesai sebelum membuat kuis.</p>}
+      {!canGenerate && <p className={styles.dialogText}>{tr('Tunggu pemrosesan materi selesai sebelum membuat kuis.')}</p>}
 
       {quizzes.length === 0 ? (
         <EmptyState
           icon="quiz"
-          title="Belum ada kuis untuk materi ini"
-          description="AI menyusun soal merata dari seluruh isi materi, lengkap dengan sumber dan penjelasan."
+          title={tr('Belum ada kuis untuk materi ini')}
+          description={tr('AI menyusun soal merata dari seluruh isi materi, lengkap dengan sumber dan penjelasan.')}
         />
       ) : (
         <ul className={styles.list}>
@@ -70,17 +71,17 @@ export function MaterialQuizzes({ documentId, quizzes, canGenerate, onChanged }:
                 <div className={styles.rowMain}>
                   <div className={styles.rowTitle}>{q.title}</div>
                   <div className={styles.rowMeta}>
-                    {q.question_count} soal{q.difficulty ? ` · ${q.difficulty}` : ''}
+                    {q.question_count}{' '}{tr('soal')}{q.difficulty ? ` · ${q.difficulty}` : ''}
                   </div>
                 </div>
                 {q.best_pct != null && (
-                  <span className={`${styles.pill} ${styles[`pill_${scoreTone(q.best_pct)}`]}`} title="Skor terbaik">
-                    Terbaik {Math.round(q.best_pct)}%
+                  <span className={`${styles.pill} ${styles[`pill_${scoreTone(q.best_pct)}`]}`} title={tr('Skor terbaik')}>
+                    {tr('Terbaik')}{' '}{Math.round(q.best_pct)}%
                   </span>
                 )}
                 <div className={styles.rowActions}>
                   <Button size="sm" loading={busy === q.id} onClick={() => void start(q.id, 'practice')}>
-                    Latihan
+                    {tr('Latihan')}
                   </Button>
                   <Button
                     size="sm"
@@ -91,7 +92,7 @@ export function MaterialQuizzes({ documentId, quizzes, canGenerate, onChanged }:
                       setExamFor(q);
                     }}
                   >
-                    Ujian
+                    {tr('Ujian')}
                   </Button>
                 </div>
               </SurfaceCard>
@@ -108,21 +109,21 @@ export function MaterialQuizzes({ documentId, quizzes, canGenerate, onChanged }:
           setGenOpen(false);
           dropCache();
           onChanged();
-          if (n < requested) toast.info(`Terbentuk ${n} dari ${requested} soal (sisanya duplikat atau tidak valid).`);
-          else toast.success('Kuis siap dikerjakan');
+          if (n < requested) toast.info(tr('Terbentuk {a} dari {b} soal (sisanya duplikat atau tidak valid).', { a: n, b: requested }));
+          else toast.success(tr('Kuis siap dikerjakan'));
         }}
       />
 
       <Dialog
         open={examFor !== null}
         onClose={() => setExamFor(null)}
-        title="Mulai ujian"
-        description="Jawaban tidak diperiksa sampai dikumpulkan. Kuis otomatis dikumpulkan saat waktu habis."
+        title={tr('Mulai ujian')}
+        description={tr('Jawaban tidak diperiksa sampai dikumpulkan. Kuis otomatis dikumpulkan saat waktu habis.')}
         size="sm"
         footer={
           <>
             <Button variant="ghost" onClick={() => setExamFor(null)}>
-              Batal
+              {tr('Batal')}
             </Button>
             <Button
               onClick={() => {
@@ -133,13 +134,13 @@ export function MaterialQuizzes({ documentId, quizzes, canGenerate, onChanged }:
                 void start(quiz.id, 'exam', limit);
               }}
             >
-              Mulai
+              {tr('Mulai')}
             </Button>
           </>
         }
       >
         <Input
-          label="Batas waktu (menit)"
+          label={tr('Batas waktu (menit)')}
           type="number"
           min={1}
           max={240}
@@ -178,7 +179,7 @@ function GenerateDialog({
   const submit = async () => {
     if (busy) return;
     if (types.length === 0) {
-      setFailure({ text: 'Pilih minimal satu jenis soal.', unavailable: false });
+      setFailure({ text: tr('Pilih minimal satu jenis soal.'), unavailable: false });
       return;
     }
     setBusy(true);
@@ -192,16 +193,16 @@ function GenerateDialog({
         quality,
         types,
       });
-      setProgress({ pct: 3, message: 'Menyusun soal…' });
+      setProgress({ pct: 3, message: tr('Menyusun soal…') });
       const job = await pollJob<{ count: number; requested: number }>(job_id, {
         signal: abort.current.signal,
-        onUpdate: (j) => setProgress({ pct: Math.max(3, j.progress ?? 3), message: j.message || 'Menyusun soal…' }),
+        onUpdate: (j) => setProgress({ pct: Math.max(3, j.progress ?? 3), message: j.message || tr('Menyusun soal…') }),
       });
       if (!job) return;
-      if (job.status === 'failed') throw new Error(job.error || 'Gagal membuat kuis.');
+      if (job.status === 'failed') throw new Error(job.error || tr('Gagal membuat kuis.'));
       onDone(job.result?.count ?? Number(count), job.result?.requested ?? Number(count));
     } catch (err) {
-      const text = errorMessage(err, 'Gagal membuat kuis.');
+      const text = errorMessage(err, tr('Gagal membuat kuis.'));
       setFailure({ text, unavailable: isUnavailableMessage(text) });
     } finally {
       setBusy(false);
@@ -216,16 +217,16 @@ function GenerateDialog({
         abort.current?.abort();
         onClose();
       }}
-      title="Buat kuis dari materi"
-      description="AI menyusun soal dari isi catatan. Proses berjalan di server, jadi dialog ini boleh ditutup."
+      title={tr('Buat kuis dari materi')}
+      description={tr('AI menyusun soal dari isi catatan. Proses berjalan di server, jadi dialog ini boleh ditutup.')}
       size="md"
       footer={
         <>
           <Button variant="ghost" onClick={onClose}>
-            {busy ? 'Tutup' : 'Batal'}
+            {busy ? tr('Tutup') : tr('Batal')}
           </Button>
           <Button icon="sparkles" loading={busy} onClick={submit}>
-            Buat kuis
+            {tr('Buat kuis')}
           </Button>
         </>
       }
@@ -233,13 +234,13 @@ function GenerateDialog({
       <div className={styles.genForm}>
         <div className={styles.genTwo}>
           <Select
-            label="Jumlah soal"
+            label={tr('Jumlah soal')}
             value={count}
             onChange={(e) => setCount(e.target.value)}
-            options={[5, 10, 15, 20, 30].map((n) => ({ value: n, label: `${n} soal` }))}
+            options={[5, 10, 15, 20, 30].map((n) => ({ value: n, label: tr('{a} soal', { a: n }) }))}
           />
           <Select
-            label="Tingkat kesulitan"
+            label={tr('Tingkat kesulitan')}
             value={difficulty}
             onChange={(e) => setDifficulty(e.target.value)}
             options={[
@@ -251,7 +252,7 @@ function GenerateDialog({
           />
         </div>
         <fieldset className={styles.genTypes}>
-          <legend>Jenis soal</legend>
+          <legend>{tr('Jenis soal')}</legend>
           {TYPES.map((t) => (
             <label key={t.value} className={styles.genCheck}>
               <input
@@ -259,15 +260,15 @@ function GenerateDialog({
                 checked={types.includes(t.value)}
                 onChange={(e) => setTypes((prev) => (e.target.checked ? [...prev, t.value] : prev.filter((x) => x !== t.value)))}
               />
-              {t.label}
+              {tr(t.label)}
             </label>
           ))}
         </fieldset>
         <Select
-          label="Kualitas"
+          label={tr('Kualitas')}
           value={quality}
           onChange={(e) => setQuality(e.target.value)}
-          hint="Mode teliti membuat AI berpikir lebih lama: lebih lambat, soalnya biasanya lebih tajam."
+          hint={tr('Mode teliti membuat AI berpikir lebih lama: lebih lambat, soalnya biasanya lebih tajam.')}
           options={[
             { value: 'normal', label: 'Cepat' },
             { value: 'high', label: 'Teliti (lebih lama)' },
@@ -276,14 +277,14 @@ function GenerateDialog({
         {progress && (
           <div role="status" className={styles.genProgress}>
             <span>{progress.message}</span>
-            <ProgressBar value={progress.pct} label="Kemajuan pembuatan kuis" showValue />
+            <ProgressBar value={progress.pct} label={tr('Kemajuan pembuatan kuis')} showValue />
           </div>
         )}
         {failure && (
           <div className={failure.unavailable ? styles.alertInfo : styles.alertError} role="alert">
             <Icon name={failure.unavailable ? 'info' : 'alert-circle'} size={18} />
             <div>
-              <strong>{failure.unavailable ? 'Pembuatan kuis belum tersedia' : 'Gagal membuat kuis'}</strong>
+              <strong>{failure.unavailable ? tr('Pembuatan kuis belum tersedia') : tr('Gagal membuat kuis')}</strong>
               <p>{failure.text}</p>
             </div>
           </div>

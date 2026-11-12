@@ -6,3 +6,4 @@ export * from './browserStubs';
 export * from './mount';
 export * from './client';
 export * from './simulator';
+export * from './select';

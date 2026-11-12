@@ -3,7 +3,7 @@ import { useState } from 'react';
 export function useReadingPreferences() {
   const [fontSize, setFontSizeState] = useState<number>(() => {
     if (typeof window !== 'undefined') {
-      const stored = Number(window.localStorage.getItem('belajar-fs'));
+      const stored = Number(window.localStorage.getItem('stuby-fs'));
       if (stored && stored >= 15 && stored <= 23) return stored;
     }
     return 17;
@@ -11,7 +11,7 @@ export function useReadingPreferences() {
 
   const [fontFamily, setFontFamilyState] = useState<'soft' | 'serif'>(() => {
     if (typeof window !== 'undefined') {
-      const stored = window.localStorage.getItem('belajar-read');
+      const stored = window.localStorage.getItem('stuby-read');
       if (stored === 'serif') return 'serif';
     }
     return 'soft';
@@ -21,7 +21,7 @@ export function useReadingPreferences() {
     const clamped = Math.max(15, Math.min(23, size));
     setFontSizeState(clamped);
     try {
-      window.localStorage.setItem('belajar-fs', String(clamped));
+      window.localStorage.setItem('stuby-fs', String(clamped));
     } catch {
       /* ignore */
     }
@@ -33,7 +33,7 @@ export function useReadingPreferences() {
   const setFontFamily = (family: 'soft' | 'serif') => {
     setFontFamilyState(family);
     try {
-      window.localStorage.setItem('belajar-read', family);
+      window.localStorage.setItem('stuby-read', family);
     } catch {
       /* ignore */
     }
