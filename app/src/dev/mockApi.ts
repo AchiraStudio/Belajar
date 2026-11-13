@@ -4,7 +4,7 @@
  * no server, no build. It is loaded from `main.tsx` behind `import.meta.env.MODE === 'mock'`, so
  * production bundles never contain it.
  *
- * Data is read-only fiction: saving a setting "succeeds" but nothing is stored, and pages whose
+ * Data is fiction: saving a setting "succeeds" but nothing is stored (the profile is kept in memory), and pages whose
  * fixtures are not listed here show their normal empty or error state.
  */
 import {
@@ -40,6 +40,21 @@ const RPC: Record<string, unknown> = {
   ping: defaultPingFixture,
 };
 
+/** The profile starts as the server creates it on first visit (placeholder name), so the "finish your profile"
+ *  flow can be tried; edits live in memory until the page is reloaded. */
+const mockProfile: Record<string, unknown> = {
+  id: 1,
+  user_id: 'mock-user',
+  full_name: 'Mahasiswa Belajar',
+  major: 'Informatika',
+  batch_year: 2024,
+  bio: '',
+  academic_interests: [],
+  skills: [],
+  contact_info: {},
+  is_looking_for_team: 1,
+};
+
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'content-type': 'application/json' } });
 
@@ -56,6 +71,13 @@ export function installMockApi(): void {
     if (pathname === '/api/session') return json({ authenticated: true });
     if (pathname === '/api/login' || pathname === '/api/logout') return json({ ok: true });
     if (pathname === '/api/v1/health' || pathname === '/api/health') return json(defaultHealthFixture);
+
+    if (pathname === '/api/v1/profiles/me') {
+      if ((init?.method ?? 'GET').toUpperCase() === 'PUT') {
+        Object.assign(mockProfile, JSON.parse(String(init?.body ?? '{}')));
+      }
+      return json({ profile: mockProfile });
+    }
 
     const rpc = /^\/api\/rpc\/([\w-]+)/.exec(pathname);
     if (rpc) {

@@ -7,11 +7,15 @@
 }
 
 /* Cream tile: keeps the logo's black outline readable on dark pages. */
+/* The grid track is pinned to the tile's own size (minmax(0, 1fr)). With an auto track the image's
+   `height: 100%` has nothing definite to resolve against and collapses: a 36px tile showed a 12px logo. */
 .tile {
   display: inline-grid;
+  grid-template-columns: minmax(0, 1fr);
+  grid-template-rows: minmax(0, 1fr);
   place-items: center;
   flex: none;
-  padding: 12%;
+  padding: 7%;
   border-radius: 28%;
   background: #F6F4EC;
   box-shadow: inset 0 0 0 1.5px rgba(20, 24, 22, 0.12);

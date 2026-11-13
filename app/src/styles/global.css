@@ -39,7 +39,20 @@ body {
   font: 450 var(--text-base)/var(--leading-normal) var(--font-sans);
   font-optical-sizing: auto;
   -webkit-font-smoothing: antialiased;
-  min-height: 100vh;
+  /* Not 100vh: the app shell is 100dvh and scrolls inside itself. In a WebView whose visible height is
+     shorter than 100vh, a taller body made the whole document scroll behind the shell (a second scrollbar). */
+  min-height: 0;
+  overscroll-behavior: none;
+}
+
+/* No scrollbars, anywhere, for now: everything still scrolls with the wheel, touch and keyboard. */
+* {
+  scrollbar-width: none;
+}
+*::-webkit-scrollbar {
+  display: none;
+  width: 0;
+  height: 0;
 }
 
 /* The one atmospheric backdrop every glass surface sits on. Fixed, so it never scrolls or repaints. */

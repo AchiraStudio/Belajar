@@ -359,6 +359,7 @@ import { PAGES_2 } from './messages.pages2';
 import { PAGES_3 } from './messages.pages3';
 import { PAGES_4 } from './messages.pages4';
 import { PAGES_5 } from './messages.pages5';
+import { PROFILE_MESSAGES } from './messages.profile';
 
 /** Everything the app translates: the shell and core screens above, then the page screens. */
-export const MESSAGES: readonly MessageRow[] = [...BASE_MESSAGES, ...PAGES_1, ...PAGES_2, ...PAGES_3, ...PAGES_4, ...PAGES_5];
+export const MESSAGES: readonly MessageRow[] = [...BASE_MESSAGES, ...PAGES_1, ...PAGES_2, ...PAGES_3, ...PAGES_4, ...PAGES_5, ...PROFILE_MESSAGES];

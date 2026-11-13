@@ -42,6 +42,95 @@ pub struct UpdateProfileRequest {
     pub is_looking_for_team: Option<i32>,
 }
 
+/// Largest accepted `contact_info`, serialised. The profile photo (a small data URL) is the bulk of it.
+const MAX_CONTACT_INFO_BYTES: usize = 160_000;
+/// Largest accepted profile photo, as the data URL text. The app downsizes to ~256 px before sending.
+const MAX_AVATAR_CHARS: usize = 120_000;
+const MAX_LINKS: usize = 6;
+const BANNER_TONES: [&str; 5] = ["bamboo", "sun", "ink", "cream", "leaf"];
+const AVATAR_PREFIXES: [&str; 3] = ["data:image/webp;base64,", "data:image/jpeg;base64,", "data:image/png;base64,"];
+
+/// `peer_profiles.contact_info` is free-form JSON that the profile page uses for the parts of a
+/// profile the table has no column for: `handle`, `headline`, `location`, `banner`, `avatar` and
+/// `links`. Whatever the client sends is rendered back to the owner (and a link becomes an `href`), so
+/// it is checked here rather than trusted: only `http(s)` links, only image data URLs for the photo,
+/// bounded lengths everywhere. Unknown keys are allowed (older clients) but count toward the size cap.
+fn validate_contact_info(value: &Value) -> Result<(), &'static str> {
+    let obj = value.as_object().ok_or("Info profil harus berupa objek.")?;
+    if value.to_string().len() > MAX_CONTACT_INFO_BYTES {
+        return Err("Info profil terlalu besar.");
+    }
+
+    let text = |key: &str| -> Result<Option<&str>, &'static str> {
+        match obj.get(key) {
+            None | Some(Value::Null) => Ok(None),
+            Some(Value::String(s)) => Ok(Some(s.as_str())),
+            Some(_) => Err("Info profil berisi nilai yang tidak valid."),
+        }
+    };
+
+    if let Some(h) = text("handle")? {
+        let n = h.chars().count();
+        let ok_chars = h.chars().all(|c| c.is_ascii_lowercase() || c.is_ascii_digit() || c == '_' || c == '.');
+        // an empty handle means "none"
+        if !h.is_empty() && (!(3..=24).contains(&n) || !ok_chars) {
+            return Err("Nama pengguna harus 3 sampai 24 karakter: huruf kecil, angka, titik, atau garis bawah.");
+        }
+    }
+    if text("headline")?.is_some_and(|s| s.chars().count() > 80) {
+        return Err("Tagline maksimal 80 karakter.");
+    }
+    if text("location")?.is_some_and(|s| s.chars().count() > 60) {
+        return Err("Lokasi maksimal 60 karakter.");
+    }
+    if let Some(b) = text("banner")? {
+        if !BANNER_TONES.contains(&b) {
+            return Err("Warna sampul tidak dikenal.");
+        }
+    }
+    if let Some(a) = text("avatar")? {
+        if !a.is_empty() {
+            let payload = AVATAR_PREFIXES
+                .iter()
+                .find_map(|p| a.strip_prefix(p))
+                .ok_or("Foto profil harus berupa gambar WebP, JPEG, atau PNG.")?;
+            let b64 = payload.bytes().all(|c| c.is_ascii_alphanumeric() || c == b'+' || c == b'/' || c == b'=');
+            if a.len() > MAX_AVATAR_CHARS || payload.is_empty() || !b64 {
+                return Err("Foto profil tidak valid atau terlalu besar.");
+            }
+        }
+    }
+    match obj.get("links") {
+        None | Some(Value::Null) => {}
+        Some(Value::Array(links)) => {
+            if links.len() > MAX_LINKS {
+                return Err("Maksimal 6 tautan.");
+            }
+            for l in links {
+                let label = l.get("label").and_then(Value::as_str).unwrap_or_default();
+                let url = l.get("url").and_then(Value::as_str).unwrap_or_default();
+                if label.trim().is_empty() || label.chars().count() > 40 {
+                    return Err("Nama tautan wajib diisi, maksimal 40 karakter.");
+                }
+                let scheme_ok = url.starts_with("https://") || url.starts_with("http://");
+                if !scheme_ok || url.chars().count() > 300 || url.chars().any(|c| c.is_whitespace() || c.is_control()) {
+                    return Err("Tautan harus diawali http:// atau https:// dan tidak boleh berisi spasi.");
+                }
+            }
+        }
+        Some(_) => return Err("Info profil berisi nilai yang tidak valid."),
+    }
+    Ok(())
+}
+
+/// The peer directory lists many profiles at once, so the photo is left out of those answers.
+fn without_avatar(mut dto: PeerProfileDto) -> PeerProfileDto {
+    if let Some(obj) = dto.contact_info.as_object_mut() {
+        obj.remove("avatar");
+    }
+    dto
+}
+
 #[derive(Debug, Clone, Serialize, Deserialize)]
 pub struct PeerProfileDto {
     pub id: i64,
@@ -218,6 +307,11 @@ pub async fn update_my_profile(
         ));
     }
 
+    if let Some(info) = body.contact_info.as_ref() {
+        validate_contact_info(info)
+            .map_err(|m| ApiError::new(StatusCode::BAD_REQUEST, "invalid_contact_info", m))?;
+    }
+
     // 2. Fetch existing row to merge fields
     let existing = state
         .app
@@ -384,7 +478,7 @@ pub async fn list_profiles(
         .await
         .map_err(|e| ApiError::new(StatusCode::INTERNAL_SERVER_ERROR, "internal_error", e.to_string()))?;
 
-    let profiles: Vec<PeerProfileDto> = rows.into_iter().map(|r| map_profile_dto(&r, "")).collect();
+    let profiles: Vec<PeerProfileDto> = rows.into_iter().map(|r| without_avatar(map_profile_dto(&r, ""))).collect();
     Ok(Json(ProfilesListResponse { profiles }))
 }
 
@@ -415,6 +509,86 @@ pub async fn get_profile_by_id(
             )
         })?;
 
-    let profile = map_profile_dto(&row, "");
+    let profile = without_avatar(map_profile_dto(&row, ""));
     Ok(Json(ProfileResponse { profile }))
+}
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    fn ok(v: Value) {
+        assert_eq!(validate_contact_info(&v), Ok(()), "{v}");
+    }
+    fn bad(v: Value) {
+        assert!(validate_contact_info(&v).is_err(), "should be rejected: {v}");
+    }
+
+    #[test]
+    fn accepts_a_normal_profile() {
+        ok(json!({}));
+        ok(json!({
+            "handle": "pelajar_01", "headline": "Belajar fisika", "location": "Bandung", "banner": "sun",
+            "avatar": "data:image/webp;base64,UklGRiQAAABXRUJQVlA4IBgAAAAwAQCdASoBAAEAAUAmJaQAA3AA/vuUAAA=",
+            "links": [{"label": "GitHub", "url": "https://github.com/x"}],
+        }));
+        ok(json!({ "handle": "" }));
+        ok(json!({ "avatar": null, "links": null }));
+    }
+
+    #[test]
+    fn rejects_dangerous_or_malformed_links() {
+        for url in ["javascript:alert(1)", "data:text/html,<script>", "//evil.test", "ftp://x.test", "https://a b.test", "https://x.test/\u{0}"] {
+            bad(json!({ "links": [{ "label": "x", "url": url }] }));
+        }
+        bad(json!({ "links": [{ "label": "", "url": "https://x.test" }] }));
+        bad(json!({ "links": [{ "label": "x" }] }));
+        bad(json!({ "links": "https://x.test" }));
+        let too_many: Vec<Value> = (0..7).map(|i| json!({ "label": format!("l{i}"), "url": "https://x.test" })).collect();
+        bad(json!({ "links": too_many }));
+    }
+
+    #[test]
+    fn rejects_non_image_or_oversized_avatars() {
+        bad(json!({ "avatar": "https://x.test/a.png" }));
+        bad(json!({ "avatar": "data:text/html;base64,PHNjcmlwdD4=" }));
+        bad(json!({ "avatar": "data:image/svg+xml;base64,PHN2Zz4=" }));
+        bad(json!({ "avatar": "data:image/png;base64,not base64!" }));
+        bad(json!({ "avatar": "data:image/png;base64," }));
+        bad(json!({ "avatar": format!("data:image/png;base64,{}", "A".repeat(MAX_AVATAR_CHARS)) }));
+    }
+
+    #[test]
+    fn rejects_bad_scalars() {
+        bad(json!([]));
+        bad(json!({ "handle": "Ab" }));
+        bad(json!({ "handle": "has space" }));
+        bad(json!({ "handle": "UPPER_CASE" }));
+        bad(json!({ "handle": "a".repeat(25) }));
+        bad(json!({ "headline": "x".repeat(81) }));
+        bad(json!({ "location": "x".repeat(61) }));
+        bad(json!({ "banner": "neon" }));
+        bad(json!({ "handle": 5 }));
+    }
+
+    #[test]
+    fn the_directory_never_carries_the_photo() {
+        let dto = PeerProfileDto {
+            id: 1,
+            user_id: "u".into(),
+            full_name: "A".into(),
+            major: "B".into(),
+            batch_year: None,
+            bio: None,
+            academic_interests: vec![],
+            skills: vec![],
+            contact_info: json!({ "avatar": "data:image/png;base64,AAAA", "handle": "abc" }),
+            is_looking_for_team: 1,
+            created_at: None,
+            updated_at: None,
+        };
+        let out = without_avatar(dto);
+        assert!(out.contact_info.get("avatar").is_none());
+        assert_eq!(out.contact_info["handle"], "abc");
+    }
 }

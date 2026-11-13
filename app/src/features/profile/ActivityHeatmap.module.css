@@ -1,0 +1,37 @@
+.card { display: flex; flex-direction: column; gap: 14px; }
+.title { margin: 0; display: flex; align-items: center; gap: 8px; font-size: var(--text-lg); font-weight: 650; letter-spacing: -0.015em; }
+.empty { margin: 0; color: var(--text-muted); font-size: var(--text-sm); }
+
+/* One column per week, seven rows (Monday first). Cells have a size ceiling so they never balloon. */
+.grid {
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 20), minmax(0, 34px));
+  grid-template-rows: repeat(7, auto);
+  grid-auto-flow: column;
+  gap: 4px;
+  justify-content: start;
+}
+.cell, .blank { display: block; aspect-ratio: 1; border-radius: 5px; }
+.blank { visibility: hidden; }
+.cell { background: var(--canvas-tint); box-shadow: inset 0 0 0 1px var(--border-subtle); }
+.cell[data-l='1'] { background: color-mix(in srgb, var(--bamboo) 30%, var(--card)); box-shadow: none; }
+.cell[data-l='2'] { background: color-mix(in srgb, var(--bamboo) 58%, var(--card)); box-shadow: none; }
+.cell[data-l='3'] { background: var(--bamboo); box-shadow: none; }
+.cell[data-l='4'] { background: #2f7a1f; box-shadow: none; }
+:global(:root[data-theme='dark']) .cell[data-l='4'] { background: #c7f08a; }
+
+.foot { display: flex; align-items: center; justify-content: space-between; gap: 12px; flex-wrap: wrap; }
+.summary { margin: 0; font-size: var(--text-sm); color: var(--text-secondary); font-weight: 600; }
+.legend { display: flex; align-items: center; gap: 4px; font-size: var(--text-xs); color: var(--text-muted); }
+.legend .cell { width: 14px; height: 14px; aspect-ratio: auto; }
+.legend span:first-child { margin-right: 4px; }
+.legend span:last-child { margin-left: 4px; }
+
+.milestones { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 12px 0 0; list-style: none; border-top: 1px solid var(--border-subtle); }
+.milestones li { display: inline-flex; align-items: center; gap: 6px; min-height: 30px; padding: 0 12px; border-radius: var(--radius-sm); background: var(--canvas-tint); color: var(--text-muted); font-size: var(--text-sm); font-weight: 650; }
+.milestones li[data-on] { background: var(--bamboo); color: #141816; }
+
+@media (max-width: 768px) {
+  .grid { gap: 3px; grid-template-columns: repeat(var(--cols, 20), minmax(0, 1fr)); }
+  .cell, .blank { border-radius: 4px; }
+}

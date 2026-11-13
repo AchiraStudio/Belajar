@@ -8,6 +8,8 @@ Format penulisan mengikuti pedoman [Keep a Changelog](https://keepachangelog.com
 ## [Belum dirilis]
 
 ### Berubah
+- **Profil bergaya media sosial** (desktop dan seluler): sampul berwarna, foto profil (diunggah, dipotong persegi, dikecilkan otomatis), nama pengguna, tagline, bio, lokasi, tautan ke situs lain, statistik belajar nyata (streak, kuis, materi, akurasi), kartu "Lengkapi profilmu", dan tab Aktivitas / Tentang / Jenjang / Privasi. Data tambahan disimpan di `contact_info` profil dan divalidasi server (hanya tautan http/https, avatar hanya gambar, batas panjang).
+- **Perbaikan**: logo di ubin aplikasi tampil kecil (12 px di ubin 36 px); halaman bisa punya dua bilah gulir (body `min-height: 100vh` vs shell `100dvh`); bilah gulir kini disembunyikan di seluruh aplikasi (gulir tetap berfungsi).
 - **Proyek diganti nama menjadi Stuby.** Crate `belajar-*` menjadi `stuby-*`, aplikasi `Stuby` (identifier `app.stuby.client`), berkas pengaturan `stuby.env`, variabel `STUBY_*`, layanan systemd `stuby`. Peran database `belajar_app` dan berkas migrasi SQL sengaja tidak diubah (sudah diterapkan di database). Folder pengaturan desktop berpindah dari `app.belajar.client` ke `app.stuby.client`, jadi salin `belajar.env` lama sebagai `stuby.env`.
 - **Tampilan**: kartu, bilah samping, dan ubin statistik kini solid; kaca hanya dipakai di lapisan mengambang (bilah atas, navigasi seluler, dialog).
 - **Beranda**: ubin statistik pastel dan slot banner/iklan (carousel utama, kartu samping, strip, bilah samping) yang diatur di `app/src/features/banners/banners.ts`.
